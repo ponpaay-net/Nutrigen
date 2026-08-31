@@ -1,0 +1,61 @@
+@props(['jadwals'])
+
+<div class="flex flex-col h-full relative">
+    <div class="pb-4 flex items-center justify-between shrink-0">
+        <h3 class="font-extrabold text-slate-800 flex items-center gap-2 text-[15px]">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-slate-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+            </svg>
+            Agenda Terdekat
+        </h3>
+        <span class="bg-blue-50 text-blue-600 text-[11px] font-bold px-2.5 py-1 rounded-full">{{ count($jadwals) }} Jadwal</span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto hide-scrollbar pb-2">
+        <div class="flex flex-col gap-3">
+            @forelse($jadwals as $jadwal)
+                <div class="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 transition-all hover:shadow-md hover:border-slate-200 flex flex-col gap-3">
+                    <div>
+                        <h4 class="text-[14px] font-bold text-slate-900">{{ $jadwal['judul'] }}</h4>
+                        <div class="flex flex-wrap items-center gap-2 mt-2">
+                            <div class="flex items-center gap-1.5 text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1.5 rounded-lg border border-blue-100/50">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ \Carbon\Carbon::parse($jadwal['tanggal'])->translatedFormat('d M Y') }}
+                            </div>
+                            <div class="flex items-center gap-1.5 text-xs text-slate-500 font-bold bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ substr($jadwal['waktu_mulai'], 0, 5) }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if(!empty($jadwal['lokasi']))
+                    <div class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400 shrink-0">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                        </svg>
+                        <span class="truncate">{{ $jadwal['lokasi'] }}</span>
+                    </div>
+                    @endif
+                </div>
+            @empty
+                <div class="flex flex-col items-center justify-center p-8 bg-slate-50 rounded-[24px] border border-slate-100 h-full min-h-[220px] text-center gap-4">
+                    <div class="w-16 h-16 bg-slate-200/50 flex items-center justify-center rounded-[18px] text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="block text-[14px] font-bold text-slate-900">Belum ada agenda terjadwal</span>
+                        <span class="block text-[12px] font-medium text-slate-500 mt-1.5 max-w-[200px] mx-auto leading-relaxed">Jadwal kegiatan posyandu akan muncul di sini.</span>
+                    </div>
+                </div>
+            @endforelse
+        </div>
+    </div>
+</div>

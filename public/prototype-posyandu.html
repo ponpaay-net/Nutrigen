@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>High Fidelity Design - Posyandu</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Nunito Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        brand: '#10B981', // NutriGen Green
+                        surface: '#F9FAFB',
+                        mint: { 50: '#ECFDF5', 100: '#D1FAE5', 200: '#A7F3D0', 500: '#10B981', 600: '#059669', 800: '#065F46' },
+                        peach: { 50: '#FFFBEB', 100: '#FEF3C7', 500: '#F59E0B', 600: '#D97706', 800: '#92400E' },
+                        blue: { 50: '#EFF6FF', 100: '#DBEAFE', 500: '#3B82F6', 700: '#1D4ED8' }
+                    },
+                    boxShadow: {
+                        'soft': '0 8px 20px -4px rgba(0, 0, 0, 0.04)',
+                        'nav': '0 -4px 20px -4px rgba(0, 0, 0, 0.05)',
+                        'card': '0 12px 24px -4px rgba(0, 0, 0, 0.1)',
+                        'card-green': '0 12px 24px -4px rgba(16, 185, 129, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            -webkit-tap-highlight-color: transparent; 
+            overscroll-behavior-y: none; 
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-200 text-gray-800 font-sans antialiased flex justify-center min-h-screen" x-data="{ state: 'normal' }">
+    
+    <!-- DESIGN SYSTEM DEBUGGER -->
+    <div class="fixed top-6 right-6 z-[60] bg-white p-5 rounded-3xl shadow-xl border border-gray-100 hidden lg:block w-72">
+        <h3 class="text-xs font-black text-gray-400 mb-4 uppercase tracking-widest">HIFI States: Posyandu</h3>
+        <div class="space-y-1.5">
+            <template x-for="s in ['normal', 'critical', 'pending', 'empty', 'loading', 'error']">
+                <label class="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-50 cursor-pointer transition border border-transparent hover:border-gray-100">
+                    <input type="radio" x-model="state" :value="s" class="text-brand focus:ring-brand h-4 w-4">
+                    <span class="text-sm font-bold text-gray-700 capitalize" x-text="s"></span>
+                </label>
+            </template>
+        </div>
+        <p class="text-[11px] font-semibold text-gray-400 mt-5 leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-100">
+            * Pilih state "critical" untuk melihat bagaimana pengumuman merampas area Hero (Shifting Hero Strategy).
+        </p>
+    </div>
+
+    <!-- MOBILE VIEWPORT CONTAINER -->
+    <main class="w-full max-w-md bg-surface min-h-screen relative shadow-2xl flex flex-col overflow-x-hidden">
+        
+        <!-- 1. HEADER (Root Page: No Back Button) -->
+        <header class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-gray-100/50">
+            <h1 class="text-[20px] font-extrabold text-gray-800 tracking-tight">Posyandu</h1>
+            <div class="w-[36px] h-[36px] rounded-full bg-mint-100 text-mint-600 flex items-center justify-center text-[15px] font-black shadow-sm">
+                A
+            </div>
+        </header>
+
+        <!-- SCROLLABLE BODY -->
+        <div class="flex-1 overflow-y-auto hide-scrollbar relative pb-32">
+
+            <!-- ERROR STATE -->
+            <div x-show="state === 'error'" class="mx-6 mt-24 flex flex-col items-center justify-center text-center bg-red-50 p-8 rounded-[32px] border border-red-100">
+                <div class="text-[64px] mb-4 filter drop-shadow-sm">🌧️</div>
+                <h2 class="text-xl font-black text-red-800 mb-2">Sinyal Terputus</h2>
+                <p class="text-[13px] text-red-600 mb-8 font-bold leading-relaxed max-w-[200px]">Gagal menjangkau jaringan ke Posyandu. Pastikan internet menyala ya Ibu.</p>
+                <button class="bg-red-200 text-red-800 font-extrabold py-3.5 px-8 rounded-[20px] w-full hover:bg-red-300 transition duration-200 text-sm shadow-sm">
+                    Coba Muat Ulang
+                </button>
+            </div>
+
+            <!-- EMPTY STATE (Belum Terdaftar) -->
+            <div x-show="state === 'empty'" class="mx-6 mt-24 flex flex-col items-center justify-center text-center">
+                <div class="text-[90px] mb-6 filter drop-shadow-sm">🏘️</div>
+                <h2 class="text-[22px] font-black text-gray-800 mb-3 leading-tight">Si Kecil Belum<br>Terdaftar di Posyandu</h2>
+                <p class="text-[13px] font-bold text-gray-500 mb-8 max-w-[260px] leading-relaxed">Hubungi ibu Kader atau RT/RW setempat untuk mendaftarkan si Kecil ke Posyandu terdekat.</p>
+                <button class="w-full bg-brand text-white font-black text-[14px] py-4 rounded-[20px] shadow-card-green">
+                    Panduan Mendaftar
+                </button>
+            </div>
+
+            <!-- LOADING STATE -->
+            <div x-show="state === 'loading'" class="mx-6 mt-6 space-y-5 animate-pulse">
+                <!-- Hero skeleton -->
+                <div class="w-full h-44 bg-gray-200 rounded-[32px]"></div>
+                <!-- Location skeleton -->
+                <div class="w-full h-20 bg-gray-200 rounded-[24px]"></div>
+                <!-- Kader skeleton -->
+                <div class="w-full h-36 bg-gray-200 rounded-[28px]"></div>
+            </div>
+
+            <!-- CONTENT FOR NORMAL, CRITICAL & PENDING -->
+            <div x-show="['normal', 'critical', 'pending'].includes(state)">
+                
+                <!-- 2A. CRITICAL ANNOUNCEMENT (Shifting Hero) -->
+                <div x-show="state === 'critical'" 
+                     class="mx-6 mt-6 bg-red-50 rounded-[28px] p-5 border-2 border-red-200 flex items-start space-x-4 shadow-soft transform transition-all">
+                    <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-red-500 mt-1">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-[16px] font-black text-red-800 leading-tight mb-1.5">Penimbangan Diundur</h3>
+                        <p class="text-[13px] font-bold text-red-600 leading-relaxed">Jadwal minggu ini dipindah ke hari Minggu karena aula balai RW sedang direnovasi. Mohon maaf ya Ibu.</p>
+                    </div>
+                </div>
+
+                <!-- 2B. HERO: NEXT SCHEDULE CARD (Normal / Pending) -->
+                <!-- If Pending, make it gray -->
+                <div class="mx-6 bg-brand rounded-[32px] p-6 text-white shadow-card-green relative overflow-hidden transition-all duration-300"
+                     :class="{ 
+                        'mt-6': state === 'normal' || state === 'pending', 
+                        'mt-4 bg-mint-800 shadow-none opacity-90': state === 'critical',
+                        'bg-gray-400 shadow-none': state === 'pending'
+                     }">
+                    
+                    <!-- Decorative background element -->
+                    <div class="absolute -right-8 -top-8 w-40 h-40 bg-white opacity-[0.08] rounded-full blur-2xl"></div>
+                    <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-mint-900 opacity-[0.1] rounded-full blur-xl"></div>
+                    
+                    <span class="inline-block bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-[12px] text-[10px] font-black tracking-widest uppercase mb-4 shadow-sm border border-white/10"
+                          x-text="state === 'pending' ? 'Menunggu Jadwal Baru' : 'Posyandu Berikutnya'">
+                    </span>
+                    
+                    <div x-show="state !== 'pending'" class="flex flex-col mb-5">
+                        <span class="text-[18px] font-extrabold text-mint-100 leading-none mb-1.5">Rabu,</span>
+                        <h2 class="text-[38px] font-black leading-none tracking-tight">12 Agustus</h2>
+                    </div>
+
+                    <div x-show="state === 'pending'" class="flex flex-col mb-5">
+                        <h2 class="text-[24px] font-black leading-tight tracking-tight mt-2 mb-2">Jadwal Belum<br>Dirilis Kader</h2>
+                    </div>
+                    
+                    <div class="flex items-center space-x-5 relative z-10" x-show="state !== 'pending'">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-mint-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="text-[13px] font-extrabold text-white">08:00 - 11:00</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-mint-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span class="text-[13px] font-extrabold text-white truncate max-w-[120px]">Balai RW 05</span>
+                        </div>
+                    </div>
+
+                    <!-- Countdown Badge -->
+                    <div x-show="state !== 'pending'" class="absolute bottom-6 right-6 bg-white text-brand px-3.5 py-2.5 rounded-[14px] shadow-lg font-black text-[11px] flex items-center transform rotate-[-2deg]">
+                        ⏳ 3 Hari Lagi
+                    </div>
+                </div>
+
+                <!-- 3. LOKASI POSYANDU -->
+                <div class="mx-6 mt-6 bg-white border border-gray-100 rounded-[28px] p-5 shadow-soft flex items-center justify-between">
+                    <div class="flex items-center space-x-3 w-[70%]">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center flex-shrink-0 shadow-inner">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-[14.5px] font-black text-gray-800 leading-tight mb-0.5">Posyandu Melati</h4>
+                            <p class="text-[11.5px] font-bold text-gray-400 truncate w-full">Balai Warga RW 05, Jl. Bunga</p>
+                        </div>
+                    </div>
+                    <!-- Secondary CTA -->
+                    <button class="text-brand font-black text-[12px] flex items-center bg-mint-50 px-3 py-2.5 rounded-xl hover:bg-mint-100 transition-colors active:scale-95">
+                        Peta <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </button>
+                </div>
+
+                <!-- 4. HUBUNGI KADER (Primary CTA Area) -->
+                <div class="mx-6 mt-4 bg-white border border-gray-100 rounded-[32px] p-5 shadow-soft">
+                    <div class="flex items-center space-x-4 mb-5 px-1">
+                        <!-- Kader Avatar -->
+                        <div class="w-14 h-14 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden shadow-inner">
+                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover" alt="Kader Profile">
+                        </div>
+                        <div>
+                            <h3 class="text-[16px] font-black text-gray-800 leading-tight mb-1">Ibu Siti Aminah</h3>
+                            <p class="text-[12px] font-extrabold text-gray-400">Kader Pendamping Wilayah</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Primary CTA -->
+                    <button class="w-full bg-brand text-white font-black text-[15px] py-4 rounded-[20px] shadow-card-green flex items-center justify-center space-x-2 active:scale-95 transition-transform hover:bg-mint-600">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        <span>Hubungi Kader</span>
+                    </button>
+                </div>
+
+                <!-- 5. PREPARATION CHECKLIST (Informational) -->
+                <div class="mx-6 mt-8 mb-6" x-show="state !== 'pending'">
+                    <h3 class="text-[15px] font-black text-gray-800 mb-3 px-1">Persiapan Ibu:</h3>
+                    <div class="bg-peach-50/70 rounded-[28px] p-5 border border-peach-100/60 space-y-4 shadow-sm">
+                        <div class="flex items-start space-x-3">
+                            <!-- Purely informational check icon, not a form checkbox -->
+                            <div class="w-[22px] h-[22px] rounded-full bg-brand text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-[13.5px] font-bold text-gray-700 leading-relaxed pt-0.5">Bawa Buku KIA (Buku Pink) si Kecil.</span>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="w-[22px] h-[22px] rounded-full bg-brand text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-[13.5px] font-bold text-gray-700 leading-relaxed pt-0.5">Kenakan pakaian yang mudah dilepas saat menimbang anak.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. INFORMASI PENDUKUNG -->
+                <div class="mx-8 mt-6 text-center">
+                    <p class="text-[11px] font-bold text-gray-400 leading-relaxed">
+                        Data tinggi dan berat badan anak akan otomatis diperbarui di halaman Growth setelah dicatat oleh kader Posyandu.
+                    </p>
+                </div>
+
+            </div> <!-- End State Wrapper -->
+        </div> <!-- End Scrollable Body -->
+
+        <!-- 7. BOTTOM NAVIGATION (Sticky Bottom) -->
+        <nav class="absolute bottom-0 w-full bg-white border-t border-gray-100 px-6 py-4 flex justify-between items-center shadow-nav rounded-t-[32px] z-30">
+            <!-- Beranda Tab -->
+            <button class="flex flex-col items-center focus:outline-none group opacity-40 hover:opacity-100 transition-opacity">
+                <div class="w-12 h-12 flex items-center justify-center text-gray-500 group-hover:text-gray-800 group-active:scale-95 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-500 mt-1.5 group-hover:text-gray-800">Beranda</span>
+            </button>
+            
+            <!-- Gizi & Menu Tab -->
+            <button class="flex flex-col items-center focus:outline-none group opacity-40 hover:opacity-100 transition-opacity">
+                <div class="w-12 h-12 flex items-center justify-center text-gray-500 group-hover:text-gray-800 group-active:scale-95 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-500 mt-1.5 group-hover:text-gray-800">Gizi & Menu</span>
+            </button>
+            
+            <!-- Posyandu Tab (Active) -->
+            <button class="flex flex-col items-center focus:outline-none group">
+                <div class="w-12 h-12 bg-mint-50 rounded-2xl flex items-center justify-center text-brand transition-transform group-active:scale-95">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <span class="text-[10px] font-black text-brand mt-1.5">Posyandu</span>
+            </button>
+        </nav>
+    </main>
+</body>
+</html>

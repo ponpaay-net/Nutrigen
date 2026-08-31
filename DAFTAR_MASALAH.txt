@@ -1,0 +1,399 @@
+===============================================================================
+DAFTAR MASALAH - NUTRIGEN (Hasil Verifikasi Kode vs audit_backend_combined_V1.md)
+Tanggal verifikasi: 27 Agustus 2026
+Status: Semua temuan sudah dicek langsung ke source code (bukan copy-paste audit)
+===============================================================================
+
+CARA PAKAI:
+- Setiap masalah = 1 nomor = bisa dikerjakan 1 orang secara terpisah.
+- Urutan pengerjaan yang disarankan: KRITIS-01 s/d KRITIS-04 dulu,
+  lalu TINGGI-01 dst.
+- Path file relatif dari root project (C:\Users\bintang\Documents\Hackathon\nutrigen).
+
+===============================================================================
+BAGIAN A - MASALAH KRITIS
+===============================================================================
+
+[KRITIS-01] Dead code memanggil model "Validasi" yang tidak ada
+----------------------------------------------------------------
+Status    : SELESAI 27 Ags 2026 - tiga service lama yang mereferensikan
+            model Validasi sudah dihapus
+Lokasi sebelumnya :
+  - app/Services/KaderService.php (sudah dihapus)
+  - app/Services/PuskesmasService.php (sudah dihapus)
+  - app/Services/Puskesmas/PuskesmasService.php (sudah dihapus)
+Masalah   : Ketiga file ini meng-import App\Models\Validasi, padahal model
+            Validasi dan tabel validasis TIDAK ADA di database/migrations.
+Dampak    : Jika service ini dipakai, penyimpanan pengukuran akan FATAL ERROR
+            setelah Pengukuran::create() (di dalam DB::transaction -> rollback).
+Catatan   : Jalur UTAMA simpan pengukuran sekarang lewat
+            app/Http/Controllers/Kader/KaderController.php baris 695-710
+            (langsung Pengukuran::create dengan status_validasi 'pending')
+            dan SUDAH BENAR - tidak menyentuh model Validasi.
+Tindakan  :
+  [✓] Hapus app/Services/KaderService.php
+  [✓] Hapus app/Services/PuskesmasService.php
+  [✓] Hapus app/Services/Puskesmas/PuskesmasService.php
+  [✓] Verifikasi: tidak ada lagi App\Models\Validasi atau Validasi:: di app/
+      (nama kolom/status_validasi tetap digunakan oleh alur aktif dan aman)
+Catatan   : Service PortalIbu lama dicatat dan dihapus pada perbaikan
+            KRITIS-03 / SEDANG-01.
+
+[KRITIS-02] Signed URL dibuat tapi tidak pernah dikirim ke Ibu
+----------------------------------------------------------------
+Status    : SELESAI 26 Ags 2026 untuk kebutuhan demo; signed URL sekarang
+            ditampilkan kepada petugas melalui banner Salin Link dan WhatsApp
+Lokasi    : app/Http/Controllers/Puskesmas/PuskesmasController.php
+            baris 351 ($signedUrl) sampai 359 (return redirect)
+Masalah   : Saat approve(), URL::temporarySignedRoute('portal-ibu.home',
+            now()->addDays(7), ['balita' => ...]) dibuat ke variabel
+            $signedUrl, tetapi variabel itu TIDAK PERNAH dipakai:
+            tidak dikirim via WhatsApp, tidak disimpan ke database,
+            tidak ditampilkan ke user. User hanya menerima flash message
+            generik "Data balita berhasil disetujui".
+Bug tambahan di fungsi yang sama:
+            baris 354-357 menghitung $stats tapi juga tidak dipakai
+            (dead code kedua).
+Dampak    : Ibu TIDAK PERNAH menerima link portal setelah data disetujui.
+            Alur Kader -> Puskesmas -> Ibu PUTUS di langkah terakhir.
+Tindakan  :
+  [✓] Short-term (untuk demo hackathon): tampilkan signed URL di flash
+      message / halaman detail antrean setelah approve, mis:
+      return redirect()->route('puskesmas.validasi')->with([
+          'success' => '...',
+          'portal_link' => $signedUrl,
+      ]);
+      Lalu render tombol "Salin Link" + tombol WhatsApp di view:
+      https://wa.me/{no_hp_whatsapp}?text={urlencode($signedUrl)}
+      (nomor diambil dari balita.orangTua.no_hp_whatsapp)
+  [ ] Hapus atau gunakan variabel $stats (baris 354-357)
+  [ ] Long-term: buat service WA gateway + tabel log pengiriman
+      (lihat TINGGI-02)
+
+[KRITIS-03] Kode lama masih mereferensi model "Ibu" / "Notification" /
+            "PetugasPuskesmas" yang tidak ada
+----------------------------------------------------------------
+Status    : SELESAI 27 Ags 2026 - seluruh middleware dan service legacy
+            yang mereferensikan model-model tersebut sudah dihapus
+Lokasi sebelumnya :
+  - app/Http/Middleware/PortalIbuAuth.php (sudah dihapus)
+  - app/Services/NotificationService.php (sudah dihapus)
+  - app/Services/PortalIbuService.php (sudah dihapus)
+  - app/Services/PortalIbu/PortalIbuService.php (sudah dihapus)
+  - app/Http/Kernel.php (alias auth.ibu sudah dihapus)
+Fakta     : Route Portal Ibu aktif memakai middleware 'signed'.
+            Tidak ada lagi referensi class App\Models\Ibu,
+            App\Models\Notification, App\Models\PetugasPuskesmas,
+            atau alias auth.ibu di app/, routes/, tests/, dan resources/.
+Tindakan  :
+  [✓] Hapus app/Http/Middleware/PortalIbuAuth.php
+  [✓] Hapus baris alias auth.ibu di app/Http/Kernel.php
+  [✓] Hapus app/Services/NotificationService.php
+  [✓] Hapus service PortalIbu lama yang tidak dipakai
+  [✓] Verifikasi referensi class legacy menjadi kosong
+
+[KRITIS-04] IDOR: Portal Ibu membuka data balita mana pun hanya dengan
+            mengubah angka ID di URL
+----------------------------------------------------------------
+Status    : SELESAI 26 Ags 2026 dan sudah diuji dengan PortalIbuAccessTest
+Lokasi    : app/Http/Controllers/PortalIbu/PortalIbuController.php
+            baris 24-33 (fungsi getActiveBalita)
+Masalah   : getActiveBalita() hanya melakukan:
+              Balita::with(...)->find(request('balita'))
+            Tidak ada pengecekan apakah pemilik signed URL berhak atas
+            balita tersebut.
+Skenario serangan:
+            Ibu A menerima signed URL untuk balita miliknya:
+            /portal-ibu/dashboard?balita=5&signature=...
+            Ubah jadi ?balita=7 (tetap dengan signature yang sama) ->
+            data balita 7 (milik orang lain) tampil lengkap: nama anak,
+            riwayat pengukuran, grafik, jadwal posyandu.
+            Ini melanggar privasi kesehatan anak (data medis).
+Dampak    : Data kesehatan balita bocor antar keluarga. Fatal untuk
+            kredibilitas aplikasi kesehatan di mata juri/user.
+Tindakan  (pilih salah satu strategi, JANGAN dicampur):
+  Opsi A (DIPILIH - SELESAI 26 Ags 2026):
+    [✓] Di approve() PuskesController: signed URL kini membawa balita + orang_tua
+        (lihat PuskesmasController::approve(), TTL via config('portal.link_ttl_days'))
+    [✓] Di getActiveBalita(): scoped where('orang_tua_id', request('orang_tua'))
+        -> kombinasi balita+ortu yang tidak cocok = null = empty state
+    [✓] SEMUA link internal portal meneruskan orang_tua + temporarySignedRoute
+        (home x8, growth back-button, bottom-navigation x3, child-selector)
+  Opsi B (tidak dijalankan): token akses per orang_tua
+  [✓] Buat test: tests/Feature/PortalIbuAccessTest.php (7 tes / 16 asersi, PASS)
+      - data anak sendiri tampil; anak orang lain kosong walau signature valid
+      - tamper balita_id -> 403; tanpa orang_tua -> kosong; expired -> 403
+      - child-selector hanya anak kandung; pengukuran pending tidak bocor
+
+===============================================================================
+BAGIAN B - MASALAH PRIORITAS TINGGI
+===============================================================================
+
+[TINGGI-01] Navigasi internal Portal Ibu rawan menghasilkan URL invalid
+----------------------------------------------------------------
+Status    : SELESAI 27 Ags 2026 - seluruh navigasi internal Portal Ibu
+            yang memakai route signed sudah menghasilkan signature baru
+Lokasi    : routes/web.php baris 151-157 (grup middleware 'signed'),
+            semua route portal-ibu.* memakai middleware signed.
+Masalah   : Signature hanya sah untuk exact URL. Link di dalam halaman
+            portal (mis. menu ke /grafik?balita=X) harus punya signature
+            sendiri; kalau view membuat link tanpa signature ->
+            error 403 Invalid signature saat diklik.
+Tindakan  :
+  [✓] Audit semua link internal di views/portal-ibu/**
+  [✓] Ganti back URL Nutrition dari url()->previous() menjadi
+      URL::temporarySignedRoute() dengan balita + orang_tua
+  [✓] Pastikan link Home, Growth, Nutrition, Posyandu, dan child selector
+      membawa signature serta parameter balita + orang_tua
+
+[TINGGI-02] Tidak ada integrasi WhatsApp sama sekali + tidak ada log kirim
+----------------------------------------------------------------
+Status    : SELESAI untuk bagian "tanpa ribet" (log-only) 29 Ags 2026;
+            gateway ASLI (Fonnte/Wablas) DICADANGKAN dulu oleh user
+            (siap disambungkan nanti via .env, tidak mengganggu demo).
+Masalah   : Audit benar - tidak ada service WA, job, endpoint, atau API call.
+            no_hp_whatsapp tersimpan di orang_tuas (sudah unique, bagus)
+            tapi belum pernah dipakai untuk mengirim apa pun.
+Tindakan  :
+  [✓] Minimal untuk demo: link wa.me (lihat KRITIS-02 short-term)
+  [✓] App\Services\WhatsAppService (29 Ags 2026) dengan driver configurable
+      di config/services.php: 'wa' => ['driver' => env('WA_DRIVER', 'log')].
+      - Driver 'log' (default): TIDAK butuh akun/token/nomor. Pesan hanya
+        dicatat ke notification_logs + log aplikasi -> demo-safe.
+      - Driver 'fonnte' & 'wablas': kirim sungguhan, tinggal isi token.
+      - Semua driver melempar exception -> log 'failed', alur tak terblokir.
+  [✓] Migration 2026_08_29_000001_create_notification_logs_table.php:
+      id, orang_tua_id, pengukuran_id, channel, status (sent/failed),
+      payload, response_body, created_at, updated_at + index status.
+  [✓] Model App\Models\NotificationLog.
+  [✓] PuskesmasController::approve() kini memanggil WhatsAppService::send()
+      (setelah build waUrl) dan hasilnya dibawa di portal_link
+      (notif_log_id, notif_status). Tombol wa.me manual tetap sebagai fallback.
+  [✓] Test: ApproveRejectTest::test_approve_mencatat_log_notifikasi_ke_table
+      (approve -> baris notification_logs 'sent' terhubung ortu/pengukuran).
+KRITERIA PENTING (diputuskan user 29 Ags 2026): bagian yang butuh daftar
+  akun/token/nomor (gateway asli) DITUNDA. Yang disiapkan sekarang hanya
+  infrastruktur yang jalan tanpa setup eksternal. Untuk mengaktifkan kirim
+  asli nanti: WA_DRIVER=fonnte + FONNTE_TOKEN=... (atau wablas) di .env.
+
+[TINGGI-03] Tidak ada jejak siapa validator & kapan approve/reject dilakukan
+----------------------------------------------------------------
+Status    : SELESAI 27 Ags 2026 - validator dan waktu keputusan kini
+            disimpan untuk approve maupun reject
+Lokasi    : PuskesmasController::approve() baris 345-348 dan reject()
+            baris 370-373
+Masalah sebelumnya : Yang tersimpan hanya status_validasi + catatan_validator
+            di tabel pengukurans. Validator siapa (user_id puskesmas) dan
+            waktu keputusan belum tersimpan. Kolom catatan_validator sudah
+            ada dan terpakai (ini progress sejak audit ditulis).
+Tindakan  :
+  [✓] Migration baru: database/migrations/2026_08_27_000001_add_validator_tracking_to_pengukurans_table.php
+      - validated_by (foreignId users nullable)
+      - validated_at (timestamp nullable)
+  [✓] Isi keduanya di approve() dan reject() dengan Auth::id() dan now()
+  [✓] Tampilkan nama validator dan waktu keputusan di riwayat validasi puskesmas
+  [✓] Migration dan regresi PortalIbuAccessTest berhasil dijalankan
+  [ ] Tambahkan test khusus approve/reject pada pekerjaan test berikutnya
+Perubahan per fungsi :
+  - Migration::up(): menambahkan validated_by sebagai foreign key nullable
+    ke users.id dan validated_at sebagai timestamp nullable.
+  - Migration::down(): menghapus foreign key serta kedua kolom tersebut
+    saat rollback migration.
+  - Pengukuran model: menambahkan validated_by dan validated_at ke fillable,
+    cast validated_at sebagai datetime, serta relasi validator() ke User.
+  - PuskesmasController::approve(): saat status menjadi approved, menyimpan
+    Auth::id() ke validated_by dan now() ke validated_at.
+  - PuskesmasController::reject(): saat status menjadi rejected, menyimpan
+    Auth::id() ke validated_by dan now() ke validated_at.
+  - PuskesmasController::riwayat(): melakukan eager load relasi validator
+    untuk pengukuran aktif dan seluruh riwayat agar tidak terjadi N+1 query.
+  - riwayat-validasi.blade.php: menampilkan kolom Validator dan Diputuskan
+    pada setiap catatan pengukuran.
+Catatan demo : Data validasi yang sudah ada sebelum migration tetap menampilkan
+              '-' karena belum memiliki validated_by/validated_at. Data baru
+              yang diproses melalui approve/reject akan mengisi kedua kolom.
+
+===============================================================================
+BAGIAN C - MASALAH PRIORITAS SEDANG
+===============================================================================
+
+[SEDANG-01] Duplikasi service versi lama vs baru membingungkan developer
+----------------------------------------------------------------
+Bukti     : Ada pasangan file kembar:
+  - app/Services/KaderService.php           vs (tidak ada padanan baru,
+                                              controller sudah inline)
+  - app/Services/PuskesmasService.php       vs app/Services/Puskesmas/PuskesmasService.php
+  - app/Services/PortalIbuService.php       vs app/Services/PortalIbu/PortalIbuService.php
+Masalah   : Tidak ada SATU PUN class yang meng-import service-service ini
+            (dicek: grep "use App\Services\..." kosong). Controller aktif
+            memakai DashboardService, GrowthCalculationService,
+            RecommendationService, StatisticsService.
+Risiko    : Developer baru menambahkan fitur di file yang salah.
+Status    : SELESAI 27 Ags 2026 untuk service legacy yang tidak dipakai.
+            Service aktif tetap dipertahankan di namespace Kader/PortalIbu
+            sesuai pemakaian controller saat ini.
+Tindakan  :
+  [✓] Hapus service Kader/Puskesmas legacy yang mereferensikan Validasi
+  [✓] Hapus service PortalIbu legacy yang mereferensikan model Ibu
+
+[SEDANG-02] Test baseline minim dan tidak ada test untuk alur inti
+----------------------------------------------------------------
+Status    : SELESAI 29 Ags 2026 - test alur inti dibuat dan lulus
+Kondisi   : tests/Feature hanya berisi Auth/*, ExampleTest, ProfileTest.
+            tests/Unit hanya ExampleTest. PortalIbuAccessTest sudah ditambahkan
+            dan mencakup isolasi data serta signed URL.
+Masalah   : Alur inti bisnis TIDAK TERTEST:
+            - simpan pengukuran oleh kader
+            - approve/reject puskesmas
+            (akses portal dan isolasi balita sudah teruji)
+Tindakan  :
+  [✓] Feature test: KaderPengukuranTest (simpan -> status pending)
+      - simpan pengukuran => status_validasi pending + status_gizi terhitung
+      - kader tidak bisa mengukur balita di posyandu lain (404)
+      - validasi form: field wajib kosong => session error
+  [✓] Feature test: ApproveRejectTest (status berubah + validated_at terisi)
+      - approve => status approved + validated_by/validated_at + portal_link session
+      - reject => status rejected + validated_by/validated_at
+      - puskesmas tidak bisa approve pengukuran di wilayah lain (404)
+  [✓] Feature test: PortalIbuAccessTest
+      (signature valid -> 200; signature expired -> 403;
+       balita milik orang lain -> empty; pengukuran pending tidak tampil)
+INFRA (tanpa build Vite). File tests/TestCase.php kini memanggil
+$this->withoutVite() di setUp(). Tanpa ini, semua test yang merender
+halaman (yang memakai @vite) gagal 500 karena public/build/manifest.json
+tidak dibangun di lingkungan test. Perubahan ini membuat seluruh test
+render kembali hijau (34 lulus).
+Sisa 4 test gagal (pra-ada, perbedaan perilaku yang disengaja):
+  - AuthenticationTest: test generik membuat User tanpa role (default ibu),
+    sedangkan app memakai redirect berbasis role.
+  - RegistrationTest (x2): /register memang 404 / registrasi publik
+    dinonaktifkan.
+  - ProfileTest: test mengharapkan hard delete, app memakai soft delete.
+
+[SEDANG-03] TTL signed URL hard-coded di controller
+----------------------------------------------------------------
+Status    : SELESAI 27 Ags 2026 - TTL signed URL sudah dipindahkan ke config
+Lokasi    : PuskesmasController.php baris 351 (now()->addDays(7))
+Tindakan  :
+  [✓] Pindahkan ke config: config/portal.php => 'link_ttl_days' => 7
+  [✓] Panggil: now()->addDays(config('portal.link_ttl_days'))
+
+[SEDANG-04] Tidak ada Policy/Gate untuk akses balita
+----------------------------------------------------------------
+Status    : SELESAI 29 Ags 2026 - BalitaPolicy dibuat & teruji
+Masalah   : Rekomendasi audit Fase 3 poin 3 belum dimulai. Otorisasi
+            tersebar manual (getKaderPosyanduId, getPuskesmasId).
+Tindakan  :
+  [✓] Buat BalitaPolicy: view/update/delete dengan aturan
+      kader = satu posyandu, puskesmas = puskesmas_id relasi posyandu,
+      ortu = orang_tua_id
+  [✓] Registrasi di AppServiceProvider::$policies
+      (Gate::policy(Balita::class, BalitaPolicy::class))
+  [✓] Test: tests/Feature/BalitaPolicyTest.php (7 test / 10 asersi, PASS)
+      - kader: akses balita posyandu sendiri, tolak posyandu lain
+      - puskesmas: akses balita wilayahnya, tolak wilayah lain
+      - ibu/ortu: akses anaknya, tolak anak orang lain
+      - role tanpa relasi balita: ditolak
+
+===============================================================================
+BAGIAN D - KEBERSIHAN REPO (OPSIONAL, SETELAH KRITIS BERES)
+===============================================================================
+
+[BERSIH-01] File skrip one-off berserakan di root project
+----------------------------------------------------------------
+Contoh    : add_dark_mode.cjs, remove_dark_mode.cjs, clean_view.py,
+            fix_svg.cjs, get_bounds*.py/js, insert_review.py,
+            refactor.cjs, strip_drawer.py, svg_bounds.py,
+            query_balita.php, query_users.php,
+            vite.config.js.timestamp-*.mjs, welcome_viewed_7016.txt
+Tindakan  :
+  [ ] Hapus yang sudah tidak dipakai, atau pindahkan ke folder scripts/
+      + tambahkan ke .gitignore
+
+[BERSIH-02] Dokumentasi cara uji lokal
+----------------------------------------------------------------
+Audit mencatat: npm run dev (Vite port 3000 karena 5173 excluded range
+Windows) + php artisan serve (port 8000). Preview portal:
+http://127.0.0.1:8000/dev/portal-ibu/{ID_BALITA} (hanya APP_ENV=local).
+Tindakan  :
+  [ ] Pastikan langkah ini ada di README.md agar penguji/juri tidak bingung
+
+===============================================================================
+RINGKASAN STATUS vs AUDIT
+===============================================================================
+Temuan audit                          | Status verifikasi
+--------------------------------------|--------------------------------------
+KRITIS  Validasi model hilang         | Sebagian: controller utama sudah
+                                      | benar; dead code sudah dihapus
+KRITIS  Signed URL tidak dikirim      | SELESAI 26 Ags 2026: approve()
+                                      | mengirim portal_link (banner Salin
+                                      | Link + WhatsApp di validasi.blade)
+KRITIS  Referensi model Ibu           | SELESAI 27 Ags 2026: dead code,
+                                      | middleware, dan alias auth.ibu dihapus
+KRITIS  IDOR Portal Ibu               | SELESAI + TERUJI 26 Ags 2026:
+                                      | scope orang_tua + link signed semua
+                                      | halaman; tests/Feature/PortalIbuAccessTest
+                                      | 7 tes PASS (tamper=403, cross=empty, dst)
+TINGGI  Navigasi signed URL rapuh     | SELESAI 27 Ags 2026: seluruh link
+                                      | internal portal sudah signed; test
+                                      | PortalIbuAccessTest 7/7 PASS
+TINGGI  Tanpa audit record validasi   | SELESAI 27 Ags 2026: validated_by
+                                      | dan validated_at tersimpan serta
+                                      | tampil di riwayat validasi
+SEDANG  getActiveBalita tanpa scope   | SELESAI 26 Ags 2026: scope orang_tua
+                                      | sudah diterapkan dan diuji
+SEDANG  PortalIbuService usang        | SELESAI 27 Ags 2026: service legacy dihapus
+SEDANG  Test baseline gagal/minim     | Minim terkonfirmasi
+
+Yang SUDAH SESUAI audit (bagian 6): middleware aliases lengkap,
+Balita::latestPengukuran() ada, filter approved di portal jalan,
+CRUD kader/puskesmas berfungsi, struktur migration sesuai dokumen,
+Vite port 3000.
+
+===============================================================================
+TEST DEMO
+===============================================================================
+Tanggal test : 27 Agustus 2026
+Environment  : Laravel lokal + Vite
+
+Server       :
+  - Laravel berjalan di http://127.0.0.1:8000
+  - Vite berjalan di http://127.0.0.1:3001
+    (port 3000 sudah digunakan proses Vite lain)
+
+Hasil browser :
+  [✓] Halaman utama NutriGen tampil
+  [✓] Login akun Puskesmas berhasil
+  [✓] Dashboard Puskesmas tampil di /puskesmas/dashboard
+  [✓] Halaman login tampil
+  [✓] /register menghasilkan 404 sesuai desain: registrasi publik tidak
+      diperlukan karena akun petugas dibuat oleh pihak Puskesmas
+
+Aturan akses akun :
+  - Akun Puskesmas dan Kader dibuat atau dikelola oleh pihak Puskesmas.
+  - Ibu tidak melakukan login melalui form web.
+  - Setelah validasi pengukuran, Ibu menerima signed token link melalui
+    WhatsApp untuk membuka Portal Ibu sesuai balita miliknya.
+
+Hasil test otomatis :
+  - 46 test lulus (29 Ags 2026, 119 asersi) — SUITE HIJAU PENUH
+  - PortalIbuAccessTest: 7/7 test lulus
+  - KaderPengukuranTest (3) + ApproveRejectTest (4) + BalitaPolicyTest (7):
+    alur inti & otorisasi sudah teruji
+  - 4 test sebelumnya yang gagal SUDAH disesuaikan (bukan bug, perilaku
+    app yang disengaja):
+      - AuthenticationTest: login redirect berbasis role (kini uji role
+        puskesmas -> puskesmas.dashboard)
+      - RegistrationTest (x2): /register memang 404 (registrasi publik
+        dinonaktifkan)
+      - ProfileTest: delete akun = soft delete (assertSoftDeleted)
+
+Test yang gagal :
+  (Selesai 29 Ags 2026 — keempatnya sudah disesuaikan agar mencerminkan
+   perilaku aktual aplikasi; seluruh suite kini hijau 46/46)
+  [✓] AuthenticationTest: kini membuat user role 'puskesmas' dan mengecek
+      redirect ke route('puskesmas.dashboard') (redirect berbasis role).
+  [✓] RegistrationTest: /register memang 404 (registrasi publik
+      dinonaktifkan) -> assertNotFound.
+  [✓] RegistrationTest POST: endpoint tidak ada -> assertNotFound + assertGuest.
+  [✓] ProfileTest: delete akun = soft delete -> assertSoftDeleted.

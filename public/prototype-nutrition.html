@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>High Fidelity Design - Nutrition & Menu</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Nunito Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        brand: '#10B981', // NutriGen Green
+                        surface: '#F9FAFB',
+                        mint: { 50: '#ECFDF5', 100: '#D1FAE5', 500: '#10B981', 600: '#059669', 800: '#065F46' },
+                        peach: { 50: '#FFFBEB', 100: '#FEF3C7', 500: '#F59E0B', 600: '#D97706', 800: '#92400E' },
+                        blue: { 50: '#EFF6FF', 100: '#DBEAFE', 500: '#3B82F6', 700: '#1D4ED8' }
+                    },
+                    boxShadow: {
+                        'soft': '0 8px 20px -4px rgba(0, 0, 0, 0.04)',
+                        'nav': '0 -4px 20px -4px rgba(0, 0, 0, 0.05)',
+                        'card': '0 12px 24px -4px rgba(0, 0, 0, 0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            -webkit-tap-highlight-color: transparent; 
+            overscroll-behavior-y: none; 
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-200 text-gray-800 font-sans antialiased flex justify-center min-h-screen" x-data="{ state: 'normal', showDetail: false }">
+    
+    <!-- DESIGN SYSTEM DEBUGGER -->
+    <div class="fixed top-6 right-6 z-[60] bg-white p-5 rounded-3xl shadow-xl border border-gray-100 hidden lg:block w-72">
+        <h3 class="text-xs font-black text-gray-400 mb-4 uppercase tracking-widest">HIFI States: Nutrition</h3>
+        <div class="space-y-1.5">
+            <template x-for="s in ['normal', 'pending', 'empty', 'loading', 'error']">
+                <label class="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-50 cursor-pointer transition border border-transparent hover:border-gray-100">
+                    <input type="radio" x-model="state" :value="s" class="text-brand focus:ring-brand h-4 w-4">
+                    <span class="text-sm font-bold text-gray-700 capitalize" x-text="s"></span>
+                </label>
+            </template>
+        </div>
+        <p class="text-[11px] font-semibold text-gray-400 mt-5 leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-100">
+            * Klik kartu menu pada state Normal untuk membuka Bottom Sheet resep masakan.
+        </p>
+    </div>
+
+    <!-- MOBILE VIEWPORT CONTAINER -->
+    <main class="w-full max-w-md bg-surface min-h-screen relative shadow-2xl flex flex-col overflow-x-hidden">
+        
+        <!-- 1. HEADER (Root Page: No Back Button) -->
+        <header class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-gray-100/50">
+            <h1 class="text-[20px] font-extrabold text-gray-800 tracking-tight">Gizi & Menu</h1>
+            <div class="w-[36px] h-[36px] rounded-full bg-mint-100 text-mint-600 flex items-center justify-center text-[15px] font-black shadow-sm">
+                A
+            </div>
+        </header>
+
+        <!-- SCROLLABLE BODY -->
+        <div class="flex-1 overflow-y-auto hide-scrollbar relative">
+
+            <!-- ERROR STATE -->
+            <div x-show="state === 'error'" class="mx-6 mt-20 flex flex-col items-center justify-center text-center bg-red-50 p-8 rounded-[32px] border border-red-100">
+                <div class="text-[64px] mb-4 filter drop-shadow-sm">🔌</div>
+                <h2 class="text-xl font-black text-red-800 mb-2">Ups, Koneksi Terputus</h2>
+                <p class="text-[13px] text-red-600 mb-8 font-bold leading-relaxed max-w-[200px]">Gagal memuat resep dari dapur kami. Pastikan internet menyala ya Ibu.</p>
+                <button class="bg-red-200 text-red-800 font-extrabold py-3.5 px-8 rounded-[20px] w-full hover:bg-red-300 transition duration-200 text-sm shadow-sm">
+                    Coba Muat Ulang
+                </button>
+            </div>
+
+            <!-- EMPTY STATE (0 Data Anak) -->
+            <div x-show="state === 'empty'" class="mx-6 mt-20 flex flex-col items-center justify-center text-center">
+                <div class="text-[90px] mb-6 filter drop-shadow-sm">🍽️</div>
+                <h2 class="text-[22px] font-black text-gray-800 mb-3 leading-tight">Kami Belum Tahu<br>Ukuran Piring si Kecil</h2>
+                <p class="text-[13px] font-bold text-gray-500 mb-8 max-w-[260px] leading-relaxed">Yuk timbang si Kecil dulu di Posyandu agar sistem bisa meracik menu paling presisi untuk pertumbuhannya!</p>
+            </div>
+
+            <!-- LOADING STATE -->
+            <div x-show="state === 'loading'" class="mx-6 mt-6 space-y-6 animate-pulse">
+                <div class="w-full h-8 bg-gray-200 rounded-full"></div>
+                <div class="w-48 h-12 bg-gray-200 rounded-xl"></div>
+                <!-- Hero skeleton -->
+                <div class="w-full h-72 bg-gray-200 rounded-[28px]"></div>
+                <!-- Carousel skeleton -->
+                <div class="mt-8 flex space-x-4">
+                    <div class="w-40 h-40 bg-gray-200 rounded-[24px]"></div>
+                    <div class="w-40 h-40 bg-gray-200 rounded-[24px]"></div>
+                </div>
+            </div>
+
+            <!-- CONTENT FOR NORMAL & PENDING -->
+            <div x-show="['normal', 'pending'].includes(state)">
+                
+                <!-- 2. TRUST BANNER (Personal Context) -->
+                <div x-show="state === 'normal'" class="mx-6 mt-5 bg-blue-50 rounded-full px-4 py-2 border border-blue-100/50 flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="text-[11px] font-extrabold text-blue-700 tracking-wide">Disusun berdasar pengukuran terakhir (Juli)</span>
+                </div>
+
+                <div x-show="state === 'pending'" class="mx-6 mt-5 bg-amber-50 rounded-[20px] p-4 border border-amber-100 flex items-start space-x-3">
+                    <div class="text-amber-500 mt-0.5 text-lg filter drop-shadow-sm">⏳</div>
+                    <div>
+                        <h3 class="text-[12px] font-black text-amber-900 leading-tight mb-1">Data Menunggu Konfirmasi Bidan</h3>
+                        <p class="text-[11px] text-amber-700 font-bold leading-relaxed">Menampilkan opsi menu harian umum berdasarkan rentang usia 1 tahun.</p>
+                    </div>
+                </div>
+
+                <!-- 3. RECOMMENDATION REASON (Headline) -->
+                <div class="mx-6 mt-6 mb-5">
+                    <h2 x-show="state === 'normal'" class="text-[26px] font-black text-gray-800 leading-[1.15]">Fokus Kejar<br><span class="text-brand">Berat Badan</span></h2>
+                    <h2 x-show="state === 'pending'" class="text-[26px] font-black text-gray-800 leading-[1.15]">Menu Sehat<br><span class="text-brand">Anak 1 Tahun</span></h2>
+                </div>
+
+                <!-- 4. HERO RECOMMENDATION (Menu Utama) -->
+                <div class="mx-6 relative rounded-[28px] overflow-hidden shadow-card cursor-pointer group transform transition-transform active:scale-[0.98]" @click="showDetail = true">
+                    <!-- Image -->
+                    <div class="h-[340px] w-full bg-gray-200 relative">
+                        <!-- We use a placeholder food image from Unsplash -->
+                        <img src="https://images.unsplash.com/photo-1548943487-a2e4e43b4859?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Food">
+                        
+                        <!-- Gradient overlay for text legibility -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-black/10"></div>
+                        
+                        <!-- Future Extensibility Area (Top Right) - Left empty as per IA -->
+                        <div class="absolute top-4 right-4 w-10 h-10 rounded-full border border-white/20 bg-black/20 flex items-center justify-center opacity-0">
+                            <!-- Future save/favorite icon space -->
+                        </div>
+                    </div>
+                    
+                    <!-- Content at bottom -->
+                    <div class="absolute bottom-0 w-full p-6 flex flex-col justify-end pointer-events-none">
+                        
+                        <div class="flex items-center space-x-2 mb-3">
+                            <span class="bg-brand text-white text-[10px] font-black px-2.5 py-1.5 rounded-lg shadow-sm">20 Menit</span>
+                            <span class="bg-white/20 backdrop-blur-md text-white text-[10px] font-extrabold px-2.5 py-1.5 rounded-lg border border-white/20 shadow-sm">Mudah</span>
+                        </div>
+                        
+                        <h3 class="text-[22px] font-black text-white leading-tight mb-2">Sup Telur Puyuh<br>Macaroni Sayur</h3>
+                        
+                        <div class="flex justify-between items-end">
+                            <div class="w-[75%]">
+                                 <p class="text-[12px] text-gray-200 font-bold leading-relaxed">Andalan tinggi kalori untuk menambah berat badan si Kecil dengan cepat.</p>
+                            </div>
+                            <!-- CTA Button (Thumb Zone) -->
+                            <button class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg text-brand pointer-events-auto hover:bg-mint-50 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. ALTERNATIF HARI INI (Horizontal Carousel) -->
+                <div class="mt-8 pb-32">
+                    <div class="mx-6 flex items-end mb-4">
+                        <h3 class="text-[16px] font-black text-gray-800">Pilihan Lain Hari Ini</h3>
+                    </div>
+                    
+                    <!-- Carousel Container -->
+                    <div class="flex overflow-x-auto hide-scrollbar pl-6 pr-4 pb-6 space-x-4">
+                        
+                        <!-- Alternative Card 1 -->
+                        <div class="w-44 flex-shrink-0 bg-white rounded-[24px] shadow-soft border border-gray-100 overflow-hidden cursor-pointer transform transition-transform active:scale-95" @click="showDetail = true">
+                            <div class="h-32 w-full bg-gray-200 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover" alt="Food">
+                            </div>
+                            <div class="p-4.5">
+                                <span class="text-[9px] font-black text-mint-600 uppercase tracking-widest block mb-1">Padat Protein</span>
+                                <h4 class="text-[14px] font-extrabold text-gray-800 leading-tight mb-2.5 line-clamp-2">Perkedel Lele<br>Kukus Lembut</h4>
+                                <div class="flex items-center text-[11px] font-bold text-gray-400">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 15 Menit
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alternative Card 2 -->
+                        <div class="w-44 flex-shrink-0 bg-white rounded-[24px] shadow-soft border border-gray-100 overflow-hidden cursor-pointer transform transition-transform active:scale-95" @click="showDetail = true">
+                            <div class="h-32 w-full bg-gray-200 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover" alt="Food">
+                            </div>
+                            <div class="p-4.5">
+                                <span class="text-[9px] font-black text-peach-600 uppercase tracking-widest block mb-1">Selingan Sore</span>
+                                <h4 class="text-[14px] font-extrabold text-gray-800 leading-tight mb-2.5 line-clamp-2">Puding Labu<br>Santan Manis</h4>
+                                <div class="flex items-center text-[11px] font-bold text-gray-400">
+                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 10 Menit
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Padding element for proper scrolling spacing at the end -->
+                        <div class="w-2 flex-shrink-0"></div>
+                    </div>
+                </div>
+
+            </div> <!-- End Normal/Pending content wrapper -->
+        </div> <!-- End Scrollable Body -->
+
+        <!-- 6. DETAIL MENU (Bottom Sheet Modal) -->
+        <!-- Overlay -->
+        <div x-show="showDetail" 
+             x-transition.opacity.duration.300ms
+             class="fixed inset-0 bg-gray-900/60 z-50 backdrop-blur-sm" 
+             @click="showDetail = false" 
+             style="display: none;"></div>
+
+        <!-- Sheet -->
+        <div x-show="showDetail" 
+             class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white rounded-t-[32px] shadow-2xl z-50 h-[85vh] flex flex-col overflow-hidden" 
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="translate-y-full"
+             x-transition:enter-end="translate-y-0"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="translate-y-0"
+             x-transition:leave-end="translate-y-full"
+             style="display: none;">
+             
+            <!-- Swipe Handle area -->
+            <div class="w-full flex justify-center py-4 bg-white absolute top-0 z-20 rounded-t-[32px]">
+                <div class="w-12 h-1.5 bg-gray-200 rounded-full"></div>
+            </div>
+            <!-- Close Button -->
+            <button @click="showDetail = false" class="absolute top-3 right-4 z-20 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 focus:outline-none">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <!-- Detail Scrollable Content -->
+            <div class="flex-1 overflow-y-auto pb-8 relative pt-12">
+                <div class="h-64 w-full relative">
+                    <img src="https://images.unsplash.com/photo-1548943487-a2e4e43b4859?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover">
+                </div>
+                <div class="px-6 pt-6 bg-white relative -mt-6 rounded-t-[24px]">
+                    <h2 class="text-[22px] font-black text-gray-800 leading-tight mb-3">Sup Telur Puyuh Macaroni Sayur</h2>
+                    
+                    <div class="flex items-center space-x-3 text-[12px] font-bold text-gray-500 mb-6 pb-6 border-b border-gray-100">
+                        <span class="flex items-center"><svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 20 mnt</span>
+                        <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                        <span class="text-brand">Tinggi Kalori</span>
+                        <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                        <span>Level Mudah</span>
+                    </div>
+                    
+                    <h3 class="text-[16px] font-black text-gray-800 mb-4">Bahan-Bahan Lokal</h3>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 bg-mint-50 rounded-full flex items-center justify-center mr-3 mt-0.5 border border-mint-100">
+                                <div class="w-2 h-2 bg-brand rounded-full"></div>
+                            </div>
+                            <span class="text-[14px] font-bold text-gray-700 leading-relaxed">10 butir telur puyuh, rebus dan kupas bersih.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 bg-mint-50 rounded-full flex items-center justify-center mr-3 mt-0.5 border border-mint-100">
+                                <div class="w-2 h-2 bg-brand rounded-full"></div>
+                            </div>
+                            <span class="text-[14px] font-bold text-gray-700 leading-relaxed">1 genggam macaroni ukuran kecil, rebus empuk.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 bg-mint-50 rounded-full flex items-center justify-center mr-3 mt-0.5 border border-mint-100">
+                                <div class="w-2 h-2 bg-brand rounded-full"></div>
+                            </div>
+                            <span class="text-[14px] font-bold text-gray-700 leading-relaxed">1 buah wortel manis lokal, potong dadu kecil.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 bg-mint-50 rounded-full flex items-center justify-center mr-3 mt-0.5 border border-mint-100">
+                                <div class="w-2 h-2 bg-brand rounded-full"></div>
+                            </div>
+                            <span class="text-[14px] font-bold text-gray-700 leading-relaxed">Kaldu ayam buatan sendiri secukupnya.</span>
+                        </li>
+                    </ul>
+
+                    <h3 class="text-[16px] font-black text-gray-800 mb-4">Cara Memasak</h3>
+                    <div class="space-y-6">
+                        <div class="flex">
+                            <div class="text-[20px] font-black text-mint-200 mr-4 w-6 text-center">1</div>
+                            <p class="text-[14px] font-bold text-gray-700 leading-relaxed">Didihkan kaldu ayam dalam panci kecil. Pastikan menggunakan api sedang agar kaldu tidak cepat menyusut.</p>
+                        </div>
+                        <div class="flex">
+                            <div class="text-[20px] font-black text-mint-200 mr-4 w-6 text-center">2</div>
+                            <p class="text-[14px] font-bold text-gray-700 leading-relaxed">Masukkan wortel dadu. Masak hingga setengah empuk sebelum bahan lain menyusul.</p>
+                        </div>
+                        <div class="flex">
+                            <div class="text-[20px] font-black text-mint-200 mr-4 w-6 text-center">3</div>
+                            <p class="text-[14px] font-bold text-gray-700 leading-relaxed">Campurkan telur puyuh rebus dan macaroni. Bumbui dengan sedikit garam himalaya (jika usia anak sudah diperbolehkan).</p>
+                        </div>
+                        <div class="flex">
+                            <div class="text-[20px] font-black text-mint-200 mr-4 w-6 text-center">4</div>
+                            <p class="text-[14px] font-bold text-gray-700 leading-relaxed">Matikan api dan sajikan hangat di mangkuk favorit si Kecil.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. BOTTOM NAVIGATION (Sticky Bottom) -->
+        <nav class="absolute bottom-0 w-full bg-white border-t border-gray-100 px-6 py-4 flex justify-between items-center shadow-nav rounded-t-[32px] z-30">
+            <!-- Beranda Tab -->
+            <button class="flex flex-col items-center focus:outline-none group opacity-40 hover:opacity-100 transition-opacity">
+                <div class="w-12 h-12 flex items-center justify-center text-gray-500 group-hover:text-gray-800 group-active:scale-95 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-500 mt-1.5 group-hover:text-gray-800">Beranda</span>
+            </button>
+            
+            <!-- Gizi & Menu Tab (Active) -->
+            <button class="flex flex-col items-center focus:outline-none group">
+                <div class="w-12 h-12 bg-mint-50 rounded-2xl flex items-center justify-center text-brand transition-transform group-active:scale-95">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+                <span class="text-[10px] font-black text-brand mt-1.5">Gizi & Menu</span>
+            </button>
+            
+            <!-- Posyandu Tab -->
+            <button class="flex flex-col items-center focus:outline-none group opacity-40 hover:opacity-100 transition-opacity">
+                <div class="w-12 h-12 flex items-center justify-center text-gray-500 group-hover:text-gray-800 group-active:scale-95 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <span class="text-[10px] font-bold text-gray-500 mt-1.5 group-hover:text-gray-800">Posyandu</span>
+            </button>
+        </nav>
+    </main>
+</body>
+</html>

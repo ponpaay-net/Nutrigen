@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>High Fidelity Design - Child Selector</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Nunito Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        brand: '#10B981', // NutriGen Green
+                        surface: '#F9FAFB',
+                        mint: { 50: '#ECFDF5', 100: '#D1FAE5', 500: '#10B981', 600: '#059669', 800: '#065F46' },
+                        peach: { 50: '#FFFBEB', 100: '#FEF3C7', 600: '#D97706', 800: '#92400E' },
+                    },
+                    boxShadow: {
+                        'soft': '0 8px 20px -4px rgba(0, 0, 0, 0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            -webkit-tap-highlight-color: transparent; 
+            overscroll-behavior-y: none; 
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-200 text-gray-800 font-sans antialiased flex justify-center min-h-screen" x-data="{ state: 'normal' }">
+    
+    <!-- DESIGN SYSTEM DEBUGGER -->
+    <div class="fixed top-6 right-6 z-50 bg-white p-5 rounded-3xl shadow-xl border border-gray-100 hidden lg:block w-72">
+        <h3 class="text-xs font-black text-gray-400 mb-4 uppercase tracking-widest">HIFI States: Lobi</h3>
+        <div class="space-y-1.5">
+            <template x-for="s in ['normal', 'empty_unlinked', 'empty_nokids', 'loading', 'error']">
+                <label class="flex items-center space-x-3 p-2 rounded-xl hover:bg-gray-50 cursor-pointer transition border border-transparent hover:border-gray-100">
+                    <input type="radio" x-model="state" :value="s" class="text-brand focus:ring-brand h-4 w-4">
+                    <span class="text-sm font-bold text-gray-700 capitalize" x-text="s.replace('_', ' ')"></span>
+                </label>
+            </template>
+        </div>
+        <p class="text-xs font-semibold text-gray-400 mt-5 leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-100">
+            * Tidak ada Search Bar & Bottom Nav. Area klik memenuhi seluruh Child Card (Thumb-friendly).
+        </p>
+    </div>
+
+    <!-- MOBILE VIEWPORT CONTAINER -->
+    <main class="w-full max-w-md bg-surface min-h-screen relative shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- LOADING OVERLAY -->
+        <div x-show="state === 'loading'" class="absolute inset-0 z-10 bg-surface p-6 space-y-6 flex flex-col">
+            <div class="space-y-3 mt-4 mb-6 animate-pulse">
+                <div class="h-4 bg-gray-200 rounded-full w-32"></div>
+                <div class="h-7 bg-gray-200 rounded-full w-56"></div>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="w-full h-[104px] bg-gray-200 rounded-[28px] animate-pulse"></div>
+                <div class="w-full h-[104px] bg-gray-200 rounded-[28px] animate-pulse opacity-70"></div>
+                <div class="w-full h-[104px] bg-gray-200 rounded-[28px] animate-pulse opacity-40"></div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div x-show="state !== 'loading'" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col p-6" style="display: none;">
+            
+            <!-- HEADER (Sapaan Afirmatif) -->
+            <header class="mt-4 mb-8">
+                <p class="text-[12px] text-gray-500 font-black mb-1.5 tracking-wide uppercase">Selamat pagi, Ibunda</p>
+                <h1 class="text-gray-800 font-extrabold text-[26px] leading-tight">
+                    Mari pilih profil <br> si kecil
+                </h1>
+            </header>
+
+            <!-- 1. NORMAL STATE (Tumpukan Kartu) -->
+            <div x-show="state === 'normal'" class="flex flex-col space-y-4">
+                
+                <!-- CARD 1 (Last Opened / Aktivitas Terbaru) -->
+                <!-- Interaksi: Card-as-a-Button, Scale-down effect on hover/active -->
+                <button class="w-full bg-white rounded-[28px] p-4 flex items-center justify-between shadow-soft border border-gray-100 focus:outline-none focus:ring-4 focus:ring-mint-100 hover:scale-[0.98] transition-all duration-200 group text-left relative overflow-hidden">
+                    <div class="flex items-center space-x-4 z-10">
+                        <!-- Letter Avatar -->
+                        <div class="w-[60px] h-[60px] rounded-[20px] bg-mint-50 text-mint-600 flex items-center justify-center text-2xl font-black border border-mint-100">
+                            A
+                        </div>
+                        <div>
+                            <h2 class="text-[17px] font-black text-gray-800 leading-none">Aisyah Putri</h2>
+                            <p class="text-[12px] font-bold text-gray-500 mt-1">1 Tahun 2 Bulan</p>
+                            <!-- Status Activity (Konteks Waktu, Bukan Klinis) -->
+                            <p class="text-[11px] font-black text-mint-600 mt-1.5 flex items-center tracking-wide">
+                                <span class="w-1.5 h-1.5 bg-mint-500 rounded-full mr-1.5 animate-pulse"></span> Data Baru (Diperiksa Hari Ini)
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-gray-300 group-hover:text-brand transition-colors z-10 pr-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </button>
+
+                <!-- CARD 2 (Aktivitas Sedang Berjalan / Empty C) -->
+                <button class="w-full bg-white rounded-[28px] p-4 flex items-center justify-between shadow-soft border border-gray-100 focus:outline-none focus:ring-4 focus:ring-blue-100 hover:scale-[0.98] transition-all duration-200 group text-left">
+                    <div class="flex items-center space-x-4">
+                        <!-- Generic Avatar -->
+                        <div class="w-[60px] h-[60px] rounded-[20px] bg-blue-50 text-blue-500 flex items-center justify-center text-2xl font-black border border-blue-100">
+                            👶
+                        </div>
+                        <div>
+                            <h2 class="text-[17px] font-black text-gray-800 leading-none">Budi Pratama</h2>
+                            <p class="text-[12px] font-bold text-gray-500 mt-1">8 Bulan</p>
+                            <p class="text-[11px] font-black text-blue-600 mt-1.5 flex items-center tracking-wide">
+                                <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span> Menunggu Tinjauan Bidan
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-gray-300 group-hover:text-brand transition-colors pr-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </button>
+
+                <!-- CARD 3 (Aktivitas Lama / Pasif) -->
+                <button class="w-full bg-white rounded-[28px] p-4 flex items-center justify-between shadow-soft border border-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-100 hover:scale-[0.98] transition-all duration-200 group text-left opacity-90">
+                    <div class="flex items-center space-x-4">
+                        <!-- Letter Avatar -->
+                        <div class="w-[60px] h-[60px] rounded-[20px] bg-peach-50 text-peach-600 flex items-center justify-center text-2xl font-black border border-peach-100">
+                            C
+                        </div>
+                        <div>
+                            <h2 class="text-[17px] font-black text-gray-800 leading-none">Caca Cantika</h2>
+                            <p class="text-[12px] font-bold text-gray-500 mt-1">3 Tahun 5 Bulan</p>
+                            <p class="text-[11px] font-black text-gray-400 mt-1.5 flex items-center tracking-wide">
+                                <span class="w-1.5 h-1.5 bg-gray-300 rounded-full mr-1.5"></span> Terakhir diperiksa bulan lalu
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-gray-300 group-hover:text-brand transition-colors pr-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </button>
+
+            </div>
+
+            <!-- 2. EMPTY STATE A (Nomor Belum Terhubung) -->
+            <div x-show="state === 'empty_unlinked'" class="flex flex-col items-center justify-center flex-1 text-center mt-12 mb-8">
+                <div class="text-[80px] mb-6 filter drop-shadow-sm">🧐</div>
+                <h2 class="text-[22px] font-black text-gray-800 mb-3 leading-tight">Ups, Sepertinya...</h2>
+                <p class="text-[13px] font-bold text-gray-500 mb-8 max-w-[260px] leading-relaxed">Nomor WhatsApp Ibu belum terhubung dengan aplikasi Posyandu. Yuk minta tolong Bu Kader untuk menautkannya.</p>
+                <button class="w-full bg-brand hover:bg-emerald-500 text-white font-black py-4 rounded-[20px] shadow-lg shadow-emerald-200 transition duration-300 text-[14px] flex justify-center items-center space-x-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                    <span>Hubungi Kader via WA</span>
+                </button>
+            </div>
+
+            <!-- 3. EMPTY STATE B (Nomor Terdaftar, Tapi Kosong) -->
+            <div x-show="state === 'empty_nokids'" class="flex flex-col items-center justify-center flex-1 text-center mt-12 mb-8">
+                <div class="text-[80px] mb-6 filter drop-shadow-sm">📝</div>
+                <h2 class="text-[22px] font-black text-gray-800 mb-3 leading-tight">Nomor Dikenali</h2>
+                <p class="text-[13px] font-bold text-gray-500 mb-8 max-w-[260px] leading-relaxed">Sistem mendeteksi nomor Ibu, tapi profil si Kecil belum dimasukkan. Yuk pastikan Bu Kader melengkapinya.</p>
+                <div class="w-full space-y-3">
+                    <button class="w-full bg-brand hover:bg-emerald-500 text-white font-black py-4 rounded-[20px] shadow-lg shadow-emerald-200 transition duration-300 text-[14px]">
+                        Refresh Data
+                    </button>
+                    <button class="w-full bg-white border-2 border-gray-100 hover:border-brand hover:bg-emerald-50 text-gray-500 hover:text-brand font-extrabold py-3.5 rounded-[20px] transition duration-300 text-[14px]">
+                        Hubungi Kader
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. ERROR STATE -->
+            <div x-show="state === 'error'" class="flex flex-col items-center justify-center flex-1 text-center mt-12 mb-8 bg-red-50 p-8 rounded-[32px] border border-red-100">
+                <div class="text-[64px] mb-4 filter drop-shadow-sm">🔌</div>
+                <h2 class="text-xl font-black text-red-800 mb-2">Ups, Koneksi Terputus</h2>
+                <p class="text-[13px] text-red-600 mb-8 font-bold leading-relaxed max-w-[200px]">Gagal memuat profil si Kecil. Pastikan koneksi internet menyala ya Ibu.</p>
+                <button class="bg-red-200 text-red-800 font-extrabold py-3.5 px-8 rounded-[20px] w-full hover:bg-red-300 transition duration-200 text-sm shadow-sm">
+                    Coba Muat Ulang
+                </button>
+            </div>
+
+            <!-- SPACER UTK FOOTER -->
+            <div class="flex-1"></div>
+
+            <!-- FOOTER LOGISTICS (Hanya di Normal State) -->
+            <div x-show="state === 'normal'" class="mt-8 mb-4 text-center">
+                <p class="text-[11px] font-bold text-gray-400">Ada profil anak yang belum terdaftar?</p>
+                <a href="#" class="text-[12px] font-black text-brand hover:underline mt-0.5 inline-block">Minta bantuan Kader Posyandu</a>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>
