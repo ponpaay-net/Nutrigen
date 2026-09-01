@@ -323,60 +323,38 @@
             </section>
         </div>
 
-        {{-- RIGHT: riwayat pengukuran (timeline responsif) --}}
+        {{-- RIGHT: riwayat pengukuran (list datar, scannable) --}}
         <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6">
-            <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center justify-between mb-4">
                 <div>
                     <h4 class="text-[15px] font-bold text-slate-900">Riwayat Pengukuran</h4>
-                    <p class="text-[12px] text-slate-500 mt-0.5">{{ count($measurements) }} kali pengukuran, terbaru di atas</p>
+                    <p class="text-[12px] text-slate-500 mt-0.5">{{ count($measurements) }} kali, terbaru di atas</p>
                 </div>
             </div>
 
             @forelse($measurements as $m)
-                <div class="relative flex gap-3.5">
-                    <div class="flex flex-col items-center">
-                        <span class="w-3 h-3 rounded-full border-2 {{ ($m['status_type'] === 'danger') ? 'border-rose-400 bg-rose-50' : (($m['status_type'] === 'warning') ? 'border-amber-400 bg-amber-50' : 'border-emerald-400 bg-emerald-50') }} mt-1 shrink-0"></span>
-                        @if(!$loop->last)<span class="flex-1 w-px bg-slate-200"></span>@endif
+                @php
+                    $stMap = ['success' => 'bg-emerald-50 text-emerald-700 border-emerald-200', 'warning' => 'bg-amber-50 text-amber-700 border-amber-200', 'danger' => 'bg-rose-50 text-rose-700 border-rose-200'];
+                    $st = $stMap[$m['status_type']] ?? 'bg-slate-50 text-slate-600 border-slate-200';
+                @endphp
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3.5 border-b border-slate-100 last:border-b-0">
+                    {{-- date + age --}}
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="w-2 h-2 rounded-full {{ $m['status_type'] === 'danger' ? 'bg-rose-500' : ($m['status_type'] === 'warning' ? 'bg-amber-400' : 'bg-emerald-500') }} shrink-0"></span>
+                        <span class="text-[13.5px] font-bold text-slate-800 whitespace-nowrap">{{ $m['date'] }}</span>
+                        <span class="text-[12px] text-slate-400 whitespace-nowrap">· {{ $m['age_at_measure'] }}</span>
                     </div>
-                    <div class="flex-1 min-w-0 {{ $loop->last ? '' : 'pb-4' }}">
-                        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3.5">
-                            <div class="flex items-center justify-between gap-2 flex-wrap">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-[13.5px] font-bold text-slate-800">{{ $m['date'] }}</span>
-                                    <span class="text-[11.5px] text-slate-400 font-medium">· {{ $m['age_at_measure'] }}</span>
-                                </div>
-                                @php $stMap = ['success' => 'bg-emerald-50 text-emerald-700 border-emerald-200', 'warning' => 'bg-amber-50 text-amber-700 border-amber-200', 'danger' => 'bg-rose-50 text-rose-700 border-rose-200']; $st = $stMap[$m['status_type']] ?? 'bg-slate-50 text-slate-600 border-slate-200'; @endphp
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[11px] font-bold {{ $st }}">{{ $m['status'] }}</span>
-                            </div>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-3">
-                                <div>
-                                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">BB</p>
-                                    <p class="text-[13.5px] font-bold text-slate-800 tabular-nums">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">TB</p>
-                                    <p class="text-[13.5px] font-bold text-slate-800 tabular-nums">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Z-BB/U</p>
-                                    <p class="text-[13.5px] font-bold tabular-nums {{ $m['z_score_bbu'] !== null ? ($m['z_score_bbu'] < -2 ? 'text-rose-600' : ($m['z_score_bbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_bbu'] !== null ? $m['z_score_bbu'] . ' SD' : '—' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Z-TB/U</p>
-                                    <p class="text-[13.5px] font-bold tabular-nums {{ $m['z_score_tbu'] !== null ? ($m['z_score_tbu'] < -2 ? 'text-rose-600' : ($m['z_score_tbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_tbu'] !== null ? $m['z_score_tbu'] . ' SD' : '—' }}</p>
-                                </div>
-                            </div>
-                            @if($m['weight_trend'] !== null || $m['height_trend'] !== null)
-                                <div class="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center gap-3 flex-wrap text-[11.5px] font-semibold">
-                                    @if($m['weight_trend'] !== null)
-                                        <span class="inline-flex items-center gap-1 {{ $m['weight_trend'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}"><x-icon name="{{ $m['weight_trend'] >= 0 ? 'trend-up' : 'trend-down' }}" weight="bold" class="text-[13px]" /> BB {{ $m['weight_trend'] >= 0 ? '+' : '' }}{{ $m['weight_trend'] }} kg</span>
-                                    @endif
-                                    @if($m['height_trend'] !== null)
-                                        <span class="inline-flex items-center gap-1 {{ $m['height_trend'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}"><x-icon name="{{ $m['height_trend'] >= 0 ? 'trend-up' : 'trend-down' }}" weight="bold" class="text-[13px]" /> TB {{ $m['height_trend'] >= 0 ? '+' : '' }}{{ $m['height_trend'] }} cm</span>
-                                    @endif
-                                </div>
-                            @endif
+                    {{-- metrics --}}
+                    <div class="flex items-center gap-4 sm:gap-5">
+                        <div class="text-right">
+                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide leading-none">BB</p>
+                            <p class="text-[13.5px] font-bold text-slate-800 tabular-nums mt-1">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</p>
                         </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide leading-none">TB</p>
+                            <p class="text-[13.5px] font-bold text-slate-800 tabular-nums mt-1">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</p>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-bold {{ $st }} whitespace-nowrap">{{ $m['status'] }}</span>
                     </div>
                 </div>
             @empty
