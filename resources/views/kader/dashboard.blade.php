@@ -22,27 +22,25 @@
         <div class="flex items-center gap-2.5">
             <a href="{{ route('balita.create') }}"
                class="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/40">
-                <x-icon name="user-plus" weight="bold" class="text-base" /> <span class="hidden sm:inline">Balita Baru</span>
+                <x-icon name="user-plus" weight="bold" class="text-base" /> Balita Baru
             </a>
             <a href="{{ route('balita.index') }}"
                class="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-white hover:bg-teal-50 text-teal-700 border border-teal-200 text-sm font-semibold shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/30">
-                <x-icon name="scales" weight="bold" class="text-base" /> <span class="hidden sm:inline">Mulai Timbang</span>
+                <x-icon name="scales" weight="bold" class="text-base" /> Mulai Timbang
             </a>
         </div>
     </div>
 
     {{-- CAPAIAN SESI (feature banner — TEAL) --}}
-    <section class="rounded-2xl bg-teal-600 text-white p-6 sm:p-7 relative overflow-hidden shadow-sm">
+    <section class="rounded-2xl bg-teal-600 text-white p-5 sm:p-7 relative overflow-hidden shadow-sm">
         <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-center">
             <div>
                 <p class="text-xs font-semibold uppercase tracking-widest text-teal-100">Capaian Sesi Ini</p>
-                <div class="flex items-baseline gap-2 mt-2">
-                    <span class="text-4xl sm:text-5xl font-bold tabular-nums leading-none">{{ $sudah }}</span>
+                <div class="flex items-baseline gap-2 mt-2.5">
+                    <span class="text-3xl sm:text-4xl font-bold tabular-nums leading-none">{{ $sudah }}</span>
                     <span class="text-teal-100 text-sm sm:text-base font-medium">dari {{ $total }} balita terukur</span>
                 </div>
-                <p class="mt-3 text-teal-50/90 text-sm max-w-md">
-                    {{ $belum > 0 ? $belum . ' balita menunggu penimbangan - selesaikan sesi untuk laporan.' : 'Semua balita sudah ditimbang. Kerja bagus!' }}
-                </p>
+                <p class="mt-3 text-sm text-teal-50/90">Progres pengukuran bulan ini di posyandu Anda.</p>
             </div>
             <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur p-5">
                 <div class="flex items-center justify-between mb-3">
@@ -52,7 +50,7 @@
                 <div class="w-full h-2.5 bg-white/20 rounded-full overflow-hidden">
                     <div class="h-full rounded-full bg-gradient-to-r from-teal-300 to-white transition-all" style="width: {{ $percent }}%"></div>
                 </div>
-                <div class="flex items-center justify-between mt-3.5 text-sm font-medium">
+                <div class="flex items-center justify-between mt-3.5 text-sm font-semibold">
                     <span class="inline-flex items-center gap-1.5 text-teal-50"><x-icon name="check-circle" weight="fill" /> Selesai {{ $sudah }}</span>
                     <span class="inline-flex items-center gap-1.5 text-teal-100"><x-icon name="clock" weight="fill" /> Antrean {{ $belum }}</span>
                 </div>
