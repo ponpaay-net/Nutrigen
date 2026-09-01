@@ -93,9 +93,9 @@
         </div>
 
         <div class="relative w-full sm:w-auto">
-            <x-icon name="funnel" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none" />
-            <select name="filter" onchange="this.form.submit()"
-                    class="w-full sm:w-[230px] h-11 pl-10 pr-10 rounded-xl bg-white border border-slate-200 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-700 appearance-none cursor-pointer transition-all focus:outline-none">
+            <x-icon name="funnel" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-lg pointer-events-none transition-colors {{ request('filter') ? 'text-teal-600' : 'text-slate-400' }}" />
+            <select name="filter" onchange="this.form.submit()" aria-label="Filter balita"
+                    class="w-full sm:w-[240px] h-11 pl-11 pr-12 rounded-xl bg-slate-50 border border-slate-200 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/10 focus:bg-white text-sm font-medium text-slate-700 appearance-none cursor-pointer transition-all focus:outline-none">
                 <option value="">Semua Balita ({{ $total }})</option>
                 @foreach($filters as $key => $f)
                     <option value="{{ $key }}" @if(request('filter') === $key) selected @endif>{{ $f['label'] }} ({{ $f['count'] }})</option>
@@ -104,6 +104,25 @@
             <x-icon name="caret-down" weight="bold" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
         </div>
     </form>
+
+    @if(request('filter') || request('q'))
+    <div class="flex flex-wrap items-center gap-2 text-[12px] text-slate-500">
+        @php $activeFilterKey = request('filter'); @endphp
+        <span class="inline-flex items-center gap-1.5 font-medium">
+            <x-icon name="filter" weight="bold" class="text-[13px] text-slate-400" />
+            Menampilkan:
+        </span>
+        @if($activeFilterKey && isset($filters[$activeFilterKey]))
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-700 font-bold">{{ $filters[$activeFilterKey]['label'] }}</span>
+        @endif
+        @if(request('q'))
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-bold">"{{ request('q') }}"</span>
+        @endif
+        <a href="{{ route('balita.index') }}" class="ml-1 inline-flex items-center gap-1 font-semibold text-slate-400 hover:text-rose-600 transition-colors">
+            <x-icon name="x" weight="bold" class="text-[13px]" /> Hapus filter
+        </a>
+    </div>
+    @endif[truncated]
 
     @if(request('q') && $priorityBalitas->isEmpty() && $displayBalitas->isEmpty())
         {{-- EMPTY STATE (search) --}}
