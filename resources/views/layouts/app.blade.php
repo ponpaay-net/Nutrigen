@@ -34,7 +34,7 @@
 
             <!-- Main Content Area -->
             <main @scroll.passive="scrolled = ($event.target.scrollTop > 10)" class="flex-1 overflow-y-auto overflow-x-hidden pb-[80px] lg:pb-0 w-full relative">
-                <div class="w-full h-full">
+                <div class="w-full">
                     @yield('content')
                 </div>
             </main>
