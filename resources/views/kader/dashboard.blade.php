@@ -127,12 +127,14 @@
                             $initials = strtoupper(substr($child->name ?? 'AN', 0, 2));
                         @endphp
                         <li>
-                            <a href="{{ route('balita.show', $child->id) }}" class="flex items-center gap-4 p-4 sm:p-5 hover:bg-slate-50 transition-colors focus:outline-none">
-                                <div class="shrink-0 w-11 h-11 rounded-full text-sm font-bold flex items-center justify-center {{ $isDanger ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700' }}">{{ $initials }}</div>
+                            <a href="{{ route('balita.show', $child->id) }}" class="group flex items-center gap-4 p-4 sm:p-5 hover:bg-slate-50 transition-colors focus:outline-none">
+                                <div class="shrink-0 w-11 h-11 rounded-full text-sm font-bold flex items-center justify-center {{ $isDanger ? 'bg-rose-100 text-rose-700 ring-2 ring-rose-200/70' : 'bg-amber-100 text-amber-700 ring-2 ring-amber-200/70' }}">{{ $initials }}</div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2">
                                         <h3 class="text-sm font-semibold text-slate-900 truncate">{{ Str::title($child->name) }}</h3>
-                                        <span class="shrink-0 px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[11px] font-semibold">{{ $isBoy ? 'L' : 'P' }}</span>
+                                        <span class="shrink-0 inline-flex items-center justify-center min-w-[22px] h-[22px] px-1 rounded-md bg-slate-100 text-slate-500 text-[11px] font-bold">
+                                            <x-icon name="{{ $isBoy ? 'gender-male' : 'gender-female' }}" weight="fill" class="text-[13px]" />
+                                        </span>
                                     </div>
                                     <div class="mt-0.5 text-[13px] text-slate-500 flex items-center gap-1.5 truncate">
                                         <span class="truncate">Ibu {{ $child->mother ?? '-' }}</span>
@@ -142,10 +144,10 @@
                                 </div>
                                 <div class="shrink-0 flex items-center gap-2">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full {{ $isDanger ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }} text-[11px] font-semibold">
-                                        <span class="w-1.5 h-1.5 rounded-full {{ $isDanger ? 'bg-rose-500' : 'bg-amber-500' }}"></span>
+                                        <x-icon name="{{ $isDanger ? 'warning' : 'activity' }}" weight="fill" class="text-xs" />
                                         {{ $child->shortStatus ?? 'Gizi' }}
                                     </span>
-                                    <x-icon name="caret-right" weight="bold" class="text-slate-300" />
+                                    <x-icon name="caret-right" weight="bold" class="text-slate-300 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-all" />
                                 </div>
                             </a>
                         </li>
@@ -175,8 +177,8 @@
                 </div>
 
                 @if(isset($jadwalTerdekat) && $jadwalTerdekat)
-                    <a href="{{ route('jadwal.show', $jadwalTerdekat['id']) }}" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm group flex items-start gap-4 hover:border-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-400">
-                        <div class="w-14 h-14 rounded-xl bg-teal-50 text-teal-700 flex flex-col items-center justify-center shrink-0 border border-teal-200">
+                    <a href="{{ route('jadwal.show', $jadwalTerdekat['id']) }}" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm group flex items-start gap-4 hover:border-teal-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400">
+                        <div class="w-14 h-14 rounded-xl bg-teal-50 text-teal-700 flex flex-col items-center justify-center shrink-0 border border-teal-200 group-hover:bg-teal-100 transition-colors">
                             <span class="text-[11px] font-bold uppercase tracking-wider">{{ $jadwalTerdekat['tgl_bulan'] ?? 'AGT' }}</span>
                             <span class="text-xl font-bold leading-none tabular-nums mt-0.5">{{ $jadwalTerdekat['tgl_nomor'] ?? '23' }}</span>
                         </div>
@@ -186,7 +188,12 @@
                                 <div class="flex items-center gap-1.5 truncate"><x-icon name="clock" class="shrink-0 text-slate-400" /> <span class="truncate">{{ $jadwalTerdekat['waktu'] }}</span></div>
                                 <div class="flex items-center gap-1.5 truncate"><x-icon name="map-pin" class="shrink-0 text-slate-400" /> <span class="truncate">{{ $jadwalTerdekat['lokasi'] }}</span></div>
                             </div>
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-teal-600 text-white text-xs font-bold rounded-full"><x-icon name="hourglass" weight="bold" /> {{ $jadwalTerdekat['countdown'] }}</span>
+                            @php
+                                $st = $jadwalTerdekat['status_type'] ?? 'upcoming';
+                                $chipCls = $st === 'today' ? 'bg-amber-100 text-amber-800' : ($st === 'past' ? 'bg-slate-100 text-slate-500' : 'bg-teal-600 text-white');
+                                $chipIcon = $st === 'today' ? 'warning' : 'hourglass';
+                            @endphp
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full {{ $chipCls }} text-xs font-bold"><x-icon name="{{ $chipIcon }}" weight="bold" /> {{ $jadwalTerdekat['countdown'] }}</span>
                         </div>
                     </a>
                 @else
@@ -197,15 +204,15 @@
                 @endif
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md hover:border-teal-200 transition-all group">
                 <div class="flex items-center gap-4">
-                    <div class="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0"><x-icon name="download-simple" weight="bold" class="text-lg" /></div>
+                    <div class="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:bg-teal-100 transition-colors"><x-icon name="download-simple" weight="bold" class="text-lg" /></div>
                     <div>
                         <h3 class="text-sm font-semibold text-slate-900 mb-0.5">Rekap Laporan Bulanan</h3>
                         <p class="text-[13px] text-slate-500">Ekspor data untuk Puskesmas.</p>
                     </div>
                 </div>
-                <a href="{{ route('laporan.index') }}" class="w-full sm:w-auto px-4 h-10 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 shrink-0 focus:ring-2 focus:ring-teal-500 focus:outline-none">Buka <x-icon name="arrow-right" weight="bold" /></a>
+                <a href="{{ route('laporan.index') }}" class="w-full sm:w-auto px-4 h-10 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 shrink-0 focus:ring-2 focus:ring-teal-500 focus:outline-none">Buka <x-icon name="arrow-right" weight="bold" /></a>
             </div>
         </section>
 
