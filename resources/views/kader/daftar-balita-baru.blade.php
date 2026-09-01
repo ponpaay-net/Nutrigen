@@ -314,6 +314,17 @@ document.addEventListener('alpine:init', () => {
                 entries.forEach(e => { if (e.isIntersecting) this.activeSection = e.target.id; });
             }, { root: main, rootMargin: '-140px 0px -65% 0px', threshold: 0 });
             ['identitas','kelahiran','orangtua','lokasi'].forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+
+            // AUTO: nama -> kapital di awal kata
+            ['nama','nama_ibu','nama_ayah'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', () => { el.value = titleCase(el.value); });
+            });
+            // AUTO: berat/panjang/lingkar kepala -> titik desimal
+            ['berat_lahir','panjang_lahir','lingkar_kepala_lahir'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', () => { el.value = decimalMask(el.value); });
+            });
         },
         scrollTo(id) {
             const el = document.getElementById(id);
@@ -327,5 +338,24 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 });
+
+// Kapital di awal tiap kata (huruf setelah spasi/hyphen/apostrof)
+function titleCase(s) {
+    return String(s || '').toLowerCase().replace(/(^|[\s-'’])(\w)/g, (m, sep, c) => sep + c.toUpperCase());
+}
+
+// Auto titik desimal untuk pengukuran (berat/panjang/lingkar)
+function decimalMask(s) {
+    let v = String(s || '').replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1');
+    if (v.includes('.')) {
+        let p = v.split('.');
+        let i = p[0].replace(/^0+(?=\d)/, '');
+        return (i === '' ? '0' : i) + '.' + p[1].slice(0, 1);
+    }
+    let d = v.replace(/^0+(?=\d)/, '');
+    if (!d) return '';
+    if (d.length <= 2) return d;
+    return d.slice(0, -1) + '.' + d.slice(-1);
+}
 </script>
 @endsection
