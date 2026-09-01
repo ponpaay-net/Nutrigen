@@ -150,7 +150,29 @@
         <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6" x-data='{ active: null, items: @json($measurements, 15) }'>
             <div class="flex items-center justify-between mb-4"><div><h4 class="text-[15px] font-bold text-slate-900">Riwayat Pengukuran</h4><p class="text-[12px] text-slate-500 mt-0.5">{{ count($measurements) }} kali, terbaru di atas</p></div></div>
             @if(count($measurements) > 0)
-            <div class="overflow-x-auto hide-scrollbar -mx-5 px-5">
+            {{-- Mobile: card list (stack, no scroll) --}}
+            <div class="space-y-3 sm:hidden">
+                @foreach($measurements as $i => $m)
+                    @php $s = $m['status_validasi'] ?? 'pending'; $isRejected = $s === 'rejected'; $badgeText = match($s) { 'rejected' => 'text-rose-600', 'pending' => 'text-amber-600', 'approved' => 'text-emerald-600', default => 'text-slate-500' }; @endphp
+                    <button type="button" @click="active = {{ $i }}" class="w-full bg-white border {{ $isRejected ? 'border-rose-200 bg-rose-50/40' : 'border-slate-200' }} rounded-xl p-4 text-left transition-shadow hover:shadow-sm">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0"><span class="w-2 h-2 rounded-full shrink-0 {{ $s === 'rejected' ? 'bg-rose-500' : ($s === 'pending' ? 'bg-amber-400' : 'bg-emerald-500') }}"></span><span class="text-[13.5px] font-bold text-slate-800 whitespace-nowrap">{{ $m['date'] }}</span><span class="text-[11.5px] text-slate-400 whitespace-nowrap">· {{ $m['age_at_measure'] }}</span></div>
+                            <span class="text-[12px] font-bold {{ $badgeText }} shrink-0">{{ $m['status'] }}</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mt-3">
+                            <div class="bg-slate-50 rounded-lg px-2.5 py-1.5"><p class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wide">BB</p><p class="text-[13px] font-bold text-slate-800 tabular-nums mt-0.5">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</p></div>
+                            <div class="bg-slate-50 rounded-lg px-2.5 py-1.5"><p class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wide">TB</p><p class="text-[13px] font-bold text-slate-800 tabular-nums mt-0.5">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</p></div>
+                            <div class="bg-slate-50 rounded-lg px-2.5 py-1.5"><p class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wide">LK</p><p class="text-[13px] font-bold text-slate-800 tabular-nums mt-0.5">{{ $m['head_circ'] ? number_format($m['head_circ'],1,',','.') . ' cm' : '—' }}</p></div>
+                        </div>
+                        <div class="flex items-center justify-end gap-1 mt-2.5 text-[12px] font-semibold text-teal-600"><x-icon name="eye" weight="bold" class="text-[13px]" /> Lihat Detail</div>
+                        @if($isRejected && !empty($m['catatan_validator']))
+                            <div class="mt-2.5 border border-rose-200 rounded-lg p-2.5 bg-white flex items-start gap-2"><x-icon name="chat-circle-text" weight="fill" class="text-rose-500 text-[16px] shrink-0 mt-0.5" /><p class="text-[12px] text-slate-600 leading-relaxed">{{ $m['catatan_validator'] }}</p></div>
+                        @endif
+                    </button>
+                @endforeach
+            </div>
+            {{-- Desktop: table --}}
+            <div class="overflow-x-auto hide-scrollbar -mx-5 px-5 hidden sm:block">
                 <table class="w-full min-w-[640px] text-left">
                     <thead><tr class="text-[10.5px] uppercase tracking-wide text-slate-400 border-b border-slate-100">
                         <th class="py-2.5 pr-3 font-semibold">Tanggal</th><th class="py-2.5 pr-3 font-semibold">Usia</th><th class="py-2.5 pr-3 font-semibold">BB</th><th class="py-2.5 pr-3 font-semibold">TB</th><th class="py-2.5 pr-3 font-semibold hidden sm:table-cell">Z-BB/U</th><th class="py-2.5 pr-3 font-semibold hidden sm:table-cell">Z-TB/U</th><th class="py-2.5 pr-3 font-semibold">Status</th><th class="py-2.5 font-semibold text-right">Aksi</th>
