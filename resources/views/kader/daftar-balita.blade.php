@@ -30,11 +30,11 @@
 
 <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-6 flex flex-col gap-5 lg:gap-6">
 
-    {{-- PAGE HEADER --}}
+    {{-- PAGE HEADER (judulnya ada di topbar; di sini subtitle + aksi utama) --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Data Balita</h1>
-            <p class="text-sm text-slate-500 mt-0.5">{{ $posyanduName ?? 'Posyandu' }} · {{ now()->translatedFormat('d F Y') }}</p>
+            <p class="text-sm font-medium text-slate-500">{{ $posyanduName ?? 'Posyandu' }} <span class="text-slate-300 mx-1">·</span> {{ now()->translatedFormat('d F Y') }}</p>
+            <p class="text-[13px] text-slate-400 mt-0.5">Kelola data & pantau pengukuran balita di posyandu Anda.</p>
         </div>
         <a href="{{ route('balita.create') }}"
            class="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/40">
@@ -88,7 +88,7 @@
     <form action="{{ route('balita.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3 sm:items-center">
         <div class="relative w-full sm:flex-1">
             <x-icon name="magnifying-glass" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none" />
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama atau NIK balita…"
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama atau NIK balita…" aria-label="Cari balita berdasarkan nama atau NIK"
                    class="w-full h-11 pl-11 pr-4 rounded-xl bg-white border border-slate-200 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/10 text-sm text-slate-700 placeholder:text-slate-400 transition-all focus:outline-none">
         </div>
 
