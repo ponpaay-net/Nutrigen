@@ -178,6 +178,54 @@ class KaderController extends Controller
         return view('kader.dashboard', $data);
     }
 
+    private function formatBalita($b): array
+    {
+        $latest = $b->latestPengukuran;
+        $age = Carbon::parse($b->tanggal_lahir)->diff(Carbon::now());
+        $status = $latest ? $latest->status_gizi : 'Belum Ada';
+        $statusType = match (strtolower($status)) {
+            'stunting' => 'danger',
+            'risiko', 'kurang' => 'warning',
+            'normal' => 'success',
+            default => 'warning'
+        };
+        $rejectedMeasurement = $b->pengukurans->where('status_validasi', 'rejected')->first();
+        $status_validasi = $rejectedMeasurement ? 'rejected' : ($latest ? $latest->status_validasi : 'pending');
+        if ($rejectedMeasurement) {
+            $statusType = 'danger';
+        }
+        $isGirl = in_array(strtolower($b->jenis_kelamin ?? ''), ['p', 'perempuan', 'female']);
+        $genderLabel = $isGirl ? 'Perempuan' : 'Laki-laki';
+        $maskedNik = $b->nik;
+        if ($b->nik && strlen($b->nik) >= 12) {
+            $maskedNik = substr($b->nik, 0, 6) . '*********' . substr($b->nik, -4);
+        }
+        $bbTbText = '-';
+        if ($latest && $latest->berat_badan > 0 && $latest->tinggi_badan > 0) {
+            $bbTbText = number_format($latest->berat_badan, 1, ',', '.') . ' kg / ' . number_format($latest->tinggi_badan, 1, ',', '.') . ' cm';
+        } elseif ($latest && $latest->berat_badan > 0) {
+            $bbTbText = number_format($latest->berat_badan, 1, ',', '.') . ' kg';
+        } elseif ($b->berat_lahir > 0) {
+            $bbTbText = number_format($b->berat_lahir, 1, ',', '.') . ' kg';
+        }
+        return [
+            'id' => $b->id,
+            'name' => $b->nama,
+            'age' => $age->y > 0 ? $age->y . ' Thn ' . $age->m . ' Bln' : $age->m . ' Bln',
+            'gender' => $b->jenis_kelamin,
+            'gender_label' => $genderLabel,
+            'nik' => $b->nik,
+            'masked_nik' => $maskedNik,
+            'mother' => $b->orangTua->nama_ibu ?? '-',
+            'last_measure' => $latest ? Carbon::parse($latest->tanggal_ukur)->translatedFormat('d M Y') : 'Belum Ada',
+            'bb_tb' => $bbTbText,
+            'status' => $this->formatDisplayStatus($status, $status_validasi),
+            'status_type' => $statusType,
+            'status_validasi' => $status_validasi,
+            'rejection_note' => $rejectedMeasurement?->catatan_validator,
+        ];
+    }
+
     public function daftarBalita(Request $request)
     {
         $posyanduId = $this->getKaderPosyanduId();
@@ -263,66 +311,35 @@ class KaderController extends Controller
             })->count(),
         ];
 
-        $balitas = $query->with(['orangTua', 'pengukurans'])->get();
+        $allFormatted = $query->with(['orangTua', 'pengukurans'])->get()
+            ->map(fn($b) => $this->formatBalita($b))
+            ->values();
 
-        $formattedBalitas = $balitas->map(function($b) {
-            $latest = $b->latestPengukuran;
-            $age = Carbon::parse($b->tanggal_lahir)->diff(Carbon::now());
-            
-            $status = $latest ? $latest->status_gizi : 'Belum Ada';
-            $statusType = match(strtolower($status)) {
-                'stunting' => 'danger',
-                'risiko', 'kurang' => 'warning',
-                'normal' => 'success',
-                default => 'warning'
-            };
+        $isFiltered = (bool) ($filter || request('q'));
+        if (!$isFiltered) {
+            $priority = $allFormatted->filter(fn($a) => in_array($a['status_type'] ?? '', ['danger', 'warning']))->values();
+            $daftar   = $allFormatted->reject(fn($a) => in_array($a['status_type'] ?? '', ['danger', 'warning']))->values();
+        } else {
+            $priority = collect([]);
+            $daftar   = $allFormatted;
+        }
 
-            $rejectedMeasurement = $b->pengukurans->where('status_validasi', 'rejected')->first();
-            $status_validasi = $rejectedMeasurement ? 'rejected' : ($latest ? $latest->status_validasi : 'pending');
-
-            if ($rejectedMeasurement) {
-                $statusType = 'danger';
-            }
-
-            $isGirl = in_array(strtolower($b->jenis_kelamin ?? ''), ['p', 'perempuan', 'female']);
-            $genderLabel = $isGirl ? 'Perempuan' : 'Laki-laki';
-
-            $maskedNik = $b->nik;
-            if ($b->nik && strlen($b->nik) >= 12) {
-                $maskedNik = substr($b->nik, 0, 6) . '*********' . substr($b->nik, -4);
-            }
-
-            $bbTbText = '-';
-            if ($latest && $latest->berat_badan > 0 && $latest->tinggi_badan > 0) {
-                $bbTbText = number_format($latest->berat_badan, 1, ',', '.') . ' kg / ' . number_format($latest->tinggi_badan, 1, ',', '.') . ' cm';
-            } elseif ($latest && $latest->berat_badan > 0) {
-                $bbTbText = number_format($latest->berat_badan, 1, ',', '.') . ' kg';
-            } elseif ($b->berat_lahir > 0) {
-                $bbTbText = number_format($b->berat_lahir, 1, ',', '.') . ' kg';
-            }
-
-            return [
-                'id' => $b->id,
-                'name' => $b->nama,
-                'age' => $age->y > 0 ? $age->y . ' Thn ' . $age->m . ' Bln' : $age->m . ' Bln',
-                'gender' => $b->jenis_kelamin,
-                'gender_label' => $genderLabel,
-                'nik' => $b->nik,
-                'masked_nik' => $maskedNik,
-                'mother' => $b->orangTua->nama_ibu ?? '-',
-                'last_measure' => $latest ? Carbon::parse($latest->tanggal_ukur)->translatedFormat('d M Y') : 'Belum Ada',
-                'bb_tb' => $bbTbText,
-                'status' => $this->formatDisplayStatus($status, $status_validasi),
-                'status_type' => $statusType,
-                'status_validasi' => $status_validasi,
-                'rejection_note' => $rejectedMeasurement?->catatan_validator,
-            ];
-        });
+        // Paginasi manual (logika status di PHP, bukan query) — tampilkan 12 per halaman
+        $perPage = 12;
+        $page = max(1, (int) request()->get('page', 1));
+        $balitas = new \Illuminate\Pagination\LengthAwarePaginator(
+            $daftar->forPage($page, $perPage)->values(),
+            $daftar->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         $ds = $this->statisticsService->getKaderDashboardStats($posyanduId);
 
         return view('kader.daftar-balita', [
-            'balitas' => $formattedBalitas,
+            'balitas' => $balitas,
+            'priorityBalitas' => $priority,
             'filters' => $request->all(),
             'filterCounts' => $filterCounts,
             'statSelesai' => $ds['bulan_ini'],

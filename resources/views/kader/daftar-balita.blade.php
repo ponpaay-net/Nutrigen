@@ -4,9 +4,9 @@
 
 @php
     $isFiltered = request()->filled('filter') || request()->filled('q');
-    $balitasCollection = collect($balitas ?? []);
-    $priorityBalitas = $isFiltered ? collect([]) : $balitasCollection->filter(fn($b) => in_array($b['status_type'] ?? '', ['danger', 'warning']));
-    $displayBalitas  = $isFiltered ? $balitasCollection : $balitasCollection->filter(fn($b) => !in_array($b['status_type'] ?? '', ['danger', 'warning']));
+    $priorityBalitas = collect($priorityBalitas ?? []);
+    $displayBalitas  = collect($balitas->items());      // kartu pada halaman ini
+    $totalShown      = (int) $balitas->total();          // total semua halaman
     $sudah      = (int) ($statSelesai ?? 0);
     $belum      = (int) ($statBelum ?? 0);
     $totalAnak  = $sudah + $belum;   // total balita asli (selesai + belum)
@@ -163,9 +163,9 @@
                     <h2 class="text-base font-bold text-slate-900">{{ $isFiltered ? 'Hasil Filter' : 'Daftar Balita' }}</h2>
                     <p class="text-[12px] text-slate-500 mt-0.5">
                         @if(!$isFiltered && $priorityBalitas->isNotEmpty())
-                            {{ $displayBalitas->count() }} balita lainnya
+                            {{ $totalShown }} balita lainnya
                         @else
-                            {{ $displayBalitas->count() }} balita ditampilkan
+                            {{ $totalShown }} balita
                         @endif
                     </p>
                 </div>
@@ -206,6 +206,12 @@
                     </div>
                 @endforelse
             </div>
+
+            @if($balitas->hasPages())
+                <div class="flex justify-center pt-1">
+                    {{ $balitas->links('partials.pagination') }}
+                </div>
+            @endif
         </section>
 
     @endif
