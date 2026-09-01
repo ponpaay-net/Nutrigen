@@ -332,7 +332,7 @@
                 </div>
             </div>
 
-            <div class="space-y-2.5">
+            <div class="relative">
             @forelse($measurements as $m)
                 @php
                     $s = $m['status_validasi'] ?? 'pending';
@@ -343,39 +343,66 @@
                         'approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                         default    => 'bg-slate-50 text-slate-600 border-slate-200',
                     };
-                    $valDot = $s === 'rejected' ? 'bg-rose-500' : ($s === 'pending' ? 'bg-amber-400' : 'bg-emerald-500');
+                    $dot = $s === 'rejected' ? 'bg-rose-500' : ($s === 'pending' ? 'bg-amber-400' : 'bg-emerald-500');
                 @endphp
-                <div class="bg-white border rounded-xl p-4 flex flex-col gap-3 {{ $isRejected ? 'border-rose-200 bg-rose-50/40' : 'border-slate-200' }}">
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <span class="w-2 h-2 rounded-full {{ $valDot }} shrink-0"></span>
-                            <span class="text-[13.5px] font-bold text-slate-800 whitespace-nowrap">{{ $m['date'] }}</span>
-                            <span class="text-[12px] text-slate-400 whitespace-nowrap">· {{ $m['age_at_measure'] }}</span>
-                        </div>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-bold {{ $valBadge }} whitespace-nowrap shrink-0">{{ $m['status'] }}</span>
+                <div x-data="{ open: false }" class="relative flex gap-3.5">
+                    {{-- timeline rail --}}
+                    <div class="flex flex-col items-center pt-5">
+                        <span class="w-2.5 h-2.5 rounded-full border-2 {{ $isRejected ? 'border-rose-400 bg-rose-50' : ($s === 'pending' ? 'border-amber-400 bg-amber-50' : 'border-emerald-400 bg-emerald-50') }} shrink-0"></span>
+                        @if(!$loop->last)<span class="flex-1 w-px bg-slate-200"></span>@endif
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div class="bg-slate-50 rounded-lg px-3 py-2 min-w-0">
-                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Berat Badan</p>
-                            <p class="text-[14px] font-bold text-slate-800 tabular-nums mt-0.5 truncate">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</p>
-                        </div>
-                        <div class="bg-slate-50 rounded-lg px-3 py-2 min-w-0">
-                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Tinggi Badan</p>
-                            <p class="text-[14px] font-bold text-slate-800 tabular-nums mt-0.5 truncate">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</p>
-                        </div>
-                    </div>
-
-                    @if($isRejected && !empty($m['catatan_validator']))
-                        <div class="border border-rose-200 rounded-lg p-3 flex items-start gap-2.5 bg-white">
-                            <x-icon name="chat-circle-text" weight="fill" class="text-rose-500 text-[18px] shrink-0 mt-0.5" />
-                            <div class="min-w-0">
-                                <p class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">Catatan Petugas Gizi Puskesmas</p>
-                                <p class="text-[13px] text-slate-700 mt-1 leading-relaxed">{{ $m['catatan_validator'] }}</p>
+                    {{-- item --}}
+                    <div class="flex-1 min-w-0 pb-4">
+                        <button type="button" @click="open = !open" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-left transition-colors hover:border-teal-300 group cursor-pointer">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="text-[13.5px] font-bold text-slate-800 whitespace-nowrap">{{ $m['date'] }}</span>
+                                    <span class="text-[11.5px] text-slate-400 whitespace-nowrap">· {{ $m['age_at_measure'] }}</span>
+                                </div>
+                                <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                                    <div class="text-right leading-tight">
+                                        <p class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wide">BB</p>
+                                        <p class="text-[12.5px] font-bold text-slate-800 tabular-nums">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</p>
+                                    </div>
+                                    <div class="text-right leading-tight">
+                                        <p class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wide">TB</p>
+                                        <p class="text-[12.5px] font-bold text-slate-800 tabular-nums">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</p>
+                                    </div>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[10.5px] font-bold {{ $valBadge }} whitespace-nowrap">{{ $m['status'] }}</span>
+                                    <span x-bind:class="{ 'rotate-180 text-teal-600': open }" class="inline-flex items-center transition-transform duration-200 text-slate-400 group-hover:text-teal-600"><x-icon name="caret-down" weight="bold" class="text-[14px]" /></span>
+                                </div>
                             </div>
+                        </button>
+
+                        {{-- expanded details --}}
+                        <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-2 bg-white border border-slate-200 rounded-xl p-4">
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Z-BB/U</p><p class="text-[14px] font-bold tabular-nums mt-0.5 {{ $m['z_score_bbu'] !== null ? ($m['z_score_bbu'] < -2 ? 'text-rose-600' : ($m['z_score_bbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_bbu'] !== null ? $m['z_score_bbu'] . ' SD' : '—' }}</p></div>
+                                <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Z-TB/U</p><p class="text-[14px] font-bold tabular-nums mt-0.5 {{ $m['z_score_tbu'] !== null ? ($m['z_score_tbu'] < -2 ? 'text-rose-600' : ($m['z_score_tbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_tbu'] !== null ? $m['z_score_tbu'] . ' SD' : '—' }}</p></div>
+                                <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">L. Kepala</p><p class="text-[14px] font-bold text-slate-800 tabular-nums mt-0.5">{{ $m['head_circ'] ? number_format($m['head_circ'],1,',','.') . ' cm' : '—' }}</p></div>
+                                <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Validasi</p><p class="text-[14px] font-bold mt-0.5">{{ $s === 'approved' ? 'Tervalidasi' : ($s === 'rejected' ? 'Perlu Revisi' : 'Menunggu') }}</p></div>
+                            </div>
+
+                            @if($m['weight_trend'] !== null || $m['height_trend'] !== null)
+                                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center gap-3 flex-wrap text-[11.5px] font-semibold">
+                                    @if($m['weight_trend'] !== null)<span class="inline-flex items-center gap-1 {{ $m['weight_trend'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}"><x-icon name="{{ $m['weight_trend'] >= 0 ? 'trend-up' : 'trend-down' }}" weight="bold" class="text-[13px]" /> BB {{ $m['weight_trend'] >= 0 ? '+' : '' }}{{ $m['weight_trend'] }} kg</span>@endif
+                                    @if($m['height_trend'] !== null)<span class="inline-flex items-center gap-1 {{ $m['height_trend'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}"><x-icon name="{{ $m['height_trend'] >= 0 ? 'trend-up' : 'trend-down' }}" weight="bold" class="text-[13px]" /> TB {{ $m['height_trend'] >= 0 ? '+' : '' }}{{ $m['height_trend'] }} cm</span>@endif
+                                </div>
+                            @endif
+
+                            @if($isRejected && !empty($m['catatan_validator']))
+                                <div class="mt-3 border border-rose-200 rounded-lg p-3.5 flex items-start gap-2.5 bg-rose-50/40">
+                                    <x-icon name="chat-circle-text" weight="fill" class="text-rose-500 text-[18px] shrink-0 mt-0.5" />
+                                    <div class="min-w-0">
+                                        <p class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">Catatan Petugas Gizi Puskesmas</p>
+                                        <p class="text-[13px] text-slate-700 mt-1 leading-relaxed">{{ $m['catatan_validator'] }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('balita.show', [$balitaId, 'action' => 'ukur']) }}" class="mt-2.5 inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[12.5px] font-semibold transition-colors w-full"><x-icon name="pencil-line" weight="bold" class="text-[14px]" /> Perbaiki Data</a>
+                            @endif
                         </div>
-                        <a href="{{ route('balita.show', [$balitaId, 'action' => 'ukur']) }}" class="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[12.5px] font-semibold transition-colors w-full"><x-icon name="pencil-line" weight="bold" class="text-[14px]" /> Perbaiki Data</a>
-                    @endif
+                    </div>
                 </div>
             @empty
                 <div class="py-12 text-center text-[13px] text-slate-400">Belum ada data pengukuran.</div>
