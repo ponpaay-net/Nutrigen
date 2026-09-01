@@ -10,7 +10,7 @@
     ][$status_type] ?? 'bg-slate-50 text-slate-600 border-slate-200';
     $sex = ($gender === 'Laki-laki') ? 'L' : 'P';
     $svc = app(\App\Services\GrowthCalculationService::class);
-    $birth = \Carbon\Carbon::parse($birthDate);
+    $birth = \Carbon\Carbon::parse($birthDateRaw ?? $birthDate);
     $whoRef = [];
     for ($m = 0; $m <= 60; $m++) { $whoRef[$m] = $svc->referenceFor($m, $sex); }
     $pts = collect($measurements)->map(function ($m) use ($birth) {

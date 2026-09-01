@@ -604,6 +604,7 @@ class KaderController extends Controller
             'gender'         => $b->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
             'age'            => $ageStr,
             'birthDate'      => \Carbon\Carbon::parse($b->tanggal_lahir)->translatedFormat('d F Y'),
+            'birthDateRaw'   => \Carbon\Carbon::parse($b->tanggal_lahir)->format('Y-m-d'),
             'nik'            => $b->nik,
             'noBpjs'         => $b->no_bpjs,
             'birthWeight'    => $b->berat_lahir,
