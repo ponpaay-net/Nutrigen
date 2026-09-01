@@ -112,19 +112,6 @@
                 <div>
                     <h2 class="text-lg font-bold text-slate-900">Prioritas Pemantauan Gizi</h2>
                     <p class="text-sm text-slate-500 mt-0.5">Balita dengan catatan gizi khusus yang perlu pendampingan</p>
-                    @php
-                        $urgencyCount = collect($priorityChildren ?? [])->filter(fn($c) => ($c->statusType ?? '') === 'danger')->count();
-                    @endphp
-                    <div class="flex items-center gap-2 mt-2">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200 text-[11px] font-semibold">
-                            <x-icon name="activity" weight="fill" class="text-xs" /> {{ count($priorityChildren ?? []) }} prioritas
-                        </span>
-                        @if($urgencyCount > 0)
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-semibold">
-                                <x-icon name="warning" weight="fill" class="text-xs" /> {{ $urgencyCount }} perlu konfirmasi
-                            </span>
-                        @endif
-                    </div>
                 </div>
                 <a href="{{ route('balita.index') }}" class="hidden sm:inline-flex text-sm font-medium text-teal-600 hover:text-teal-700 items-center gap-1 focus:outline-none focus:underline">
                     Semua balita <x-icon name="arrow-right" weight="bold" />
