@@ -133,6 +133,10 @@ class GrowthCalculationService
 
     /**
      * Klasifikasi status gizi (WHO / BUKU KIA - Kemenkes).
+     * - Stunting: TB/U < -2 SD
+     * - Kurang (underweight): BB/U < -2 SD
+     * - Risiko: at-risk bawah (z < -1.5) ATAU risiko gizi lebih (BB/U > +1 SD) ATAU data ekstrem (TB/U > +3 SD)
+     * - Normal: sisanya
      */
     private function determineStatusGizi(?float $zTbu, ?float $zBbu): string
     {
@@ -142,8 +146,9 @@ class GrowthCalculationService
         if ($zBbu !== null && $zBbu < -2.0) {
             return 'Kurang';
         }
-        if (($zTbu !== null && $zTbu < -1.5) || ($zBbu !== null && $zBbu < -1.5)) {
-            return 'Risiko';
+        if (($zTbu !== null && $zTbu < -1.5) || ($zBbu !== null && $zBbu < -1.5)
+            || ($zBbu !== null && $zBbu > 1.0) || ($zTbu !== null && $zTbu > 3.0)) {
+            return 'Risiko'; // at-risk bawah / gizi lebih / data ekstrem
         }
         return 'Normal';
     }

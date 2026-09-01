@@ -9,7 +9,7 @@
     child['tanggal_lahir'], child['statusType'], child['statusLabel'],
     child['posyandu']['nama'], child['ibu']['nama'], child['ibu']['no_hp_wa'],
     child['pengukurans'][0..n] — each: berat_badan, tinggi_badan, umur_bulan,
-       z_score_bb_u, z_score_tb_u, status_gizi, created_at,
+       z_score_bbu, z_score_tbu, status_gizi, created_at,
        validasi? { validator_name, created_at, catatan }
 --}}
 
@@ -224,7 +224,7 @@
                     </div>
                     <div class="flex items-center justify-between pt-3 border-t border-slate-100">
                         <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest">Z-SCORE BB/U</span>
-                        <span class="font-bold text-[11px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">{{ $latest['z_score_bb_u'] ?? '-' }} SD</span>
+                        <span class="font-bold text-[11px] text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">{{ $latest['z_score_bbu'] ?? '-' }} SD</span>
                     </div>
                 </div>
 
@@ -249,7 +249,7 @@
                     </div>
                     <div class="flex items-center justify-between pt-3 border-t border-amber-200/50">
                         <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest">Z-SCORE TB/U</span>
-                        <span class="font-bold text-[11px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">{{ $latest['z_score_tb_u'] ?? ($latest['z_score_bb_u'] ?? '-') }} SD</span>
+                        <span class="font-bold text-[11px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">{{ $latest['z_score_tbu'] ?? ($latest['z_score_bbu'] ?? '-') }} SD</span>
                     </div>
                 </div>
 
@@ -354,7 +354,7 @@
 
                             {{-- Metrics grid --}}
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/80 rounded-xl p-3 border border-slate-100">
-                                @foreach([['BB', $p['berat_badan'].' kg'], ['TB', $p['tinggi_badan'].' cm'], ['Z-BB/U', $p['z_score_bb_u'] ?? '-'], ['Status', $p['status_gizi']]] as $m)
+                                @foreach([['BB', $p['berat_badan'].' kg'], ['TB', $p['tinggi_badan'].' cm'], ['Z-BB/U', $p['z_score_bbu'] ?? '-'], ['Status', $p['status_gizi']]] as $m)
                                 <div class="flex flex-col gap-0.5">
                                     <span class="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest">{{ $m[0] }}</span>
                                     <span class="font-black text-slate-800 text-[13px]">{{ $m[1] }}</span>

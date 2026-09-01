@@ -42,7 +42,7 @@
                         </div>
                         <div class="flex flex-col gap-1">
                             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Z-Score (BB/U)</span>
-                            <span class="font-black text-slate-800 text-[14px]">{{ $p['z_score_bb_u'] }}</span>
+                            <span class="font-black text-slate-800 text-[14px]">{{ $p['z_score_bbu'] }}</span>
                         </div>
                         <div class="flex flex-col gap-1">
                             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Status Gizi</span>

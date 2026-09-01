@@ -95,7 +95,7 @@
 
             data.forEach((p, index) => {
                 // Pilih z-score sesuai indikator
-                const z = indicator === 'tbu' ? p.z_score_tb_u : p.z_score_bb_u;
+                const z = indicator === 'tbu' ? p.z_score_tbu : p.z_score_bbu;
                 const zVal = parseFloat(z) || 0;
                 
                 // Hitung koordinat SVG
