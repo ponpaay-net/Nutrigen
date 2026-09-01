@@ -235,12 +235,12 @@
 
     {{-- TAB: KURVA WHO --}}
     <div x-show="tab === 'kurva'" x-cloak>
-        <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6" x-data="{ chartType: 'bb' }">
+        <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6" x-data="{ chartType: 'w' }">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                 <div><h3 class="text-base font-bold text-slate-900">Kurva Pertumbuhan WHO</h3><p class="text-[12px] text-slate-500 mt-0.5">Berat/tinggi badan terhadap standar WHO (+/-2 SD)</p></div>
                 <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100">
-                    <button type="button" @click="chartType = 'bb'" x-bind:class="chartType === 'bb' ? 'bg-white text-teal-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'" class="px-3.5 h-8 rounded-lg text-[12.5px] font-bold transition-all">BB/U</button>
-                    <button type="button" @click="chartType = 'tb'" x-bind:class="chartType === 'tb' ? 'bg-white text-teal-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'" class="px-3.5 h-8 rounded-lg text-[12.5px] font-bold transition-all">TB/U</button>
+                    <button type="button" @click="chartType = 'w'" x-bind:class="chartType === 'w' ? 'bg-white text-teal-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'" class="px-3.5 h-8 rounded-lg text-[12.5px] font-bold transition-all">BB/U</button>
+                    <button type="button" @click="chartType = 'h'" x-bind:class="chartType === 'h' ? 'bg-white text-teal-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'" class="px-3.5 h-8 rounded-lg text-[12.5px] font-bold transition-all">TB/U</button>
                 </div>
             </div>
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] text-slate-500 mb-3">
