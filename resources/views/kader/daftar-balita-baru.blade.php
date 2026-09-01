@@ -15,7 +15,7 @@
 
 @section('content')
 <div class="bg-slate-50 min-h-[100dvh]" x-data="editForm()">
-    <div class="max-w-3xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
+    <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
 
         {{-- Breadcrumb + header --}}
         <div class="mb-6">
@@ -41,221 +41,259 @@
             </div>
         </div>
 
-        {{-- Section nav (numbered daftar isi) --}}
-        <nav class="flex gap-1.5 overflow-x-auto hide-scrollbar pb-1 mb-5" aria-label="Bagian form">
-            @foreach($secs as $id => $sec)
-            <a href="#{{ $id }}" @click.prevent="scrollTo('{{ $id }}')"
-               :class="activeSection === '{{ $id }}' ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-teal-300 hover:text-teal-700'"
-               class="shrink-0 inline-flex items-center gap-1.5 pl-2 pr-3.5 h-9 rounded-full border text-[12.5px] font-semibold transition-all">
-                <span :class="activeSection === '{{ $id }}' ? 'bg-white/20 text-white' : 'bg-teal-50 text-teal-600'"
-                      class="w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-bold">{{ $sec[1] }}</span>
-                {{ $sec[2] }}
-            </a>
-            @endforeach
-        </nav>
-
-        {{-- Form card --}}
         <form id="balitaForm" action="{{ $isEdit ? route('balita.update', $balitaId) : route('balita.store') }}" method="POST">
             @csrf
             @if($isEdit) @method('PUT') @endif
 
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_20px_50px_-24px_rgba(15,23,42,0.18)] overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
 
-                @if($isEdit)
-                <div class="flex items-center gap-3.5 px-5 sm:px-7 py-4 bg-gradient-to-r from-teal-600 to-teal-700 text-white">
-                    <div class="w-11 h-11 shrink-0 rounded-xl bg-white/20 ring-1 ring-white/30 flex items-center justify-center">
-                        <span class="text-lg font-black select-none">{{ strtoupper(substr($childName, 0, 1)) }}</span>
+                {{-- MAIN: form --}}
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_20px_50px_-24px_rgba(15,23,42,0.18)] overflow-hidden min-w-0">
+
+                    @if($errors->any())
+                    <div class="mx-5 sm:mx-7 mt-5 rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 text-[13px] text-rose-700">
+                        <p class="font-semibold mb-1 flex items-center gap-1.5"><x-icon name="warning" weight="fill" class="text-[14px]" /> Ada beberapa data yang perlu diperbaiki:</p>
+                        <ul class="list-disc pl-4 space-y-0.5">{{ implode('', $errors->all('<li class="inline">:message</li>')) }}</ul>
                     </div>
-                    <div class="min-w-0">
-                        <p class="text-[15px] font-bold leading-tight truncate">{{ $childName }}</p>
-                        <p class="text-[12px] text-teal-50 flex items-center gap-2 flex-wrap">
-                            <span>{{ $gender === 'L' ? 'Laki-laki' : 'Perempuan' }}</span>
-                            <span class="w-0.5 h-3 bg-white/40 rounded-full"></span>
-                            <span>Lahir {{ \Carbon\Carbon::parse($birthDate)->format('d-m-Y') }}</span>
-                        </p>
+                    @endif
+
+                    <div class="p-5 sm:p-7 space-y-8">
+
+                        {{-- 01 IDENTITAS --}}
+                        <section id="identitas" class="scroll-mt-24">
+                            <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                                <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">01</span>
+                                <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Identitas Anak</h2><p class="text-[12.5px] text-slate-500">Nama, NIK & tanggal lahir.</p></div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div class="{{ $field }} sm:col-span-2">
+                                    <label for="nama" class="{{ $lbl }}">Nama Lengkap Anak <span class="text-rose-500">*</span></label>
+                                    <input id="nama" type="text" name="nama" value="{{ old('nama', $childName ?? '') }}" required placeholder="Contoh: Aisyah Putri" class="{{ $inp }}">
+                                    @error('nama') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="nik" class="{{ $lbl }}">NIK Anak <span class="text-rose-500">*</span></label>
+                                    <input id="nik" type="text" name="nik" value="{{ old('nik', $nik ?? '') }}" required placeholder="16 digit" maxlength="16" inputmode="numeric" class="{{ $inp }}">
+                                    @error('nik') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="no_bpjs" class="{{ $lbl }}">No. BPJS <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
+                                    <input id="no_bpjs" type="text" name="no_bpjs" value="{{ old('no_bpjs', $noBpjs ?? '') }}" placeholder="Nomor BPJS" class="{{ $inp }}">
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="tanggal_lahir" class="{{ $lbl }}">Tanggal Lahir <span class="text-rose-500">*</span></label>
+                                    <div class="relative">
+                                        <input id="tanggal_lahir" type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $birthDate ?? '') }}" required class="{{ $inp }} appearance-none pr-10">
+                                        <x-icon name="calendar" weight="bold" class="w-[18px] h-[18px] text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                    </div>
+                                    @error('tanggal_lahir') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label class="{{ $lbl }}">Jenis Kelamin <span class="text-rose-500">*</span></label>
+                                    <div class="grid grid-cols-2 gap-1.5 p-1.5 rounded-xl bg-slate-100 border border-slate-200">
+                                        <label class="relative">
+                                            <input type="radio" name="jenis_kelamin" value="L" required class="peer sr-only" {{ old('jenis_kelamin', $gender ?? '') === 'L' ? 'checked' : '' }}>
+                                            <span class="flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold text-slate-500 cursor-pointer peer-checked:bg-teal-600 peer-checked:text-white peer-checked:shadow-sm transition-all">Laki-laki</span>
+                                        </label>
+                                        <label class="relative">
+                                            <input type="radio" name="jenis_kelamin" value="P" required class="peer sr-only" {{ old('jenis_kelamin', $gender ?? '') === 'P' ? 'checked' : '' }}>
+                                            <span class="flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold text-slate-500 cursor-pointer peer-checked:bg-teal-600 peer-checked:text-white peer-checked:shadow-sm transition-all">Perempuan</span>
+                                        </label>
+                                    </div>
+                                    @error('jenis_kelamin') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-slate-100"></div>
+
+                        {{-- 02 KELAHIRAN --}}
+                        <section id="kelahiran" class="scroll-mt-24">
+                            <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                                <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">02</span>
+                                <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Kelahiran</h2><p class="text-[12.5px] text-slate-500">Antropometri saat lahir.</p></div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                                <div class="{{ $field }}">
+                                    <label for="berat_lahir" class="{{ $lbl }}">Berat Lahir</label>
+                                    <div class="relative">
+                                        <input id="berat_lahir" type="text" inputmode="decimal" name="berat_lahir" value="{{ old('berat_lahir', $birthWeight ?? '') }}" placeholder="3.20" class="{{ $inp }} pr-12 text-right">
+                                        <span class="absolute inset-y-0 right-3 flex items-center text-[13px] font-medium text-slate-400">kg</span>
+                                    </div>
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="panjang_lahir" class="{{ $lbl }}">Panjang Lahir</label>
+                                    <div class="relative">
+                                        <input id="panjang_lahir" type="text" inputmode="decimal" name="panjang_lahir" value="{{ old('panjang_lahir', $birthLength ?? '') }}" placeholder="49.5" class="{{ $inp }} pr-12 text-right">
+                                        <span class="absolute inset-y-0 right-3 flex items-center text-[13px] font-medium text-slate-400">cm</span>
+                                    </div>
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="lingkar_kepala_lahir" class="{{ $lbl }}">Lingkar Kepala</label>
+                                    <div class="relative">
+                                        <input id="lingkar_kepala_lahir" type="text" inputmode="decimal" name="lingkar_kepala_lahir" value="{{ old('lingkar_kepala_lahir', $birthHeadCirc ?? '') }}" placeholder="33.0" class="{{ $inp }} pr-12 text-right">
+                                        <span class="absolute inset-y-0 right-3 flex items-center text-[13px] font-medium text-slate-400">cm</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-slate-100"></div>
+
+                        {{-- 03 ORANG TUA --}}
+                        <section id="orangtua" class="scroll-mt-24">
+                            <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                                <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">03</span>
+                                <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Orang Tua / Wali</h2><p class="text-[12.5px] text-slate-500">Identitas & kontak wali.</p></div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div class="{{ $field }} sm:col-span-2">
+                                    <label for="no_kk" class="{{ $lbl }}">No. Kartu Keluarga <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
+                                    <input id="no_kk" type="text" name="no_kk" value="{{ old('no_kk', $noKk ?? '') }}" placeholder="16 digit Nomor Kartu Keluarga" maxlength="16" inputmode="numeric" class="{{ $inp }}">
+                                </div>
+                                <div class="sm:col-span-2 flex items-center gap-2.5 mt-1">
+                                    <span class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-[11px] font-bold">I</span>
+                                    <h3 class="text-[12.5px] font-bold text-slate-700 uppercase tracking-wide">Identitas Ibu</h3>
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="nama_ibu" class="{{ $lbl }}">Nama Ibu <span class="text-rose-500">*</span></label>
+                                    <input id="nama_ibu" type="text" name="nama_ibu" value="{{ old('nama_ibu', $motherName ?? '') }}" required placeholder="Nama lengkap ibu" class="{{ $inp }}">
+                                    @error('nama_ibu') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="nik_ibu" class="{{ $lbl }}">NIK Ibu <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
+                                    <input id="nik_ibu" type="text" name="nik_ibu" value="{{ old('nik_ibu', $motherNik ?? '') }}" placeholder="16 digit" maxlength="16" inputmode="numeric" class="{{ $inp }}">
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="no_hp" class="{{ $lbl }}">No. WhatsApp Ibu <span class="text-rose-500">*</span></label>
+                                    <input id="no_hp" type="tel" name="no_hp" value="{{ old('no_hp', $motherPhone ?? '') }}" required placeholder="08xxxxxxxxxx" inputmode="tel" class="{{ $inp }}">
+                                    @error('no_hp') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="pekerjaan_ibu" class="{{ $lbl }}">Pekerjaan Ibu <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
+                                    <input id="pekerjaan_ibu" type="text" name="pekerjaan_ibu" value="{{ old('pekerjaan_ibu', $motherJob ?? '') }}" placeholder="Ibu Rumah Tangga" class="{{ $inp }}">
+                                </div>
+                                <div class="sm:col-span-2 flex items-center gap-2.5 mt-1">
+                                    <span class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-[11px] font-bold">A</span>
+                                    <h3 class="text-[12.5px] font-bold text-slate-700 uppercase tracking-wide">Identitas Ayah</h3>
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="nama_ayah" class="{{ $lbl }}">Nama Ayah <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
+                                    <input id="nama_ayah" type="text" name="nama_ayah" value="{{ old('nama_ayah', $fatherName ?? '') }}" placeholder="Nama lengkap ayah" class="{{ $inp }}">
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="nik_ayah" class="{{ $lbl }}">NIK Ayah <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
+                                    <input id="nik_ayah" type="text" name="nik_ayah" value="{{ old('nik_ayah', $fatherNik ?? '') }}" placeholder="16 digit" maxlength="16" inputmode="numeric" class="{{ $inp }}">
+                                </div>
+                                <div class="{{ $field }} sm:col-span-2">
+                                    <label for="pekerjaan_ayah" class="{{ $lbl }}">Pekerjaan Ayah <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
+                                    <input id="pekerjaan_ayah" type="text" name="pekerjaan_ayah" value="{{ old('pekerjaan_ayah', $fatherJob ?? '') }}" placeholder="Wiraswasta" class="{{ $inp }}">
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="border-t border-slate-100"></div>
+
+                        {{-- 04 LOKASI --}}
+                        <section id="lokasi" class="scroll-mt-24">
+                            <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                                <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">04</span>
+                                <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Lokasi & Posyandu</h2><p class="text-[12.5px] text-slate-500">Domisili tempat tinggal saat ini.</p></div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                <div class="{{ $field }}">
+                                    <label for="desa" class="{{ $lbl }}">Desa / Kelurahan <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
+                                    <input id="desa" type="text" name="desa" value="{{ old('desa', $address ?? '') }}" placeholder="Nama desa" class="{{ $inp }}">
+                                </div>
+                                <div class="{{ $field }}">
+                                    <label for="kecamatan" class="{{ $lbl }}">Kecamatan <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
+                                    <input id="kecamatan" type="text" name="kecamatan" value="{{ old('kecamatan', $addressSub ?? '') }}" placeholder="Nama kecamatan" class="{{ $inp }}">
+                                </div>
+                                <div class="{{ $field }} sm:col-span-2">
+                                    <label class="{{ $lbl }}">Posyandu Pendaftar</label>
+                                    <input type="text" value="{{ $posyanduName ?? 'Posyandu Kader' }}" disabled readonly class="{{ $inp }} bg-slate-100 text-slate-600 font-semibold cursor-not-allowed">
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </div>
-                @endif
 
-                @if($errors->any())
-                <div class="mx-5 sm:mx-7 mt-5 rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 text-[13px] text-rose-700">
-                    <p class="font-semibold mb-1 flex items-center gap-1.5"><x-icon name="warning" weight="fill" class="text-[14px]" /> Ada beberapa data yang perlu diperbaiki:</p>
-                    <ul class="list-disc pl-4 space-y-0.5">{{ implode('', $errors->all('<li class="inline">:message</li>')) }}</ul>
-                </div>
-                @endif
+                {{-- RIGHT RAIL --}}
+                <aside class="hidden lg:block min-w-0">
+                    <div class="sticky top-6 space-y-4">
 
-                <div class="p-5 sm:p-7 space-y-8">
-
-                    {{-- 01 IDENTITAS --}}
-                    <section id="identitas" class="scroll-mt-24">
-                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
-                            <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">01</span>
-                            <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Identitas Anak</h2><p class="text-[12.5px] text-slate-500">Nama, NIK & tanggal lahir.</p></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div class="{{ $field }} md:col-span-2">
-                                <label for="nama" class="{{ $lbl }}">Nama Lengkap Anak <span class="text-rose-500">*</span></label>
-                                <input id="nama" type="text" name="nama" value="{{ old('nama', $childName ?? '') }}" required placeholder="Contoh: Aisyah Putri" class="{{ $inp }}">
-                                @error('nama') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
+                        {{-- Ringkasan Anak --}}
+                        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                            <div class="px-5 py-4 bg-gradient-to-r from-teal-600 to-teal-700 text-white">
+                                <p class="text-[11px] font-semibold uppercase tracking-wider text-teal-100">Ringkasan Anak</p>
                             </div>
-                            <div class="{{ $field }}">
-                                <label for="nik" class="{{ $lbl }}">NIK Anak <span class="text-rose-500">*</span></label>
-                                <input id="nik" type="text" name="nik" value="{{ old('nik', $nik ?? '') }}" required placeholder="16 digit" maxlength="16" inputmode="numeric" class="{{ $inp }}">
-                                @error('nik') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="no_bpjs" class="{{ $lbl }}">No. BPJS <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
-                                <input id="no_bpjs" type="text" name="no_bpjs" value="{{ old('no_bpjs', $noBpjs ?? '') }}" placeholder="Nomor BPJS" class="{{ $inp }}">
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="tanggal_lahir" class="{{ $lbl }}">Tanggal Lahir <span class="text-rose-500">*</span></label>
-                                <div class="relative">
-                                    <input id="tanggal_lahir" type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $birthDate ?? '') }}" required class="{{ $inp }} appearance-none pr-10">
-                                    <x-icon name="calendar" weight="bold" class="w-[18px] h-[18px] text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <div class="px-5 py-4">
+                                @if($isEdit)
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 shrink-0 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
+                                        <span class="text-lg font-black">{{ strtoupper(substr($childName, 0, 1)) }}</span>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-[14px] font-bold text-slate-900 truncate">{{ $childName }}</p>
+                                        <p class="text-[12px] text-slate-500">{{ $gender === 'L' ? 'Laki-laki' : 'Perempuan' }} · Lahir {{ \Carbon\Carbon::parse($birthDate)->format('d-m-Y') }}</p>
+                                    </div>
                                 </div>
-                                @error('tanggal_lahir') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
-                            </div>
-                            <div class="{{ $field }}">
-                                <label class="{{ $lbl }}">Jenis Kelamin <span class="text-rose-500">*</span></label>
-                                <div class="grid grid-cols-2 gap-1.5 p-1.5 rounded-xl bg-slate-100 border border-slate-200">
-                                    <label class="relative">
-                                        <input type="radio" name="jenis_kelamin" value="L" required class="peer sr-only" {{ old('jenis_kelamin', $gender ?? '') === 'L' ? 'checked' : '' }}>
-                                        <span class="flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold text-slate-500 cursor-pointer peer-checked:bg-teal-600 peer-checked:text-white peer-checked:shadow-sm transition-all">Laki-laki</span>
-                                    </label>
-                                    <label class="relative">
-                                        <input type="radio" name="jenis_kelamin" value="P" required class="peer sr-only" {{ old('jenis_kelamin', $gender ?? '') === 'P' ? 'checked' : '' }}>
-                                        <span class="flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold text-slate-500 cursor-pointer peer-checked:bg-teal-600 peer-checked:text-white peer-checked:shadow-sm transition-all">Perempuan</span>
-                                    </label>
-                                </div>
-                                @error('jenis_kelamin') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
+                                @else
+                                <p class="text-[13px] font-semibold text-slate-700">Anak baru kader</p>
+                                <p class="text-[12px] text-slate-500">Isi form di samping untuk mendaftarkan balita baru.</p>
+                                @endif
                             </div>
                         </div>
-                    </section>
 
-                    <div class="border-t border-slate-100"></div>
+                        {{-- Bagian Form --}}
+                        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
+                            <h3 class="text-[12px] font-bold text-slate-900 uppercase tracking-wide mb-2.5">Bagian Form</h3>
+                            <div class="space-y-1">
+                                @foreach($secs as $id => $sec)
+                                <a href="#{{ $id }}" @click.prevent="scrollTo('{{ $id }}')"
+                                   :class="activeSection === '{{ $id }}' ? 'bg-teal-50 text-teal-700 border-teal-200' : 'text-slate-600 border-transparent hover:bg-slate-50'"
+                                   class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-[12.5px] font-semibold transition-colors">
+                                    <span :class="activeSection === '{{ $id }}' ? 'bg-teal-600 text-white' : 'bg-teal-50 text-teal-600'"
+                                          class="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0">{{ $sec[1] }}</span>
+                                    {{ $sec[2] }}
+                                </a>
+                                @endforeach
+                            </div>
+                        </div>
 
-                    {{-- 02 KELAHIRAN --}}
-                    <section id="kelahiran" class="scroll-mt-24">
-                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
-                            <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">02</span>
-                            <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Kelahiran</h2><p class="text-[12.5px] text-slate-500">Antropometri saat lahir.</p></div>
+                        {{-- Panduan --}}
+                        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+                            <h3 class="text-[13px] font-bold text-slate-900 flex items-center gap-1.5"><x-icon name="lightbulb" weight="bold" class="text-[14px] text-teal-600" /> Panduan Pengisian</h3>
+                            <ul class="mt-3 space-y-2.5">
+                                @foreach([
+                                    'NIK & No. KK sesuai Kartu Keluarga.',
+                                    'Tanggal lahir & jenis kelamin penting untuk kurva WHO.',
+                                    'No. WhatsApp dipakai untuk info & pengingat hasil pengukuran.',
+                                    'Data lahir (berat/panjang/lingkar) diisi dari Buku KIA.'
+                                ] as $tip)
+                                <li class="flex items-start gap-2 text-[12.5px] text-slate-600 leading-snug">
+                                    <x-icon name="check" weight="bold" class="w-4 h-4 mt-0.5 shrink-0 text-teal-500" /> {{ $tip }}
+                                </li>
+                                @endforeach
+                            </ul>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                            <div class="{{ $field }}">
-                                <label for="berat_lahir" class="{{ $lbl }}">Berat Lahir</label>
-                                <div class="relative">
-                                    <input id="berat_lahir" type="text" inputmode="decimal" name="berat_lahir" value="{{ old('berat_lahir', $birthWeight ?? '') }}" placeholder="3.20" class="{{ $inp }} pr-12 text-right">
-                                    <span class="absolute inset-y-0 right-3 flex items-center text-[13px] font-medium text-slate-400">kg</span>
-                                </div>
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="panjang_lahir" class="{{ $lbl }}">Panjang Lahir</label>
-                                <div class="relative">
-                                    <input id="panjang_lahir" type="text" inputmode="decimal" name="panjang_lahir" value="{{ old('panjang_lahir', $birthLength ?? '') }}" placeholder="49.5" class="{{ $inp }} pr-12 text-right">
-                                    <span class="absolute inset-y-0 right-3 flex items-center text-[13px] font-medium text-slate-400">cm</span>
-                                </div>
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="lingkar_kepala_lahir" class="{{ $lbl }}">Lingkar Kepala</label>
-                                <div class="relative">
-                                    <input id="lingkar_kepala_lahir" type="text" inputmode="decimal" name="lingkar_kepala_lahir" value="{{ old('lingkar_kepala_lahir', $birthHeadCirc ?? '') }}" placeholder="33.0" class="{{ $inp }} pr-12 text-right">
-                                    <span class="absolute inset-y-0 right-3 flex items-center text-[13px] font-medium text-slate-400">cm</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
 
-                    <div class="border-t border-slate-100"></div>
-
-                    {{-- 03 ORANG TUA --}}
-                    <section id="orangtua" class="scroll-mt-24">
-                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
-                            <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">03</span>
-                            <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Orang Tua / Wali</h2><p class="text-[12.5px] text-slate-500">Identitas & kontak wali.</p></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div class="{{ $field }} md:col-span-2">
-                                <label for="no_kk" class="{{ $lbl }}">No. Kartu Keluarga <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
-                                <input id="no_kk" type="text" name="no_kk" value="{{ old('no_kk', $noKk ?? '') }}" placeholder="16 digit Nomor Kartu Keluarga" maxlength="16" inputmode="numeric" class="{{ $inp }}">
-                            </div>
-                            <div class="md:col-span-2 flex items-center gap-2.5 mt-1">
-                                <span class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-[11px] font-bold">I</span>
-                                <h3 class="text-[12.5px] font-bold text-slate-700 uppercase tracking-wide">Identitas Ibu</h3>
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="nama_ibu" class="{{ $lbl }}">Nama Ibu <span class="text-rose-500">*</span></label>
-                                <input id="nama_ibu" type="text" name="nama_ibu" value="{{ old('nama_ibu', $motherName ?? '') }}" required placeholder="Nama lengkap ibu" class="{{ $inp }}">
-                                @error('nama_ibu') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="nik_ibu" class="{{ $lbl }}">NIK Ibu <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
-                                <input id="nik_ibu" type="text" name="nik_ibu" value="{{ old('nik_ibu', $motherNik ?? '') }}" placeholder="16 digit" maxlength="16" inputmode="numeric" class="{{ $inp }}">
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="no_hp" class="{{ $lbl }}">No. WhatsApp Ibu <span class="text-rose-500">*</span></label>
-                                <input id="no_hp" type="tel" name="no_hp" value="{{ old('no_hp', $motherPhone ?? '') }}" required placeholder="08xxxxxxxxxx" inputmode="tel" class="{{ $inp }}">
-                                @error('no_hp') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="pekerjaan_ibu" class="{{ $lbl }}">Pekerjaan Ibu <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
-                                <input id="pekerjaan_ibu" type="text" name="pekerjaan_ibu" value="{{ old('pekerjaan_ibu', $motherJob ?? '') }}" placeholder="Ibu Rumah Tangga" class="{{ $inp }}">
-                            </div>
-                            <div class="md:col-span-2 flex items-center gap-2.5 mt-1">
-                                <span class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-[11px] font-bold">A</span>
-                                <h3 class="text-[12.5px] font-bold text-slate-700 uppercase tracking-wide">Identitas Ayah</h3>
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="nama_ayah" class="{{ $lbl }}">Nama Ayah <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
-                                <input id="nama_ayah" type="text" name="nama_ayah" value="{{ old('nama_ayah', $fatherName ?? '') }}" placeholder="Nama lengkap ayah" class="{{ $inp }}">
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="nik_ayah" class="{{ $lbl }}">NIK Ayah <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
-                                <input id="nik_ayah" type="text" name="nik_ayah" value="{{ old('nik_ayah', $fatherNik ?? '') }}" placeholder="16 digit" maxlength="16" inputmode="numeric" class="{{ $inp }}">
-                            </div>
-                            <div class="{{ $field }} md:col-span-2">
-                                <label for="pekerjaan_ayah" class="{{ $lbl }}">Pekerjaan Ayah <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
-                                <input id="pekerjaan_ayah" type="text" name="pekerjaan_ayah" value="{{ old('pekerjaan_ayah', $fatherJob ?? '') }}" placeholder="Wiraswasta" class="{{ $inp }}">
-                            </div>
-                        </div>
-                    </section>
-
-                    <div class="border-t border-slate-100"></div>
-
-                    {{-- 04 LOKASI --}}
-                    <section id="lokasi" class="scroll-mt-24">
-                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
-                            <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">04</span>
-                            <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Lokasi & Posyandu</h2><p class="text-[12.5px] text-slate-500">Domisili tempat tinggal saat ini.</p></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div class="{{ $field }}">
-                                <label for="desa" class="{{ $lbl }}">Desa / Kelurahan <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
-                                <input id="desa" type="text" name="desa" value="{{ old('desa', $address ?? '') }}" placeholder="Nama desa" class="{{ $inp }}">
-                            </div>
-                            <div class="{{ $field }}">
-                                <label for="kecamatan" class="{{ $lbl }}">Kecamatan <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
-                                <input id="kecamatan" type="text" name="kecamatan" value="{{ old('kecamatan', $addressSub ?? '') }}" placeholder="Nama kecamatan" class="{{ $inp }}">
-                            </div>
-                            <div class="{{ $field }} md:col-span-2">
-                                <label class="{{ $lbl }}">Posyandu Pendaftar</label>
-                                <input type="text" value="{{ $posyanduName ?? 'Posyandu Kader' }}" disabled readonly class="{{ $inp }} bg-slate-100 text-slate-600 font-semibold cursor-not-allowed">
-                            </div>
-                        </div>
-                    </section>
-                </div>
+                        {{-- Simpan --}}
+                        <button type="submit" class="w-full h-12 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[14px] font-semibold transition-colors inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20">
+                            <x-icon name="check" weight="bold" class="text-[16px]" /> Simpan Data
+                        </button>
+                    </div>
+                </aside>
             </div>
 
-            {{-- Action bar --}}
-            <div class="sticky bottom-0 mt-6 bg-slate-50/95 backdrop-blur border-t border-slate-200 py-3.5 sm:static sm:border-none sm:bg-transparent flex items-center justify-between gap-3">
-                <span class="hidden md:inline-flex items-center gap-1.5 text-[12.5px] font-medium text-slate-500"><x-icon name="info" weight="bold" class="text-[14px]" /> Periksa kembali data sebelum menyimpan.</span>
-                <div class="flex items-center gap-2.5 w-full sm:w-auto">
-                    <a href="{{ $isEdit ? route('balita.show', $balitaId ?? '') : route('balita.index') }}"
-                       class="flex-1 sm:flex-none h-11 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
-                    <button type="submit"
-                       class="flex-1 sm:flex-none h-11 px-6 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20">
-                       <x-icon name="check" weight="bold" class="text-[15px]" /> Simpan Data
-                    </button>
-                </div>
+            {{-- Mobile action bar --}}
+            <div class="lg:hidden sticky bottom-0 mt-6 bg-slate-50/95 backdrop-blur border-t border-slate-200 py-3.5 flex items-center justify-between gap-3">
+                <a href="{{ $isEdit ? route('balita.show', $balitaId ?? '') : route('balita.index') }}"
+                   class="flex-1 h-11 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
+                <button type="submit"
+                   class="flex-1 h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20">
+                   <x-icon name="check" weight="bold" class="text-[15px]" /> Simpan Data
+                </button>
             </div>
         </form>
     </div>
