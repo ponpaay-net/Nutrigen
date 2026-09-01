@@ -31,33 +31,36 @@
         </div>
     </div>
 
-    {{-- CAPAIAN / PROGRESS (flat, profesional, teal hanya aksen) --}}
-    <section class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-        <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 text-slate-500">
-                <x-icon name="scales" weight="bold" class="text-base text-teal-600" />
-                <span class="text-xs font-semibold uppercase tracking-wide">Capaian Pengukuran</span>
+    {{-- CAPAIAN / PROGRESS CARD (refined, anti-slop) --}}
+    <section class="rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 text-white p-5 sm:p-6 relative overflow-hidden shadow-sm">
+        <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+            <div>
+                <div class="flex items-center gap-2 text-teal-100">
+                    <x-icon name="scales" weight="bold" class="text-base" />
+                    <span class="text-xs font-semibold uppercase tracking-widest">Capaian Pengukuran</span>
+                </div>
+                <div class="flex items-baseline gap-2 mt-2.5">
+                    <span class="text-4xl font-bold tabular-nums leading-none">{{ $sudah }}</span>
+                    <span class="text-teal-100 text-sm font-medium">dari {{ $totalAnak }} balita terukur</span>
+                </div>
+                <p class="mt-3 text-sm text-teal-50/90">Pantau progres pengukuran balita di posyandu Anda.</p>
             </div>
-            <div class="flex items-baseline gap-2 mt-1.5">
-                <span class="text-2xl sm:text-3xl font-bold tabular-nums text-slate-900 leading-none">{{ $sudah }}</span>
-                <span class="text-sm text-slate-500">dari {{ $totalAnak }} balita terukur</span>
+            <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wide text-teal-100">Progres</span>
+                    <span class="text-lg font-bold tabular-nums">{{ $percentage }}%</span>
+                </div>
+                <div class="w-full h-2.5 bg-white/20 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full bg-white transition-all" style="width: {{ $percentage }}%"></div>
+                </div>
+                <div class="flex items-center justify-between mt-3.5 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1.5 text-teal-50"><x-icon name="check-circle" weight="fill" /> Selesai {{ $sudah }}</span>
+                    <span class="inline-flex items-center gap-1.5 text-teal-100"><x-icon name="clock" weight="fill" /> Antrean {{ $belum }}</span>
+                </div>
+                <a href="{{ route('balita.index', ['filter' => 'belum_diukur']) }}" class="mt-4 inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-white text-teal-700 hover:bg-teal-50 font-semibold text-sm transition-colors">
+                    <x-icon name="scales" weight="bold" /> Mulai Timbang
+                </a>
             </div>
-        </div>
-        <div class="sm:w-64 w-full shrink-0">
-            <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-1.5">
-                <span>Progres</span>
-                <span class="text-slate-900 tabular-nums">{{ $percentage }}%</span>
-            </div>
-            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div class="h-full rounded-full bg-teal-500 transition-all" style="width: {{ $percentage }}%"></div>
-            </div>
-            <div class="flex items-center justify-between mt-2 text-[12px] font-medium text-slate-500">
-                <span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Selesai {{ $sudah }}</span>
-                <span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Antrean {{ $belum }}</span>
-            </div>
-            <a href="{{ route('balita.index', ['filter' => 'belum_diukur']) }}" class="mt-3 inline-flex items-center gap-2 h-9 px-3.5 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 font-semibold text-[12.5px] transition-colors">
-                <x-icon name="scales" weight="bold" /> Mulai Timbang
-            </a>
         </div>
     </section>
 
