@@ -43,30 +43,36 @@
     </div>
 
     {{-- SUMMARY: DONUT CHART + STATS --}}
-    <section class="bg-white border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.06),0_12px_32px_-16px_rgba(15,23,42,0.14)] p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-6">
-        {{-- Donut --}}
-        <div class="relative w-32 h-32 shrink-0 rounded-full bg-teal-50 flex items-center justify-center">
-            <svg viewBox="0 0 36 36" class="w-32 h-32">
-                <defs>
-                    <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#2dd4bf" />
-                        <stop offset="100%" stop-color="#0f766e" />
-                    </linearGradient>
-                </defs>
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ccfbf1" stroke-width="3.6"></circle>
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="url(#donutGrad)" stroke-width="3.6" stroke-linecap="round"
-                        stroke-dasharray="{{ $percentage }} {{ max(0, 100 - $percentage) }}" pathLength="100"></circle>
-            </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="text-2xl font-bold text-slate-900 tabular-nums leading-none">{{ $percentage }}%</span>
-                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mt-1">Terukur</span>
-            </div>
+    <section class="bg-white border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.06),0_12px_32px_-16px_rgba(15,23,42,0.14)] p-5 sm:p-6">
+        {{-- Header row --}}
+        <div class="flex items-center justify-between gap-3 mb-5">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Ringkasan Pengukuran</p>
+            <a href="{{ route('balita.index', ['filter' => 'belum_diukur']) }}" class="inline-flex items-center gap-2 h-9 px-4 rounded-full bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:shadow-lg hover:shadow-teal-500/30 font-semibold text-[12.5px] transition-all duration-200 active:scale-95">
+                <x-icon name="scales" weight="bold" /> Mulai Timbang
+            </a>
         </div>
 
-        {{-- Stats --}}
-        <div class="flex-1 w-full">
-            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Ringkasan Pengukuran</p>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {{-- Body: donut + stats, vertically centered --}}
+        <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-6 items-center">
+            <div class="relative w-28 h-28 shrink-0 rounded-full bg-teal-50 flex items-center justify-center mx-auto sm:mx-0">
+                <svg viewBox="0 0 36 36" class="w-28 h-28">
+                    <defs>
+                        <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#2dd4bf" />
+                            <stop offset="100%" stop-color="#0f766e" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ccfbf1" stroke-width="3.6"></circle>
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="url(#donutGrad)" stroke-width="3.6" stroke-linecap="round"
+                            stroke-dasharray="{{ $percentage }} {{ max(0, 100 - $percentage) }}" pathLength="100"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-2xl font-bold text-slate-900 tabular-nums leading-none">{{ $percentage }}%</span>
+                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mt-1">Terukur</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 @foreach($stats as $stat)
                     <div class="relative rounded-xl bg-white border border-slate-200 p-3 flex items-center gap-2.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
                         <span class="absolute top-0 inset-x-0 h-0.5 bg-{{ $stat['color'] }}-500"></span>
@@ -80,9 +86,6 @@
                     </div>
                 @endforeach
             </div>
-            <a href="{{ route('balita.index', ['filter' => 'belum_diukur']) }}" class="mt-4 inline-flex items-center gap-2 h-10 px-5 rounded-full bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:shadow-lg hover:shadow-teal-500/30 font-semibold text-[13px] transition-all duration-200 active:scale-95">
-                <x-icon name="scales" weight="bold" /> Mulai Timbang
-            </a>
         </div>
     </section>
 
