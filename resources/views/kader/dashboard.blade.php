@@ -156,7 +156,7 @@
                                     </div>
                                 </div>
                                 <div class="shrink-0 flex items-center gap-2">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full {{ $isDanger ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }} text-[11px] font-semibold">
+                                    <span class="inline-flex items-center justify-center gap-1.5 min-w-[118px] px-2.5 py-1 rounded-full {{ $isDanger ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }} text-[11px] font-semibold">
                                         <x-icon name="{{ $isDanger ? 'warning' : 'activity' }}" weight="fill" class="text-xs" />
                                         {{ $child->shortStatus ?? 'Gizi' }}
                                     </span>
@@ -217,7 +217,7 @@
                 @endif
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md hover:border-teal-200 transition-all group">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md hover:border-teal-200 transition-all group">
                 <div class="flex items-center gap-4">
                     <div class="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:bg-teal-100 transition-colors"><x-icon name="download-simple" weight="bold" class="text-lg" /></div>
                     <div>
