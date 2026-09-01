@@ -13,11 +13,11 @@
 
 <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-6">
 
-    {{-- PAGE HEADER --}}
+    {{-- PAGE HEADER (section) --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
-            <p class="text-sm text-slate-500 mt-1">{{ $todayFormatted }}</p>
+            <h2 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900">Aktivitas Posyandu</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Catat pengukuran &amp; pantau status gizi balita.</p>
         </div>
         <div class="flex items-center gap-2.5">
             <a href="{{ route('balita.create') }}"
