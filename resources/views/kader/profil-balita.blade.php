@@ -105,6 +105,10 @@
                         </span>
                         <span class="text-slate-300">·</span>
                         <span class="text-[12.5px] text-slate-500">Lahir {{ $birthDate }}</span>
+                        @if($latestMeasure && $latestMeasure['date'])
+                            <span class="text-slate-300">·</span>
+                            <span class="inline-flex items-center gap-1 text-[12px] font-medium text-teal-700"><x-icon name="clock" weight="bold" class="text-[12px]" /> Terakhir diukur {{ $latestMeasure['date'] }}</span>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -127,6 +131,20 @@
             </div>
         </div>
     </section>
+
+    {{-- STATUS ATTENTION BANNER --}}
+    @if($status_type === 'danger' || $status_type === 'warning')
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border {{ $status_type === 'danger' ? 'bg-rose-50 border-rose-200' : 'bg-amber-50 border-amber-200' }}">
+        <div class="flex items-start gap-2.5 min-w-0">
+            <x-icon name="{{ $status_type === 'danger' ? 'warning' : 'activity' }}" weight="fill" class="text-[22px] {{ $status_type === 'danger' ? 'text-rose-600' : 'text-amber-600' }} shrink-0 mt-0.5" />
+            <div>
+                <p class="text-[14px] font-bold {{ $status_type === 'danger' ? 'text-rose-700' : 'text-amber-700' }}">Balita ini memerlukan perhatian</p>
+                <p class="text-[12.5px] text-slate-600 mt-0.5">Status gizi: <span class="font-semibold">{{ $status }}</span>. {{ $status_type === 'danger' ? 'Segera lakukan tindak lanjut & rujuk ke Puskesmas.' : 'Lakukan penimbangan ulang rutin bulan ini.' }}</p>
+            </div>
+        </div>
+        <a href="{{ route('balita.show', [$balitaId, 'action' => 'ukur']) }}" class="shrink-0 inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[13px] font-semibold transition-colors"><x-icon name="scales" weight="bold" class="text-[15px]" /> Ukur Ulang</a>
+    </div>
+    @endif
 
     {{-- LATEST MEASUREMENT METRICS --}}
     <section class="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
@@ -194,6 +212,14 @@
         </div>
     </section>
 
+    {{-- Z-SCORE SCALE LEGEND --}}
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] text-slate-500 -mt-1">
+        <span class="font-semibold text-slate-500 uppercase tracking-wide">Skala z-score:</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="font-semibold text-emerald-700">&gt; -1 SD</span> Normal</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span> <span class="font-semibold text-amber-700">-1 s/d -2 SD</span> Risiko</span>
+        <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> <span class="font-semibold text-rose-700">&lt; -2 SD</span> Stunting / Wasting</span>
+    </div>
+
     {{-- WHO GROWTH CURVE --}}
     <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
@@ -210,7 +236,7 @@
         <div class="relative">
             @foreach($tri as $type => $t)
             <div x-show="chartType === '{{ $type }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak>
-                <svg viewBox="0 0 {{ $W }} {{ $H }}" class="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+                <svg viewBox="0 0 {{ $W }} {{ $H }}" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Kurva pertumbuhan {{ $type === 'w' ? 'berat badan' : 'tinggi badan' }} terhadap standar WHO (median dan rentang ±2 SD)">
                     {{-- y gridlines --}}
                     <g class="text-slate-200" stroke="currentColor" stroke-width="1">
                         @for($i = 0; $i <= 4; $i++)
