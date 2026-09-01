@@ -15,13 +15,13 @@ return new class extends Migration
         // 1. Table: orang_tuas
         Schema::table('orang_tuas', function (Blueprint $table) {
             if (!Schema::hasColumn('orang_tuas', 'no_kk')) {
-                $table->string('no_kk', 16)->nullable()->after('user_id');
+                $table->text('no_kk')->nullable()->after('user_id');
             }
             if (!Schema::hasColumn('orang_tuas', 'nik_ayah')) {
-                $table->string('nik_ayah', 16)->nullable()->after('no_kk');
+                $table->text('nik_ayah')->nullable()->after('no_kk');
             }
             if (!Schema::hasColumn('orang_tuas', 'nik_ibu')) {
-                $table->string('nik_ibu', 16)->nullable()->after('nik_ayah');
+                $table->text('nik_ibu')->nullable()->after('nik_ayah');
             }
             if (!Schema::hasColumn('orang_tuas', 'nama_ayah')) {
                 $table->string('nama_ayah')->nullable()->after('nama_ibu');
@@ -37,7 +37,7 @@ return new class extends Migration
         // 2. Table: balitas
         Schema::table('balitas', function (Blueprint $table) {
             if (!Schema::hasColumn('balitas', 'no_bpjs')) {
-                $table->string('no_bpjs')->nullable()->after('nik');
+                $table->text('no_bpjs')->nullable()->after('nik');
             }
             if (!Schema::hasColumn('balitas', 'berat_lahir')) {
                 $table->decimal('berat_lahir', 5, 2)->nullable()->after('tanggal_lahir');

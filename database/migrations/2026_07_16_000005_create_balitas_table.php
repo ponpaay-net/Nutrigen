@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('orang_tua_id')->constrained('orang_tuas')->cascadeOnDelete();
             $table->foreignId('posyandu_id')->constrained('posyandus')->cascadeOnDelete();
-            $table->string('nik', 16)->unique()->nullable();
+            $table->text('nik')->nullable();
             $table->string('nama');
             $table->enum('jenis_kelamin', ['L', 'P']);
             $table->date('tanggal_lahir');

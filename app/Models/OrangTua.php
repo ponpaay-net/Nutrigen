@@ -25,6 +25,12 @@ class OrangTua extends Model
         'kecamatan',
     ];
 
+    protected $casts = [
+        'no_kk' => 'encrypted',
+        'nik_ayah' => 'encrypted',
+        'nik_ibu' => 'encrypted',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
