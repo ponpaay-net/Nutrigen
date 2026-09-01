@@ -323,8 +323,8 @@
             </section>
         </div>
 
-        {{-- RIGHT: riwayat pengukuran (list datar, scannable) --}}
-        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6">
+        {{-- RIGHT: riwayat pengukuran (table + modal detail) --}}
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6" x-data="{ active: null, items: @json($measurements) }">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h4 class="text-[15px] font-bold text-slate-900">Riwayat Pengukuran</h4>
@@ -332,82 +332,108 @@
                 </div>
             </div>
 
-            <div class="relative">
-            @forelse($measurements as $m)
-                @php
-                    $s = $m['status_validasi'] ?? 'pending';
-                    $isRejected = $s === 'rejected';
-                    $valBadge = match($s) {
-                        'rejected' => 'bg-rose-50 text-rose-700 border-rose-200',
-                        'pending'  => 'bg-amber-50 text-amber-700 border-amber-200',
-                        'approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                        default    => 'bg-slate-50 text-slate-600 border-slate-200',
-                    };
-                    $dot = $s === 'rejected' ? 'bg-rose-500' : ($s === 'pending' ? 'bg-amber-400' : 'bg-emerald-500');
-                @endphp
-                <div x-data="{ open: false }" class="relative flex gap-3.5">
-                    {{-- timeline rail --}}
-                    <div class="flex flex-col items-center pt-5">
-                        <span class="w-2.5 h-2.5 rounded-full border-2 {{ $isRejected ? 'border-rose-400 bg-rose-50' : ($s === 'pending' ? 'border-amber-400 bg-amber-50' : 'border-emerald-400 bg-emerald-50') }} shrink-0"></span>
-                        @if(!$loop->last)<span class="flex-1 w-px bg-slate-200"></span>@endif
-                    </div>
+            @if(count($measurements) > 0)
+            <div class="overflow-x-auto hide-scrollbar -mx-5 px-5">
+                <table class="w-full min-w-[640px] text-left">
+                    <thead>
+                        <tr class="text-[10.5px] uppercase tracking-wide text-slate-400 border-b border-slate-100">
+                            <th class="py-2.5 pr-3 font-semibold">Tanggal</th>
+                            <th class="py-2.5 pr-3 font-semibold">Usia</th>
+                            <th class="py-2.5 pr-3 font-semibold">BB</th>
+                            <th class="py-2.5 pr-3 font-semibold">TB</th>
+                            <th class="py-2.5 pr-3 font-semibold hidden sm:table-cell">Z-BB/U</th>
+                            <th class="py-2.5 pr-3 font-semibold hidden sm:table-cell">Z-TB/U</th>
+                            <th class="py-2.5 pr-3 font-semibold">Status</th>
+                            <th class="py-2.5 font-semibold text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        @foreach($measurements as $i => $m)
+                            @php
+                                $s = $m['status_validasi'] ?? 'pending';
+                                $isRejected = $s === 'rejected';
+                                $badge = match($s) {
+                                    'rejected' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                    'pending'  => 'bg-amber-50 text-amber-700 border-amber-200',
+                                    'approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                    default    => 'bg-slate-50 text-slate-600 border-slate-200',
+                                };
+                            @endphp
+                            <tr @click="active = {{ $i }}" class="{{ $isRejected ? 'bg-rose-50/40' : '' }} cursor-pointer transition-colors hover:bg-slate-50">
+                                <td class="py-3 pr-3 text-[13px] font-bold text-slate-800 whitespace-nowrap">{{ $m['date'] }}</td>
+                                <td class="py-3 pr-3 text-[12.5px] text-slate-500 whitespace-nowrap">{{ $m['age_at_measure'] }}</td>
+                                <td class="py-3 pr-3 text-[13px] font-semibold text-slate-700 tabular-nums">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</td>
+                                <td class="py-3 pr-3 text-[13px] font-semibold text-slate-700 tabular-nums">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</td>
+                                <td class="py-3 pr-3 text-[13px] font-semibold tabular-nums hidden sm:table-cell {{ $m['z_score_bbu'] !== null ? ($m['z_score_bbu'] < -2 ? 'text-rose-600' : ($m['z_score_bbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_bbu'] !== null ? $m['z_score_bbu'] . ' SD' : '—' }}</td>
+                                <td class="py-3 pr-3 text-[13px] font-semibold tabular-nums hidden sm:table-cell {{ $m['z_score_tbu'] !== null ? ($m['z_score_tbu'] < -2 ? 'text-rose-600' : ($m['z_score_tbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_tbu'] !== null ? $m['z_score_tbu'] . ' SD' : '—' }}</td>
+                                <td class="py-3 pr-3 whitespace-nowrap"><span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[10.5px] font-bold {{ $badge }}">{{ $m['status'] }}</span></td>
+                                <td class="py-3 text-right whitespace-nowrap">
+                                    <button type="button" @click.stop="active = {{ $i }}" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-700 text-[12px] font-semibold transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-                    {{-- item --}}
-                    <div class="flex-1 min-w-0 pb-4">
-                        <button type="button" @click="open = !open" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-left transition-colors hover:border-teal-300 group cursor-pointer">
-                            <div class="flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="text-[13.5px] font-bold text-slate-800 whitespace-nowrap">{{ $m['date'] }}</span>
-                                    <span class="text-[11.5px] text-slate-400 whitespace-nowrap">· {{ $m['age_at_measure'] }}</span>
+            {{-- Detail modal --}}
+            <template x-teleport="body">
+                <div x-show="active !== null" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6" @click.self="active = null">
+                    <div x-show="active !== null" x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" @click.stop class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
+                    <div x-show="active !== null" x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0 scale-95 translate-y-3" x-transition:enter-end="opacity-100 scale-100 translate-y-0" @click.stop class="relative w-full max-w-[560px] max-h-[88vh] bg-white rounded-2xl border border-slate-100 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col">
+                        <template x-if="active !== null">
+                            <div>
+                                {{-- modal header --}}
+                                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'bg-rose-500' : (items[active]?.status_validasi === 'pending' ? 'bg-amber-400' : 'bg-emerald-500')"></span>
+                                        <span class="text-[15px] font-bold text-slate-900" x-text="items[active]?.date"></span>
+                                        <span class="text-[12px] text-slate-400" x-text="'· ' + (items[active]?.age_at_measure || '')"></span>
+                                    </div>
+                                    <button type="button" @click="active = null" class="text-slate-400 hover:text-slate-700 transition-colors p-1"><x-icon name="x" weight="bold" class="text-lg" /></button>
                                 </div>
-                                <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
-                                    <div class="text-right leading-tight">
-                                        <p class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wide">BB</p>
-                                        <p class="text-[12.5px] font-bold text-slate-800 tabular-nums">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</p>
+                                {{-- modal body --}}
+                                <div class="p-5 flex flex-col gap-4 overflow-y-auto">
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Berat Badan</p><p class="text-[15px] font-bold text-slate-800 tabular-nums mt-0.5" x-text="items[active]?.weight ? items[active].weight + ' kg' : '—'"></p></div>
+                                        <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Tinggi Badan</p><p class="text-[15px] font-bold text-slate-800 tabular-nums mt-0.5" x-text="items[active]?.height ? items[active].height + ' cm' : '—'"></p></div>
+                                        <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Z-BB/U</p><p class="text-[15px] font-bold tabular-nums mt-0.5" x-text="items[active]?.z_score_bbu !== null ? items[active].z_score_bbu + ' SD' : '—'"></p></div>
+                                        <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Z-TB/U</p><p class="text-[15px] font-bold tabular-nums mt-0.5" x-text="items[active]?.z_score_tbu !== null ? items[active].z_score_tbu + ' SD' : '—'"></p></div>
                                     </div>
-                                    <div class="text-right leading-tight">
-                                        <p class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wide">TB</p>
-                                        <p class="text-[12.5px] font-bold text-slate-800 tabular-nums">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</p>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">L. Kepala</p><p class="text-[14px] font-bold text-slate-800 tabular-nums mt-0.5" x-text="items[active]?.head_circ ? items[active].head_circ + ' cm' : '—'"></p></div>
+                                        <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Validasi</p><p class="text-[14px] font-bold mt-0.5" x-text="items[active]?.status_validasi === 'approved' ? 'Tervalidasi Puskesmas' : (items[active]?.status_validasi === 'rejected' ? 'Perlu Revisi' : 'Menunggu Validasi')"></p></div>
                                     </div>
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[10.5px] font-bold {{ $valBadge }} whitespace-nowrap">{{ $m['status'] }}</span>
-                                    <span x-bind:class="{ 'rotate-180 text-teal-600': open }" class="inline-flex items-center transition-transform duration-200 text-slate-400 group-hover:text-teal-600"><x-icon name="caret-down" weight="bold" class="text-[14px]" /></span>
+                                    <div class="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-lg">
+                                        <span class="text-[12px] font-semibold text-slate-500">Status</span>
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'bg-rose-50 text-rose-700 border border-rose-200' : (items[active]?.status_validasi === 'pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200')" x-text="items[active]?.status"></span>
+                                    </div>
+                                    {{-- Puskesmas note --}}
+                                    <template x-if="items[active]?.status_validasi === 'rejected' && items[active]?.catatan_validator">
+                                        <div class="border border-rose-200 rounded-xl p-3.5 flex items-start gap-2.5 bg-rose-50/40">
+                                            <x-icon name="chat-circle-text" weight="fill" class="text-rose-500 text-[19px] shrink-0 mt-0.5" />
+                                            <div class="min-w-0">
+                                                <p class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">Catatan Petugas Gizi Puskesmas</p>
+                                                <p class="text-[13px] text-slate-700 mt-1 leading-relaxed" x-text="items[active]?.catatan_validator"></p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                                {{-- modal footer --}}
+                                <div class="px-5 py-4 border-t border-slate-100 flex items-center justify-end gap-2">
+                                    <button type="button" @click="active = null" class="h-10 px-4 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors">Tutup</button>
+                                    <template x-if="items[active]?.status_validasi === 'rejected'">
+                                        <a :href="'{{ url('/kader/balita') }}/' + {{ $balitaId }} + '?action=ukur'" class="inline-flex items-center gap-1.5 h-10 px-4 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[14px]" /> Perbaiki Data</a>
+                                    </template>
                                 </div>
                             </div>
-                        </button>
-
-                        {{-- expanded details --}}
-                        <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="mt-2 bg-white border border-slate-200 rounded-xl p-4">
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Z-BB/U</p><p class="text-[14px] font-bold tabular-nums mt-0.5 {{ $m['z_score_bbu'] !== null ? ($m['z_score_bbu'] < -2 ? 'text-rose-600' : ($m['z_score_bbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_bbu'] !== null ? $m['z_score_bbu'] . ' SD' : '—' }}</p></div>
-                                <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Z-TB/U</p><p class="text-[14px] font-bold tabular-nums mt-0.5 {{ $m['z_score_tbu'] !== null ? ($m['z_score_tbu'] < -2 ? 'text-rose-600' : ($m['z_score_tbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_tbu'] !== null ? $m['z_score_tbu'] . ' SD' : '—' }}</p></div>
-                                <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">L. Kepala</p><p class="text-[14px] font-bold text-slate-800 tabular-nums mt-0.5">{{ $m['head_circ'] ? number_format($m['head_circ'],1,',','.') . ' cm' : '—' }}</p></div>
-                                <div><p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Validasi</p><p class="text-[14px] font-bold mt-0.5">{{ $s === 'approved' ? 'Tervalidasi' : ($s === 'rejected' ? 'Perlu Revisi' : 'Menunggu') }}</p></div>
-                            </div>
-
-                            @if($m['weight_trend'] !== null || $m['height_trend'] !== null)
-                                <div class="mt-3 pt-3 border-t border-slate-100 flex items-center gap-3 flex-wrap text-[11.5px] font-semibold">
-                                    @if($m['weight_trend'] !== null)<span class="inline-flex items-center gap-1 {{ $m['weight_trend'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}"><x-icon name="{{ $m['weight_trend'] >= 0 ? 'trend-up' : 'trend-down' }}" weight="bold" class="text-[13px]" /> BB {{ $m['weight_trend'] >= 0 ? '+' : '' }}{{ $m['weight_trend'] }} kg</span>@endif
-                                    @if($m['height_trend'] !== null)<span class="inline-flex items-center gap-1 {{ $m['height_trend'] >= 0 ? 'text-emerald-600' : 'text-rose-600' }}"><x-icon name="{{ $m['height_trend'] >= 0 ? 'trend-up' : 'trend-down' }}" weight="bold" class="text-[13px]" /> TB {{ $m['height_trend'] >= 0 ? '+' : '' }}{{ $m['height_trend'] }} cm</span>@endif
-                                </div>
-                            @endif
-
-                            @if($isRejected && !empty($m['catatan_validator']))
-                                <div class="mt-3 border border-rose-200 rounded-lg p-3.5 flex items-start gap-2.5 bg-rose-50/40">
-                                    <x-icon name="chat-circle-text" weight="fill" class="text-rose-500 text-[18px] shrink-0 mt-0.5" />
-                                    <div class="min-w-0">
-                                        <p class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">Catatan Petugas Gizi Puskesmas</p>
-                                        <p class="text-[13px] text-slate-700 mt-1 leading-relaxed">{{ $m['catatan_validator'] }}</p>
-                                    </div>
-                                </div>
-                                <a href="{{ route('balita.show', [$balitaId, 'action' => 'ukur']) }}" class="mt-2.5 inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[12.5px] font-semibold transition-colors w-full"><x-icon name="pencil-line" weight="bold" class="text-[14px]" /> Perbaiki Data</a>
-                            @endif
-                        </div>
+                        </template>
                     </div>
                 </div>
-            @empty
+            </template>
+            @else
                 <div class="py-12 text-center text-[13px] text-slate-400">Belum ada data pengukuran.</div>
-            @endforelse
-            </div>
+            @endif
         </div>
     </div>
 
