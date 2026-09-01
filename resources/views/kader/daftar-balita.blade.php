@@ -161,7 +161,13 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="text-base font-bold text-slate-900">{{ $isFiltered ? 'Hasil Filter' : 'Daftar Balita' }}</h2>
-                    <p class="text-[12px] text-slate-500 mt-0.5">{{ $displayBalitas->count() }} balita ditampilkan</p>
+                    <p class="text-[12px] text-slate-500 mt-0.5">
+                        @if(!$isFiltered && $priorityBalitas->isNotEmpty())
+                            {{ $displayBalitas->count() }} balita lainnya
+                        @else
+                            {{ $displayBalitas->count() }} balita ditampilkan
+                        @endif
+                    </p>
                 </div>
             </div>
 

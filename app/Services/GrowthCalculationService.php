@@ -91,6 +91,11 @@ class GrowthCalculationService
      * Tabel Referensi WHO (0-60 Bulan)
      * Data diringkas dari WHO Child Growth Standards (Median & SD).
      */
+    public function referenceFor(int $umurBulan, string $jenisKelamin): array
+    {
+        return $this->getWhoReference($umurBulan, $jenisKelamin);
+    }
+
     private function getWhoReference(int $umurBulan, string $jenisKelamin): array
     {
         $isMale = strtoupper($jenisKelamin) === 'L';
