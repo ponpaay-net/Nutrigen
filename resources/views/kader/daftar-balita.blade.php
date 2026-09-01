@@ -122,7 +122,7 @@
             <x-icon name="x" weight="bold" class="text-[13px]" /> Hapus filter
         </a>
     </div>
-    @endif[truncated]
+    @endif
 
     @if(request('q') && $priorityBalitas->isEmpty() && $displayBalitas->isEmpty())
         {{-- EMPTY STATE (search) --}}
