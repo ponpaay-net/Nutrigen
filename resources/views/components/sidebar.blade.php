@@ -7,7 +7,6 @@
 @php
     $isPush = request()->is('puskesmas*');
 
-    // Active pill / indicator (kept as literals so Tailwind picks them up)
     $activeCls    = 'bg-teal-600 text-white shadow-sm';
     $inactiveCls  = 'text-slate-500 hover:bg-teal-50/70 hover:text-teal-600';
     $indicatorCls = 'bg-teal-300';
@@ -42,7 +41,7 @@
         '-translate-x-full w-[264px]': !mobileSidebarOpen,
         'lg:translate-x-0': true,
         'lg:w-[264px]': sidebarExpanded,
-        'lg:w-[88px]': !sidebarExpanded
+        'lg:w-[80px]': !sidebarExpanded
     }"
     class="fixed lg:static inset-y-0 left-0 z-[110] flex flex-col h-full bg-white border-r border-slate-200 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden shrink-0">
 
@@ -87,11 +86,31 @@
         @endforeach
     </div>
 
-    <!-- Collapse Toggle (Desktop only, icon-only) -->
-    <div class="hidden lg:flex px-3 py-3 border-t border-slate-100 shrink-0">
-        <button @click="sidebarExpanded = !sidebarExpanded" aria-label="Perkecil / perbesar menu" title="Perkecil menu"
-                class="flex items-center justify-center gap-2 w-full h-10 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-teal-600 hover:border-teal-200 hover:bg-teal-50/50 transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-teal-500/20">
-            <x-icon name="caret-left" weight="bold" class="text-[18px] transition-transform duration-300" x-bind:class="{ 'rotate-180': !sidebarExpanded }" />
-        </button>
+    <!-- Footer Actions: Tentang + Keluar -->
+    <div class="border-t border-slate-100 p-3 shrink-0">
+        <div class="flex flex-col gap-1">
+            <button onclick="window.NutriAlert.success('Versi Sistem', 'NutriGen v1.0.0')"
+                    class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-teal-600 font-semibold text-[13px] transition-all duration-200 text-left cursor-pointer">
+                <x-icon name="info" weight="bold" class="text-[19px] shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                <span class="truncate transition-all duration-200" :class="{ 'opacity-100': sidebarExpanded, 'lg:opacity-0 lg:w-0 lg:overflow-hidden': !sidebarExpanded }">Tentang Aplikasi</span>
+            </button>
+
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit"
+                        class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-600 hover:bg-rose-50 font-semibold text-[13px] transition-all duration-200 text-left cursor-pointer">
+                    <x-icon name="sign-out" weight="bold" class="text-[19px] shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                    <span class="truncate transition-all duration-200" :class="{ 'opacity-100': sidebarExpanded, 'lg:opacity-0 lg:w-0 lg:overflow-hidden': !sidebarExpanded }">Keluar Aplikasi</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Collapse Toggle (Desktop, clear icon) -->
+        <div class="hidden lg:block mt-2 pt-2 border-t border-slate-100">
+            <button @click="sidebarExpanded = !sidebarExpanded" aria-label="Perkecil / perbesar menu" title="Perkecil / perbesar menu"
+                    class="group flex items-center gap-3 w-full px-3 justify-center h-10 rounded-xl bg-slate-50 hover:bg-teal-50 text-slate-500 hover:text-teal-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20">
+                <x-icon name="caret-double-left" weight="bold" class="text-[18px] transition-transform duration-300 group-hover:scale-110" x-bind:class="{ 'rotate-180': !sidebarExpanded }" />
+            </button>
+        </div>
     </div>
 </aside>
