@@ -84,30 +84,26 @@
         </div>
     </section>
 
-    {{-- TOOLBAR: search + filter chips --}}
-    <div class="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
-        <form action="{{ route('balita.index') }}" method="GET" class="relative w-full lg:max-w-xs">
+    {{-- TOOLBAR: search + filter dropdown --}}
+    <form action="{{ route('balita.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div class="relative w-full sm:flex-1">
             <x-icon name="magnifying-glass" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none" />
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama atau NIK balita…"
                    class="w-full h-11 pl-11 pr-4 rounded-xl bg-white border border-slate-200 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/10 text-sm text-slate-700 placeholder:text-slate-400 transition-all focus:outline-none">
-            @if(request('filter'))<input type="hidden" name="filter" value="{{ request('filter') }}">@endif
-        </form>
-
-        <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar -mx-1 px-1 pb-1 flex-1 min-w-0">
-            @foreach($filters as $key => $f)
-                @php
-                    $isActive = request('filter') === $key;
-                    $href = $isActive ? route('balita.index') : route('balita.index', ['filter' => $key]);
-                @endphp
-                <a href="{{ $href }}"
-                   class="shrink-0 inline-flex items-center gap-2 h-11 px-4 rounded-full text-[13px] font-semibold transition-all duration-200 active:scale-95 {{ $isActive ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700' }}">
-                    <span class="w-2 h-2 rounded-full {{ $f['dot'] }} shrink-0"></span>
-                    {{ $f['label'] }}
-                    <span class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-[11px] font-bold {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500' }}">{{ $f['count'] }}</span>
-                </a>
-            @endforeach
         </div>
-    </div>
+
+        <div class="relative w-full sm:w-auto">
+            <x-icon name="funnel" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none" />
+            <select name="filter" onchange="this.form.submit()"
+                    class="w-full sm:w-[230px] h-11 pl-10 pr-10 rounded-xl bg-white border border-slate-200 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/10 text-sm font-medium text-slate-700 appearance-none cursor-pointer transition-all focus:outline-none">
+                <option value="">Semua Balita ({{ $total }})</option>
+                @foreach($filters as $key => $f)
+                    <option value="{{ $key }}" @if(request('filter') === $key) selected @endif>{{ $f['label'] }} ({{ $f['count'] }})</option>
+                @endforeach
+            </select>
+            <x-icon name="caret-down" weight="bold" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
+        </div>
+    </form>
 
     @if(request('q') && $priorityBalitas->isEmpty() && $displayBalitas->isEmpty())
         {{-- EMPTY STATE (search) --}}
