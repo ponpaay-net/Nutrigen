@@ -14,17 +14,17 @@
     $percentage = $totalAnak > 0 ? round(($sudah / $totalAnak) * 100) : 0;
     $revisi     = (int) ($filterCounts['ditolak'] ?? 0);
     $stats = [
-        ['label' => 'Total Balita', 'value' => $total,  'color' => 'text-slate-900'],
-        ['label' => 'Sudah Diukur', 'value' => $sudah,  'color' => 'text-emerald-600'],
-        ['label' => 'Belum Diukur', 'value' => $belum,  'color' => 'text-amber-600'],
-        ['label' => 'Perlu Revisi', 'value' => $revisi, 'color' => 'text-rose-600'],
+        ['label' => 'Total Balita', 'value' => $total,  'color' => 'teal',    'icon' => 'users'],
+        ['label' => 'Sudah Diukur', 'value' => $sudah,  'color' => 'emerald', 'icon' => 'check-circle'],
+        ['label' => 'Belum Diukur', 'value' => $belum,  'color' => 'amber',   'icon' => 'clock'],
+        ['label' => 'Perlu Revisi', 'value' => $revisi, 'color' => 'rose',    'icon' => 'warning-circle'],
     ];
     $filters = [
-        'belum_diukur'     => ['label' => 'Belum Diukur',     'count' => $filterCounts['belum_diukur'] ?? 0],
-        'absen_bulan_lalu' => ['label' => 'Absen Bulan Lalu', 'count' => $filterCounts['absen_bulan_lalu'] ?? 0],
-        'bayi_6_bln'       => ['label' => 'Bayi < 6 Bln',      'count' => $filterCounts['bayi_6_bln'] ?? 0],
-        'selesai'          => ['label' => 'Sudah Diukur',     'count' => $filterCounts['selesai'] ?? 0],
-        'ditolak'          => ['label' => 'Perlu Revisi',     'count' => $filterCounts['ditolak'] ?? 0],
+        'belum_diukur'     => ['label' => 'Belum Diukur',     'count' => $filterCounts['belum_diukur'] ?? 0, 'icon' => 'clock',        'dot' => 'bg-amber-400'],
+        'absen_bulan_lalu' => ['label' => 'Absen Bulan Lalu', 'count' => $filterCounts['absen_bulan_lalu'] ?? 0, 'icon' => 'calendar-x', 'dot' => 'bg-slate-400'],
+        'bayi_6_bln'       => ['label' => 'Bayi < 6 Bln',      'count' => $filterCounts['bayi_6_bln'] ?? 0, 'icon' => 'baby',          'dot' => 'bg-teal-500'],
+        'selesai'          => ['label' => 'Sudah Diukur',     'count' => $filterCounts['selesai'] ?? 0, 'icon' => 'check-circle',   'dot' => 'bg-emerald-500'],
+        'ditolak'          => ['label' => 'Perlu Revisi',     'count' => $filterCounts['ditolak'] ?? 0, 'icon' => 'warning',        'dot' => 'bg-rose-500'],
     ];
 @endphp
 
@@ -62,9 +62,14 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Ringkasan Pengukuran</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 @foreach($stats as $stat)
-                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3">
-                        <p class="text-xl font-bold tabular-nums leading-none {{ $stat['color'] }}">{{ $stat['value'] }}</p>
-                        <p class="text-[11px] font-semibold text-slate-500 mt-1 truncate">{{ $stat['label'] }}</p>
+                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3 flex items-center gap-2.5">
+                        <span class="w-9 h-9 shrink-0 rounded-lg bg-{{ $stat['color'] }}-50 text-{{ $stat['color'] }}-600 flex items-center justify-center ring-1 ring-{{ $stat['color'] }}-100">
+                            <x-icon name="{{ $stat['icon'] }}" weight="fill" class="text-[16px]" />
+                        </span>
+                        <div class="min-w-0">
+                            <p class="text-xl font-bold tabular-nums leading-none {{ $stat['color'] === 'teal' ? 'text-slate-900' : 'text-' . $stat['color'] . '-600' }}">{{ $stat['value'] }}</p>
+                            <p class="text-[10.5px] font-semibold text-slate-500 mt-0.5 truncate">{{ $stat['label'] }}</p>
+                        </div>
                     </div>
                 @endforeach
             </div>
@@ -91,6 +96,7 @@
                 @endphp
                 <a href="{{ $href }}"
                    class="shrink-0 inline-flex items-center gap-2 h-11 px-4 rounded-full text-[13px] font-semibold transition-all duration-200 active:scale-95 {{ $isActive ? 'bg-teal-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700' }}">
+                    <span class="w-2 h-2 rounded-full {{ $f['dot'] }} shrink-0"></span>
                     {{ $f['label'] }}
                     <span class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-[11px] font-bold {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500' }}">{{ $f['count'] }}</span>
                 </a>
