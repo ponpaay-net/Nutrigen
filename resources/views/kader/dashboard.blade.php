@@ -190,12 +190,12 @@
                 </div>
 
                 @if(isset($jadwalTerdekat) && $jadwalTerdekat)
-                    <a href="{{ route('jadwal.show', $jadwalTerdekat['id']) }}" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm group flex items-start gap-4 hover:border-teal-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400">
+                    <a href="{{ route('jadwal.show', $jadwalTerdekat['id']) }}" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm group flex items-start gap-4 flex-1 hover:border-teal-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400">
                         <div class="w-14 h-14 rounded-xl bg-teal-50 text-teal-700 flex flex-col items-center justify-center shrink-0 border border-teal-200 group-hover:bg-teal-100 transition-colors">
                             <span class="text-[11px] font-bold uppercase tracking-wider">{{ $jadwalTerdekat['tgl_bulan'] ?? 'AGT' }}</span>
                             <span class="text-xl font-bold leading-none tabular-nums mt-0.5">{{ $jadwalTerdekat['tgl_nomor'] ?? '23' }}</span>
                         </div>
-                        <div class="flex-1 min-w-0">
+                        <div class="flex-1 min-w-0 flex flex-col justify-between gap-1">
                             <h3 class="text-sm font-semibold text-slate-900 leading-snug mb-1.5 group-hover:text-teal-700 transition-colors">{{ $jadwalTerdekat['judul'] }}</h3>
                             <div class="text-[13px] text-slate-500 flex flex-col gap-1.5 mb-3">
                                 <div class="flex items-center gap-1.5 truncate"><x-icon name="clock" class="shrink-0 text-slate-400" /> <span class="truncate">{{ $jadwalTerdekat['waktu'] }}</span></div>
@@ -217,7 +217,7 @@
                 @endif
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md hover:border-teal-200 transition-all group">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md hover:border-teal-200 transition-all group">
                 <div class="flex items-center gap-4">
                     <div class="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:bg-teal-100 transition-colors"><x-icon name="download-simple" weight="bold" class="text-lg" /></div>
                     <div>
