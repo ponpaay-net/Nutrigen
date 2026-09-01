@@ -32,7 +32,7 @@
     </div>
 
     {{-- CAPAIAN SESI (feature banner — TEAL) --}}
-    <section class="rounded-2xl bg-teal-600 text-white p-5 sm:p-7 relative overflow-hidden shadow-sm">
+    <section class="rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 text-white p-5 sm:p-7 relative overflow-hidden shadow-sm">
         <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-center">
             <div>
                 <p class="text-xs font-semibold uppercase tracking-widest text-teal-100">Capaian Sesi Ini</p>
@@ -86,12 +86,15 @@
             ];
         @endphp
         @foreach($kpis as $kpi)
-        <div class="rounded-2xl bg-white border border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col">
+        <div class="group relative rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-4 sm:p-5 flex flex-col overflow-hidden">
+            <span class="absolute top-0 inset-x-0 h-1 bg-{{ $kpi['color'] }}-500"></span>
             <div class="flex items-center justify-between">
-                <span class="w-10 h-10 rounded-xl bg-{{ $kpi['color'] }}-50 text-{{ $kpi['color'] }}-600 flex items-center justify-center">
+                <span class="w-10 h-10 rounded-xl bg-{{ $kpi['color'] }}-50 text-{{ $kpi['color'] }}-600 flex items-center justify-center ring-1 ring-{{ $kpi['color'] }}-100">
                     <x-icon name="{{ $kpi['icon'] }}" weight="fill" class="text-lg" />
                 </span>
-                <x-icon name="arrow-up-right" weight="bold" class="text-slate-300" />
+                <span class="w-7 h-7 rounded-full bg-slate-50 text-slate-300 group-hover:bg-{{ $kpi['color'] }}-50 group-hover:text-{{ $kpi['color'] }}-600 flex items-center justify-center transition-colors">
+                    <x-icon name="arrow-up-right" weight="bold" class="text-sm" />
+                </span>
             </div>
             <p class="mt-3 text-2xl sm:text-3xl font-bold tabular-nums text-slate-900 leading-none">{{ $kpi['value'] }}</p>
             <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500 truncate">{{ $kpi['label'] }}</p>

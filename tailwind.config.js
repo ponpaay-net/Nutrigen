@@ -43,6 +43,11 @@ export default {
         'text-rose-700',    'text-rose-600',
         'text-slate-700',   'text-slate-600',
 
+        // Dynamic KPI micro-interaction (ring + group-hover)
+        'ring-teal-100', 'ring-emerald-100', 'ring-amber-100', 'ring-rose-100',
+        'group-hover:bg-teal-50', 'group-hover:bg-emerald-50', 'group-hover:bg-amber-50', 'group-hover:bg-rose-50',
+        'group-hover:text-teal-600', 'group-hover:text-emerald-600', 'group-hover:text-amber-600', 'group-hover:text-rose-600',
+
         'border-emerald-100', 'border-emerald-200',
         'border-amber-100',   'border-amber-200',
         'border-rose-100',    'border-rose-200',
