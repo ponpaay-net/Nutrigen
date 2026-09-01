@@ -86,5 +86,52 @@
                 </form>
             </div>
         </div>
+
+        <!-- Notification Modal (teleported to body, shares openNotif scope) -->
+        <div x-teleport="body">
+            <div x-show="openNotif" x-cloak class="fixed inset-0 z-[140] flex p-3 sm:p-4">
+                <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="openNotif = false"></div>
+                <div class="relative w-full max-w-lg mx-auto sm:my-auto bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col"
+                     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95 translate-y-2" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Notifikasi</h3>
+                            <p class="text-xs text-slate-500">Pembaruan pantauan &amp; validasi gizi</p>
+                        </div>
+                        <button @click="openNotif = false" class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none" aria-label="Tutup">
+                            <x-icon name="x" weight="bold" class="text-lg" />
+                        </button>
+                    </div>
+                    <div class="p-4 overflow-y-auto max-h-[60vh] space-y-2">
+                        @php
+                            $notifs = ($notificationRole === 'puskesmas' ? ($validationNotifs ?? []) : ($revisiNotifs ?? []));
+                            $notifs = collect($notifs);
+                        @endphp
+                        @forelse($notifs as $n)
+                            <a href="{{ $n['url'] ?? '#' }}" @click="openNotif = false"
+                               class="flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-white hover:bg-slate-50 hover:border-teal-200 transition-colors">
+                                <span class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center {{ ($n['type'] ?? 'revisi') === 'accept' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600' }}">
+                                    <x-icon name="{{ ($n['type'] ?? 'revisi') === 'accept' ? 'check-circle' : 'clock' }}" weight="fill" class="text-base" />
+                                </span>
+                                <span class="flex-1 min-w-0">
+                                    <span class="block text-[13px] font-semibold text-slate-800 leading-snug truncate">{{ $n['title'] ?? 'Notifikasi' }}</span>
+                                    <span class="block text-xs text-slate-500 leading-snug mt-0.5">{{ $n['message'] ?? '' }}</span>
+                                    <span class="block text-[11px] text-slate-400 mt-1 font-medium">{{ $n['time'] ?? '' }}</span>
+                                </span>
+                                <x-icon name="caret-right" weight="bold" class="text-slate-300 mt-1 shrink-0" />
+                            </a>
+                        @empty
+                            <div class="bg-slate-50 border border-slate-100 rounded-xl p-6 text-center">
+                                <div class="w-12 h-12 mx-auto rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 mb-3">
+                                    <x-icon name="bell" weight="fill" class="text-2xl" />
+                                </div>
+                                <p class="text-sm font-semibold text-slate-600">Tidak ada notifikasi</p>
+                                <p class="text-xs text-slate-400 mt-1">Semua sudah dibaca &amp; terbaru.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </header>
