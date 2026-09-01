@@ -81,7 +81,7 @@
                     @if(isset($item['badge']) && $item['badge'] > 0)
                         <span class="ml-auto min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-white/25 text-white text-[10px] rounded-full font-bold transition-all duration-200" :class="{ 'opacity-100': sidebarExpanded, 'lg:opacity-0 lg:hidden': !sidebarExpanded }">{{ $item['badge'] }}</span>
                     @elseif(!$item['active'])
-                        <x-icon name="caret-right" weight="bold" class="ml-auto text-xs text-slate-300 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" :class="{ 'lg:opacity-0 lg:hidden': !sidebarExpanded }" />
+                        <x-icon name="caret-right" weight="bold" class="ml-auto text-xs text-slate-300 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                     @endif
                 </a>
             @endforeach
