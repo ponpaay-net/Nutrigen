@@ -1,3 +1,9 @@
+@php
+    $greetingName = Auth::user()?->kader?->nama ?? Auth::user()?->name ?? 'Kader';
+    $greetIsPush = request()->is('puskesmas*');
+    $greetRole = $greetIsPush ? (Auth::user()?->puskesmas?->nama ?? 'Puskesmas') : (Auth::user()?->kader?->posyandu?->nama ?? 'Kader Posyandu');
+@endphp
+
 <header
     x-data="{ scrolled: false }"
     @scroll.passive="scrolled = ($event.target.scrollTop > 8)"
