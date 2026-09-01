@@ -7,10 +7,10 @@
     $balitasCollection = collect($balitas ?? []);
     $priorityBalitas = $isFiltered ? collect([]) : $balitasCollection->filter(fn($b) => in_array($b['status_type'] ?? '', ['danger', 'warning']));
     $displayBalitas  = $isFiltered ? $balitasCollection : $balitasCollection->filter(fn($b) => !in_array($b['status_type'] ?? '', ['danger', 'warning']));
-    $total      = count($balitas ?? []);
     $sudah      = (int) ($statSelesai ?? 0);
     $belum      = (int) ($statBelum ?? 0);
-    $totalAnak  = $sudah + $belum;
+    $totalAnak  = $sudah + $belum;   // total balita asli (selesai + belum)
+    $total      = $totalAnak;
     $percentage = $totalAnak > 0 ? round(($sudah / $totalAnak) * 100) : 0;
     $revisi     = (int) ($filterCounts['ditolak'] ?? 0);
     $stats = [
@@ -47,8 +47,14 @@
         {{-- Donut --}}
         <div class="relative w-32 h-32 shrink-0 rounded-full bg-teal-50 flex items-center justify-center">
             <svg viewBox="0 0 36 36" class="w-32 h-32">
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ccfbf1" stroke-width="3.4"></circle>
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0d9488" stroke-width="3.4" stroke-linecap="round"
+                <defs>
+                    <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#2dd4bf" />
+                        <stop offset="100%" stop-color="#0f766e" />
+                    </linearGradient>
+                </defs>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ccfbf1" stroke-width="3.6"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="url(#donutGrad)" stroke-width="3.6" stroke-linecap="round"
                         stroke-dasharray="{{ $percentage }} {{ max(0, 100 - $percentage) }}" pathLength="100"></circle>
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center">
@@ -62,18 +68,19 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Ringkasan Pengukuran</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 @foreach($stats as $stat)
-                    <div class="rounded-xl bg-{{ $stat['color'] }}-50 border border-{{ $stat['color'] }}-100 p-3 flex items-center gap-2.5 shadow-sm">
-                        <span class="w-9 h-9 shrink-0 rounded-lg bg-white text-{{ $stat['color'] }}-600 flex items-center justify-center shadow-sm">
+                    <div class="relative rounded-xl bg-white border border-slate-200 p-3 flex items-center gap-2.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
+                        <span class="absolute top-0 inset-x-0 h-0.5 bg-{{ $stat['color'] }}-500"></span>
+                        <span class="w-9 h-9 shrink-0 rounded-lg bg-{{ $stat['color'] }}-50 text-{{ $stat['color'] }}-600 flex items-center justify-center">
                             <x-icon name="{{ $stat['icon'] }}" weight="fill" class="text-[17px]" />
                         </span>
                         <div class="min-w-0">
-                            <p class="text-xl font-bold tabular-nums leading-none text-{{ $stat['color'] }}-700">{{ $stat['value'] }}</p>
+                            <p class="text-xl font-bold tabular-nums leading-none text-slate-900">{{ $stat['value'] }}</p>
                             <p class="text-[10.5px] font-semibold text-slate-500 mt-0.5 truncate">{{ $stat['label'] }}</p>
                         </div>
                     </div>
                 @endforeach
             </div>
-            <a href="{{ route('balita.index', ['filter' => 'belum_diukur']) }}" class="mt-4 inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-teal-600 text-white hover:bg-teal-700 font-semibold text-[13px] transition-colors">
+            <a href="{{ route('balita.index', ['filter' => 'belum_diukur']) }}" class="mt-4 inline-flex items-center gap-2 h-10 px-5 rounded-full bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:shadow-lg hover:shadow-teal-500/30 font-semibold text-[13px] transition-all duration-200 active:scale-95">
                 <x-icon name="scales" weight="bold" /> Mulai Timbang
             </a>
         </div>
