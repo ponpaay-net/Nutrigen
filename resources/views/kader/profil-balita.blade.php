@@ -105,35 +105,44 @@
     </div>
 
     {{-- TAB: IDENTITAS & ORANG TUA --}}
-    <div x-show="tab === 'info'" x-cloak class="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6 items-start">
-        <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-            <div class="flex items-center gap-2.5 mb-4"><span class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="identification-card" weight="bold" class="text-[16px]" /></span><h4 class="text-[14px] font-bold text-slate-900">Identitas Balita</h4></div>
-            <dl class="space-y-3.5">
-                <div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Nama Lengkap</dt><dd class="text-[14px] font-bold text-slate-800">{{ $childName }}</dd></div>
-                <div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">NIK</dt><dd class="text-[14px] font-semibold text-slate-800 font-mono">{{ $nik ?: '-' }}</dd></div>
-                <div class="grid grid-cols-2 gap-3"><div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Tanggal Lahir</dt><dd class="text-[14px] font-semibold text-slate-800">{{ $birthDate }}</dd></div><div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Jenis Kelamin</dt><dd class="text-[14px] font-semibold text-slate-800">{{ $gender }}</dd></div></div>
-                <div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">No BPJS</dt><dd class="text-[14px] font-semibold text-slate-800 font-mono">{{ $noBpjs ?: '-' }}</dd></div>
-            </dl>
-        </section>
-
-        <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-            <div class="flex items-center gap-2.5 mb-4"><span class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><x-icon name="baby" weight="bold" class="text-[16px]" /></span><h4 class="text-[14px] font-bold text-slate-900">Antropometri Lahir</h4></div>
-            <div class="grid grid-cols-3 gap-2.5">
-                <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-center"><span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide block">Berat</span><span class="text-[15px] font-bold text-slate-800">{{ $birthWeight ? $birthWeight . ' kg' : '—' }}</span></div>
-                <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-center"><span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide block">Panjang</span><span class="text-[15px] font-bold text-slate-800">{{ $birthLength ? $birthLength . ' cm' : '—' }}</span></div>
-                <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-center"><span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide block">L. Kepala</span><span class="text-[15px] font-bold text-slate-800">{{ $birthHeadCirc ? $birthHeadCirc . ' cm' : '—' }}</span></div>
+    <div x-show="tab === 'info'" x-cloak>
+        <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6">
+            <div class="flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="identification-card" weight="bold" class="text-[16px]" /></span>
+                <div><h3 class="text-[15px] font-bold text-slate-900">Identitas Balita</h3><p class="text-[12px] text-slate-500 mt-0.5">Data lengkap balita, orang tua & tempat tinggal</p></div>
             </div>
-        </section>
 
-        <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
-            <div class="flex items-center gap-2.5 mb-4"><span class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><x-icon name="users" weight="bold" class="text-[16px]" /></span><h4 class="text-[14px] font-bold text-slate-900">Orang Tua & Domisili</h4></div>
-            <dl class="space-y-3.5">
-                <div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Ibu</dt><dd class="text-[14px] font-semibold text-slate-800">{{ $motherName ?: '-' }}</dd></div>
-                <div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Ayah</dt><dd class="text-[14px] font-semibold text-slate-800">{{ $fatherName ?: '-' }}</dd></div>
-                <div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Kontak Ibu</dt><dd class="text-[14px] font-semibold text-slate-800">{{ $motherPhone ?: '-' }}</dd></div>
-                <div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Domisili</dt><dd class="text-[14px] font-semibold text-slate-800">{{ $address ?: '-' }}{{ $addressSub ? ', ' . $addressSub : '' }}</dd></div>
-                <div><dt class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Posyandu</dt><dd class="text-[14px] font-semibold text-slate-800">{{ $posyanduName ?: '-' }}</dd></div>
-            </dl>
+            <div class="mt-5">
+                <div class="flex items-center gap-1.5 mb-3"><span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span><h4 class="text-[12px] font-bold text-slate-500 uppercase tracking-wide">Data Balita</h4></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Nama Lengkap</p><p class="text-[14px] font-semibold text-slate-800 mt-1">{{ $childName ?: '—' }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">NIK</p><p class="text-[14px] font-semibold text-slate-800 mt-1 font-mono">{{ $nik ?: '—' }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Tanggal Lahir</p><p class="text-[14px] font-semibold text-slate-800 mt-1">{{ $birthDate }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Jenis Kelamin</p><p class="text-[14px] font-semibold text-slate-800 mt-1">{{ $gender }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">No BPJS</p><p class="text-[14px] font-semibold text-slate-800 mt-1 font-mono">{{ $noBpjs ?: '—' }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Usia</p><p class="text-[14px] font-semibold text-slate-800 mt-1">{{ $age }}</p></div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+                <div class="flex items-center gap-1.5 mb-3"><span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span><h4 class="text-[12px] font-bold text-slate-500 uppercase tracking-wide">Antropometri Lahir</h4></div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4">
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Berat Badan</p><p class="text-[15px] font-bold text-slate-800 mt-1">{{ $birthWeight ? $birthWeight . ' kg' : '—' }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Panjang Badan</p><p class="text-[15px] font-bold text-slate-800 mt-1">{{ $birthLength ? $birthLength . ' cm' : '—' }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Lingkar Kepala</p><p class="text-[15px] font-bold text-slate-800 mt-1">{{ $birthHeadCirc ? $birthHeadCirc . ' cm' : '—' }}</p></div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-5 border-t border-slate-100">
+                <div class="flex items-center gap-1.5 mb-3"><span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span><h4 class="text-[12px] font-bold text-slate-500 uppercase tracking-wide">Orang Tua & Domisili</h4></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Nama Ibu</p><p class="text-[14px] font-semibold text-slate-800 mt-1">{{ $motherName ?: '—' }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Nama Ayah</p><p class="text-[14px] font-semibold text-slate-800 mt-1">{{ $fatherName ?: '—' }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Kontak Ibu</p><p class="text-[14px] font-semibold text-slate-800 mt-1">{{ $motherPhone ?: '—' }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Domisili</p><p class="text-[14px] font-semibold text-slate-800 mt-1">{{ $address ?: '—' }}{{ $addressSub ? ', ' . $addressSub : '' }}</p></div>
+                    <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Posyandu</p><p class="text-[14px] font-semibold text-slate-800 mt-1">{{ $posyanduName ?: '—' }}</p></div>
+                </div>
+            </div>
         </section>
     </div>
 
