@@ -4,11 +4,11 @@
 
 @php
     $isEdit = $isEdit ?? false;
-    $secs = ['identitas' => ['user', 'Identitas Anak', 'Nama, NIK & tanggal lahir'],
-             'kelahiran' => ['baby', 'Kelahiran', 'Antropometri saat lahir'],
-             'orangtua'  => ['users', 'Orang Tua / Wali', 'Identitas & kontak wali'],
-             'lokasi'    => ['map-pin', 'Lokasi & Posyandu', 'Domisili saat ini']];
-    $inp = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[14px] font-medium text-slate-900 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600/30 focus:border-teal-500 focus:bg-white transition-colors';
+    $secs = ['identitas' => ['user', '01', 'Identitas Anak', 'Nama, NIK & tanggal lahir'],
+             'kelahiran' => ['baby', '02', 'Kelahiran', 'Antropometri saat lahir'],
+             'orangtua'  => ['users', '03', 'Orang Tua / Wali', 'Identitas & kontak wali'],
+             'lokasi'    => ['map-pin', '04', 'Lokasi & Posyandu', 'Domisili saat ini']];
+    $inp = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[14px] font-medium text-slate-900 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 focus:bg-white transition-all';
     $lbl = 'block text-[13px] font-semibold text-slate-700';
     $field = 'flex flex-col gap-1.5';
     @endphp
@@ -17,54 +17,60 @@
 <div class="bg-slate-50 min-h-[100dvh]" x-data="editForm()">
     <div class="max-w-3xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
 
-        {{-- Header --}}
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5">
-            <div>
-                <a href="{{ $isEdit ? route('balita.show', $balitaId ?? '') : route('balita.index') }}"
-                   class="inline-flex items-center gap-1.5 text-[13px] font-semibold text-slate-500 hover:text-slate-800 transition-colors">
-                    <x-icon name="arrow-left" weight="bold" class="text-[15px]" /> Kembali
-                </a>
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-2">
-                    {{ $isEdit ? 'Edit Data Anak' : 'Daftar Balita Baru' }}
-                </h1>
+        {{-- Breadcrumb + header --}}
+        <div class="mb-6">
+            <nav class="flex items-center gap-1.5 text-[13px] font-medium text-slate-500 mb-2">
+                <a href="{{ route('balita.index') }}" class="hover:text-slate-800 transition-colors">Data Balita</a>
+                <span class="text-slate-300">/</span>
+                <span class="text-slate-700">{{ $isEdit ? 'Edit Data' : 'Tambah Data' }}</span>
+            </nav>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div class="flex items-center gap-2.5">
+                    <a href="{{ $isEdit ? route('balita.show', $balitaId ?? '') : route('balita.index') }}" aria-label="Kembali"
+                       class="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors">
+                        <x-icon name="arrow-left" weight="bold" class="text-[16px]" />
+                    </a>
+                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">{{ $isEdit ? 'Edit Data Anak' : 'Daftar Balita Baru' }}</h1>
+                </div>
+                @if($isEdit)
+                <span class="inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-500">
+                    <x-icon name="clock" weight="bold" class="text-[13px] text-slate-400" />
+                    Terakhir diubah: {{ \Carbon\Carbon::now()->translatedFormat('d M Y, H:i') }}
+                </span>
+                @endif
             </div>
-            @if($isEdit)
-            <div class="inline-flex items-center gap-1.5 self-start text-[12px] font-medium text-slate-500">
-                <x-icon name="clock" weight="bold" class="text-[13px] text-slate-400" />
-                Terakhir diubah: <span class="font-semibold text-slate-800">{{ \Carbon\Carbon::now()->translatedFormat('d M Y, H:i') }}</span>
-            </div>
-            @endif
         </div>
 
-        {{-- Section nav (slim pills) --}}
-        <nav class="flex gap-1.5 overflow-x-auto hide-scrollbar mb-5 pb-1 lg:static">
+        {{-- Section nav (numbered daftar isi) --}}
+        <nav class="flex gap-1.5 overflow-x-auto hide-scrollbar pb-1 mb-5" aria-label="Bagian form">
             @foreach($secs as $id => $sec)
             <a href="#{{ $id }}" @click.prevent="scrollTo('{{ $id }}')"
-               :class="activeSection === '{{ $id }}' ? 'bg-teal-600 text-white border-teal-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'"
-               class="shrink-0 inline-flex items-center gap-1.5 px-4 h-9 rounded-full border text-[13px] font-semibold transition-colors">
-                <x-icon name="{{ $sec[0] }}" weight="bold" class="text-[14px]" /> {{ $sec[1] }}
+               :class="activeSection === '{{ $id }}' ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-teal-300 hover:text-teal-700'"
+               class="shrink-0 inline-flex items-center gap-1.5 pl-2 pr-3.5 h-9 rounded-full border text-[12.5px] font-semibold transition-all">
+                <span :class="activeSection === '{{ $id }}' ? 'bg-white/20 text-white' : 'bg-teal-50 text-teal-600'"
+                      class="w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-bold">{{ $sec[1] }}</span>
+                {{ $sec[2] }}
             </a>
             @endforeach
         </nav>
 
-        {{-- Form --}}
+        {{-- Form card --}}
         <form id="balitaForm" action="{{ $isEdit ? route('balita.update', $balitaId) : route('balita.store') }}" method="POST">
             @csrf
             @if($isEdit) @method('PUT') @endif
 
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_20px_50px_-24px_rgba(15,23,42,0.18)] overflow-hidden">
 
-                {{-- Edit: child summary strip --}}
                 @if($isEdit)
-                <div class="flex items-center gap-3 px-5 sm:px-6 py-4 bg-teal-50/60 border-b border-teal-100">
-                    <div class="w-11 h-11 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center">
+                <div class="flex items-center gap-3.5 px-5 sm:px-7 py-4 bg-gradient-to-r from-teal-600 to-teal-700 text-white">
+                    <div class="w-11 h-11 shrink-0 rounded-xl bg-white/20 ring-1 ring-white/30 flex items-center justify-center">
                         <span class="text-lg font-black select-none">{{ strtoupper(substr($childName, 0, 1)) }}</span>
                     </div>
                     <div class="min-w-0">
-                        <p class="text-[15px] font-bold text-slate-900 truncate">{{ $childName }}</p>
-                        <p class="text-[12px] text-slate-500 flex items-center gap-2 flex-wrap">
+                        <p class="text-[15px] font-bold leading-tight truncate">{{ $childName }}</p>
+                        <p class="text-[12px] text-teal-50 flex items-center gap-2 flex-wrap">
                             <span>{{ $gender === 'L' ? 'Laki-laki' : 'Perempuan' }}</span>
-                            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                            <span class="w-0.5 h-3 bg-white/40 rounded-full"></span>
                             <span>Lahir {{ \Carbon\Carbon::parse($birthDate)->format('d-m-Y') }}</span>
                         </p>
                     </div>
@@ -72,21 +78,20 @@
                 @endif
 
                 @if($errors->any())
-                <div class="mx-5 sm:mx-6 mt-5 rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-[13px] text-rose-700">
+                <div class="mx-5 sm:mx-7 mt-5 rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 text-[13px] text-rose-700">
                     <p class="font-semibold mb-1 flex items-center gap-1.5"><x-icon name="warning" weight="fill" class="text-[14px]" /> Ada beberapa data yang perlu diperbaiki:</p>
                     <ul class="list-disc pl-4 space-y-0.5">{{ implode('', $errors->all('<li class="inline">:message</li>')) }}</ul>
                 </div>
                 @endif
 
-                <div class="p-5 sm:p-6 space-y-9">
+                <div class="p-5 sm:p-7 space-y-8">
 
-                    {{-- 1. Identitas --}}
+                    {{-- 01 IDENTITAS --}}
                     <section id="identitas" class="scroll-mt-24">
-                        <div class="flex items-center gap-2.5 mb-5">
-                            <span class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0"><x-icon name="user" weight="bold" class="text-[16px]" /></span>
-                            <div><h2 class="text-base font-bold text-slate-900 leading-tight">Identitas Anak</h2><p class="text-[12.5px] text-slate-500">Nama, NIK & tanggal lahir.</p></div>
+                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                            <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">01</span>
+                            <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Identitas Anak</h2><p class="text-[12.5px] text-slate-500">Nama, NIK & tanggal lahir.</p></div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="{{ $field }} md:col-span-2">
                                 <label for="nama" class="{{ $lbl }}">Nama Lengkap Anak <span class="text-rose-500">*</span></label>
@@ -104,19 +109,22 @@
                             </div>
                             <div class="{{ $field }}">
                                 <label for="tanggal_lahir" class="{{ $lbl }}">Tanggal Lahir <span class="text-rose-500">*</span></label>
-                                <input id="tanggal_lahir" type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $birthDate ?? '') }}" required class="{{ $inp }} appearance-none">
+                                <div class="relative">
+                                    <input id="tanggal_lahir" type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $birthDate ?? '') }}" required class="{{ $inp }} appearance-none pr-10">
+                                    <x-icon name="calendar" weight="bold" class="w-[18px] h-[18px] text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                </div>
                                 @error('tanggal_lahir') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
                             </div>
                             <div class="{{ $field }}">
                                 <label class="{{ $lbl }}">Jenis Kelamin <span class="text-rose-500">*</span></label>
-                                <div class="grid grid-cols-2 gap-2 p-1 rounded-lg bg-slate-100 border border-slate-200">
+                                <div class="grid grid-cols-2 gap-1.5 p-1.5 rounded-xl bg-slate-100 border border-slate-200">
                                     <label class="relative">
                                         <input type="radio" name="jenis_kelamin" value="L" required class="peer sr-only" {{ old('jenis_kelamin', $gender ?? '') === 'L' ? 'checked' : '' }}>
-                                        <span class="flex items-center justify-center gap-1.5 h-10 rounded-md text-[13px] font-semibold text-slate-500 cursor-pointer peer-checked:bg-white peer-checked:text-teal-700 peer-checked:shadow-sm transition-all">Laki-laki</span>
+                                        <span class="flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold text-slate-500 cursor-pointer peer-checked:bg-teal-600 peer-checked:text-white peer-checked:shadow-sm transition-all">Laki-laki</span>
                                     </label>
                                     <label class="relative">
                                         <input type="radio" name="jenis_kelamin" value="P" required class="peer sr-only" {{ old('jenis_kelamin', $gender ?? '') === 'P' ? 'checked' : '' }}>
-                                        <span class="flex items-center justify-center gap-1.5 h-10 rounded-md text-[13px] font-semibold text-slate-500 cursor-pointer peer-checked:bg-white peer-checked:text-teal-700 peer-checked:shadow-sm transition-all">Perempuan</span>
+                                        <span class="flex items-center justify-center gap-1.5 h-10 rounded-lg text-[13px] font-semibold text-slate-500 cursor-pointer peer-checked:bg-teal-600 peer-checked:text-white peer-checked:shadow-sm transition-all">Perempuan</span>
                                     </label>
                                 </div>
                                 @error('jenis_kelamin') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
@@ -126,13 +134,12 @@
 
                     <div class="border-t border-slate-100"></div>
 
-                    {{-- 2. Kelahiran --}}
+                    {{-- 02 KELAHIRAN --}}
                     <section id="kelahiran" class="scroll-mt-24">
-                        <div class="flex items-center gap-2.5 mb-5">
-                            <span class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0"><x-icon name="baby" weight="bold" class="text-[16px]" /></span>
-                            <div><h2 class="text-base font-bold text-slate-900 leading-tight">Kelahiran</h2><p class="text-[12.5px] text-slate-500">Antropometri saat lahir.</p></div>
+                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                            <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">02</span>
+                            <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Kelahiran</h2><p class="text-[12.5px] text-slate-500">Antropometri saat lahir.</p></div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <div class="{{ $field }}">
                                 <label for="berat_lahir" class="{{ $lbl }}">Berat Lahir</label>
@@ -160,24 +167,21 @@
 
                     <div class="border-t border-slate-100"></div>
 
-                    {{-- 3. Orang Tua --}}
+                    {{-- 03 ORANG TUA --}}
                     <section id="orangtua" class="scroll-mt-24">
-                        <div class="flex items-center gap-2.5 mb-5">
-                            <span class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0"><x-icon name="users" weight="bold" class="text-[16px]" /></span>
-                            <div><h2 class="text-base font-bold text-slate-900 leading-tight">Orang Tua / Wali</h2><p class="text-[12.5px] text-slate-500">Identitas & kontak wali.</p></div>
+                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                            <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">03</span>
+                            <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Orang Tua / Wali</h2><p class="text-[12.5px] text-slate-500">Identitas & kontak wali.</p></div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="{{ $field }} md:col-span-2">
                                 <label for="no_kk" class="{{ $lbl }}">No. Kartu Keluarga <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
                                 <input id="no_kk" type="text" name="no_kk" value="{{ old('no_kk', $noKk ?? '') }}" placeholder="16 digit Nomor Kartu Keluarga" maxlength="16" inputmode="numeric" class="{{ $inp }}">
                             </div>
-
-                            <div class="md:col-span-2 flex items-center gap-2 mt-1">
-                                <span class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-[12px]">I</span>
-                                <h3 class="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Identitas Ibu</h3>
+                            <div class="md:col-span-2 flex items-center gap-2.5 mt-1">
+                                <span class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-[11px] font-bold">I</span>
+                                <h3 class="text-[12.5px] font-bold text-slate-700 uppercase tracking-wide">Identitas Ibu</h3>
                             </div>
-
                             <div class="{{ $field }}">
                                 <label for="nama_ibu" class="{{ $lbl }}">Nama Ibu <span class="text-rose-500">*</span></label>
                                 <input id="nama_ibu" type="text" name="nama_ibu" value="{{ old('nama_ibu', $motherName ?? '') }}" required placeholder="Nama lengkap ibu" class="{{ $inp }}">
@@ -196,12 +200,10 @@
                                 <label for="pekerjaan_ibu" class="{{ $lbl }}">Pekerjaan Ibu <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
                                 <input id="pekerjaan_ibu" type="text" name="pekerjaan_ibu" value="{{ old('pekerjaan_ibu', $motherJob ?? '') }}" placeholder="Ibu Rumah Tangga" class="{{ $inp }}">
                             </div>
-
-                            <div class="md:col-span-2 flex items-center gap-2 mt-1">
-                                <span class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-[12px]">A</span>
-                                <h3 class="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Identitas Ayah</h3>
+                            <div class="md:col-span-2 flex items-center gap-2.5 mt-1">
+                                <span class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-[11px] font-bold">A</span>
+                                <h3 class="text-[12.5px] font-bold text-slate-700 uppercase tracking-wide">Identitas Ayah</h3>
                             </div>
-
                             <div class="{{ $field }}">
                                 <label for="nama_ayah" class="{{ $lbl }}">Nama Ayah <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
                                 <input id="nama_ayah" type="text" name="nama_ayah" value="{{ old('nama_ayah', $fatherName ?? '') }}" placeholder="Nama lengkap ayah" class="{{ $inp }}">
@@ -219,13 +221,12 @@
 
                     <div class="border-t border-slate-100"></div>
 
-                    {{-- 4. Lokasi --}}
+                    {{-- 04 LOKASI --}}
                     <section id="lokasi" class="scroll-mt-24">
-                        <div class="flex items-center gap-2.5 mb-5">
-                            <span class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0"><x-icon name="map-pin" weight="bold" class="text-[16px]" /></span>
-                            <div><h2 class="text-base font-bold text-slate-900 leading-tight">Lokasi & Posyandu</h2><p class="text-[12.5px] text-slate-500">Domisili tempat tinggal saat ini.</p></div>
+                        <div class="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100">
+                            <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center text-[13px] font-bold">04</span>
+                            <div><h2 class="text-[15px] font-bold text-slate-900 leading-tight">Lokasi & Posyandu</h2><p class="text-[12.5px] text-slate-500">Domisili tempat tinggal saat ini.</p></div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="{{ $field }}">
                                 <label for="desa" class="{{ $lbl }}">Desa / Kelurahan <span class="text-[12px] font-medium text-slate-400">(opsional)</span></label>
@@ -245,13 +246,13 @@
             </div>
 
             {{-- Action bar --}}
-            <div class="sticky bottom-0 mt-6 -mb-2 bg-slate-50/95 backdrop-blur border-t border-slate-200 py-3.5 -mx-4 sm:mx-0 px-4 sm:px-0 flex items-center justify-between gap-3 sm:static sm:border-none sm:bg-transparent sm:px-0 sm:pt-0">
+            <div class="sticky bottom-0 mt-6 bg-slate-50/95 backdrop-blur border-t border-slate-200 py-3.5 sm:static sm:border-none sm:bg-transparent flex items-center justify-between gap-3">
                 <span class="hidden md:inline-flex items-center gap-1.5 text-[12.5px] font-medium text-slate-500"><x-icon name="info" weight="bold" class="text-[14px]" /> Periksa kembali data sebelum menyimpan.</span>
                 <div class="flex items-center gap-2.5 w-full sm:w-auto">
                     <a href="{{ $isEdit ? route('balita.show', $balitaId ?? '') : route('balita.index') }}"
                        class="flex-1 sm:flex-none h-11 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
                     <button type="submit"
-                       class="flex-1 sm:flex-none h-11 px-6 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center justify-center gap-2 shadow-sm">
+                       class="flex-1 sm:flex-none h-11 px-6 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20">
                        <x-icon name="check" weight="bold" class="text-[15px]" /> Simpan Data
                     </button>
                 </div>
