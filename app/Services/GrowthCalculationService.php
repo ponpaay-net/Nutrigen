@@ -2,179 +2,149 @@
 
 namespace App\Services;
 
-use DateTimeInterface;
-use Carbon\Carbon;
-
 /**
- * GrowthCalculationService
- * 
- * Core engine untuk kalkulasi pertumbuhan balita berbasis standar WHO Child Growth Standards.
- * Menggunakan Tabel Lookup Z-Score Median (M) dan Standar Deviasi (SD) riil dari WHO.
+ * GrowthCalculationService — perhitungan status gizi balita 0-60 bulan.
+ *
+ * STANDAR: WHO Child Growth Standards 2006 (LMS) + klasifikasi BUKU KIA/WHO.
+ * - Referensi L/M/S per bulan per jenis kelamin diambil dari tabel WHO asli
+ *   (WhoLmsData.php, bersumber dari WHO — bukan estimasi).
+ * - Z-Score memakai transformasi LMS Box-Cox:
+ *      z = ((x / M)^L - 1) / (L * S)   untuk L != 0
+ *      z = ln(x / M) / S               untuk L = 0
+ * - Klasifikasi (cutoff WHO/Kemenkes):
+ *      TB/U < -2 SD  -> Stunting ;  BB/U < -2 SD -> Kurang/Underweight
+ *      TB/U atau BB/U antara -2 dan -1.5 SD -> Risiko (perlu dipantau)
  */
 class GrowthCalculationService
 {
+    /** @var array Data WHO LMS per bulan (dari WhoLmsData.php). */
+    private array $whoData;
+
+    public function __construct()
+    {
+        $this->whoData = require __DIR__ . '/WhoLmsData.php';
+    }
+
     /**
-     * Menghitung umur, z-score, dan status gizi balita.
+     * Hitung z-score BB/U & TB/U + status gizi.
+     * Signature date-based (kompatibel dgn pemanggil: controller & seeder).
      */
     public function calculate(
-        DateTimeInterface $tanggalLahir,
-        DateTimeInterface $tanggalUkur,
+        \DateTimeInterface $tanggalLahir,
+        \DateTimeInterface $tanggalUkur,
         string $jenisKelamin,
-        $beratBadan,
-        $tinggiBadan
+        ?float $beratBadan,
+        ?float $tinggiBadan
     ): array {
-        $beratBadan = (float) $beratBadan;
-        $tinggiBadan = (float) $tinggiBadan;
+        $sex = strtoupper($jenisKelamin) === 'P' ? 'P' : 'L';
+        $umurBulan = $this->umurDalamBulan($tanggalLahir, $tanggalUkur);
+        $umur = max(0, min(60, $umurBulan));
 
-        $umurBulan = $this->calculateUmurBulan($tanggalLahir, $tanggalUkur);
-        
-        // Capping umur_bulan maksimal 60 (5 tahun) sesuai standar WHO balita
-        $umurIndex = $umurBulan > 60 ? 60 : $umurBulan;
-        
-        $reference = $this->getWhoReference($umurIndex, $jenisKelamin);
+        $ref = $this->referenceFor($umur, $sex);
 
-        // Kalkulasi Z-Score (LMS / Box-Cox, L=0 → log): z = ln(x / M) / S, dengan S = SD/M (koefisien relatif WHO)
-        $bbS = $reference['bb_median'] > 0 ? $reference['bb_sd'] / $reference['bb_median'] : 0;
-        $tbS = $reference['tb_median'] > 0 ? $reference['tb_sd'] / $reference['tb_median'] : 0;
-        $zScoreBbu = ($bbS > 0 && $beratBadan > 0) ? log($beratBadan / $reference['bb_median']) / $bbS : 0.0;
-        $zScoreTbu = ($tbS > 0 && $tinggiBadan > 0) ? log($tinggiBadan / $reference['tb_median']) / $tbS : 0.0;
+        $zBbu = ($beratBadan !== null && $beratBadan > 0) ? $this->zScore($beratBadan, $ref['bb_l'], $ref['bb_median'], $ref['bb_s']) : null;
+        $zTbu = ($tinggiBadan !== null && $tinggiBadan > 0) ? $this->zScore($tinggiBadan, $ref['tb_l'], $ref['tb_median'], $ref['tb_s']) : null;
 
-        // Penentuan Status Gizi Gabungan
-        $statusGizi = $this->determineStatusGizi($zScoreTbu, $zScoreBbu);
+        $status = $this->determineStatusGizi($zTbu, $zBbu);
 
         return [
             'umur_bulan'  => $umurBulan,
-            'z_score_bbu' => round($zScoreBbu, 2),
-            'z_score_tbu' => round($zScoreTbu, 2),
-            'status_gizi' => $statusGizi,
+            'z_score_bbu' => $zBbu !== null ? round($zBbu, 2) : null,
+            'z_score_tbu' => $zTbu !== null ? round($zTbu, 2) : null,
+            'status_gizi' => $status,
         ];
     }
 
-    private function calculateUmurBulan(DateTimeInterface $tanggalLahir, DateTimeInterface $tanggalUkur): int
+    private function umurDalamBulan(\DateTimeInterface $tanggalLahir, \DateTimeInterface $tanggalUkur): int
     {
-        return Carbon::parse($tanggalLahir)->diffInMonths(Carbon::parse($tanggalUkur));
-    }
-
-    private function calculateZScore(float $actualValue, float $medianValue, float $standardDeviation): float
-    {
-        if ($standardDeviation <= 0) {
-            return 0.0; 
-        }
-        return ($actualValue - $medianValue) / $standardDeviation;
+        $diff = $tanggalLahir->diff($tanggalUkur);
+        return (int) ($diff->y * 12 + $diff->m);
     }
 
     /**
-     * Hierarki Status Gizi (WHO):
-     * 1. Stunting (TB/U < -2)
-     * 2. Kurang (BB/U < -2)
-     * 3. Risiko (TB/U < -1.5 atau BB/U < -1.5)
-     * 4. Normal
-     */
-    private function determineStatusGizi(float $zScoreTbu, float $zScoreBbu): string
-    {
-        if ($zScoreTbu < -2.0) {
-            return 'Stunting';
-        }
-        
-        if ($zScoreBbu < -2.0) {
-            return 'Kurang'; 
-        }
-        
-        if ($zScoreTbu < -1.5 || $zScoreBbu < -1.5) {
-            return 'Risiko'; 
-        }
-        
-        return 'Normal';
-    }
-
-    /**
-     * Tabel Referensi WHO (0-60 Bulan)
-     * Data diringkas dari WHO Child Growth Standards (Median & SD).
+     * Referensi WHO (L, M, S + titik SD) untuk satu umur (bulan) per jenis kelamin.
+     * Untuk umur non-bulat dilakukan interpolasi linear antar bulan WHO.
      */
     public function referenceFor(int $umurBulan, string $jenisKelamin): array
     {
-        return $this->getWhoReference($umurBulan, $jenisKelamin);
-    }
+        $sex = strtoupper($jenisKelamin) === 'P' ? 'P' : 'L';
+        $age = max(0, min(60, $umurBulan));
 
-    private function getWhoReference(int $umurBulan, string $jenisKelamin): array
-    {
-        $isMale = strtoupper($jenisKelamin) === 'L';
-
-        // Laki-laki (Boys) - Median & SD
-        $boys = [
-            0 => ['bb_m' => 3.3, 'bb_sd' => 0.4, 'tb_m' => 49.9, 'tb_sd' => 1.9],
-            1 => ['bb_m' => 4.5, 'bb_sd' => 0.5, 'tb_m' => 54.7, 'tb_sd' => 2.1],
-            2 => ['bb_m' => 5.6, 'bb_sd' => 0.6, 'tb_m' => 58.4, 'tb_sd' => 2.2],
-            3 => ['bb_m' => 6.4, 'bb_sd' => 0.7, 'tb_m' => 61.4, 'tb_sd' => 2.3],
-            4 => ['bb_m' => 7.0, 'bb_sd' => 0.7, 'tb_m' => 63.9, 'tb_sd' => 2.4],
-            5 => ['bb_m' => 7.5, 'bb_sd' => 0.8, 'tb_m' => 65.9, 'tb_sd' => 2.5],
-            6 => ['bb_m' => 7.9, 'bb_sd' => 0.8, 'tb_m' => 67.6, 'tb_sd' => 2.5],
-            7 => ['bb_m' => 8.3, 'bb_sd' => 0.9, 'tb_m' => 69.2, 'tb_sd' => 2.6],
-            8 => ['bb_m' => 8.6, 'bb_sd' => 0.9, 'tb_m' => 70.6, 'tb_sd' => 2.6],
-            9 => ['bb_m' => 8.9, 'bb_sd' => 0.9, 'tb_m' => 72.0, 'tb_sd' => 2.7],
-            10 => ['bb_m' => 9.2, 'bb_sd' => 1.0, 'tb_m' => 73.3, 'tb_sd' => 2.7],
-            11 => ['bb_m' => 9.4, 'bb_sd' => 1.0, 'tb_m' => 74.5, 'tb_sd' => 2.8],
-            12 => ['bb_m' => 9.6, 'bb_sd' => 1.0, 'tb_m' => 75.7, 'tb_sd' => 2.8],
-            18 => ['bb_m' => 10.9, 'bb_sd' => 1.2, 'tb_m' => 82.3, 'tb_sd' => 3.2],
-            24 => ['bb_m' => 12.2, 'bb_sd' => 1.3, 'tb_m' => 87.1, 'tb_sd' => 3.4],
-            36 => ['bb_m' => 14.3, 'bb_sd' => 1.6, 'tb_m' => 96.1, 'tb_sd' => 4.0],
-            48 => ['bb_m' => 16.3, 'bb_sd' => 1.9, 'tb_m' => 103.3, 'tb_sd' => 4.4],
-            60 => ['bb_m' => 18.3, 'bb_sd' => 2.2, 'tb_m' => 110.0, 'tb_sd' => 4.8],
-        ];
-
-        // Perempuan (Girls) - Median & SD
-        $girls = [
-            0 => ['bb_m' => 3.2, 'bb_sd' => 0.4, 'tb_m' => 49.1, 'tb_sd' => 1.8],
-            1 => ['bb_m' => 4.2, 'bb_sd' => 0.5, 'tb_m' => 53.7, 'tb_sd' => 2.0],
-            2 => ['bb_m' => 5.1, 'bb_sd' => 0.6, 'tb_m' => 57.1, 'tb_sd' => 2.1],
-            3 => ['bb_m' => 5.8, 'bb_sd' => 0.7, 'tb_m' => 59.8, 'tb_sd' => 2.2],
-            4 => ['bb_m' => 6.4, 'bb_sd' => 0.7, 'tb_m' => 62.1, 'tb_sd' => 2.3],
-            5 => ['bb_m' => 6.9, 'bb_sd' => 0.8, 'tb_m' => 64.0, 'tb_sd' => 2.4],
-            6 => ['bb_m' => 7.3, 'bb_sd' => 0.8, 'tb_m' => 65.7, 'tb_sd' => 2.5],
-            7 => ['bb_m' => 7.6, 'bb_sd' => 0.9, 'tb_m' => 67.3, 'tb_sd' => 2.5],
-            8 => ['bb_m' => 7.9, 'bb_sd' => 0.9, 'tb_m' => 68.7, 'tb_sd' => 2.6],
-            9 => ['bb_m' => 8.2, 'bb_sd' => 0.9, 'tb_m' => 70.1, 'tb_sd' => 2.6],
-            10 => ['bb_m' => 8.5, 'bb_sd' => 1.0, 'tb_m' => 71.5, 'tb_sd' => 2.7],
-            11 => ['bb_m' => 8.7, 'bb_sd' => 1.0, 'tb_m' => 72.8, 'tb_sd' => 2.7],
-            12 => ['bb_m' => 8.9, 'bb_sd' => 1.0, 'tb_m' => 74.0, 'tb_sd' => 2.8],
-            18 => ['bb_m' => 10.2, 'bb_sd' => 1.2, 'tb_m' => 80.7, 'tb_sd' => 3.2],
-            24 => ['bb_m' => 11.5, 'bb_sd' => 1.4, 'tb_m' => 85.7, 'tb_sd' => 3.5],
-            36 => ['bb_m' => 13.9, 'bb_sd' => 1.7, 'tb_m' => 95.1, 'tb_sd' => 4.1],
-            48 => ['bb_m' => 16.1, 'bb_sd' => 2.1, 'tb_m' => 102.7, 'tb_sd' => 4.6],
-            60 => ['bb_m' => 18.2, 'bb_sd' => 2.5, 'tb_m' => 109.4, 'tb_sd' => 5.0],
-        ];
-
-        $dataset = $isMale ? $boys : $girls;
-
-        if (isset($dataset[$umurBulan])) {
-            return [
-                'bb_median' => $dataset[$umurBulan]['bb_m'],
-                'bb_sd'     => $dataset[$umurBulan]['bb_sd'],
-                'tb_median' => $dataset[$umurBulan]['tb_m'],
-                'tb_sd'     => $dataset[$umurBulan]['tb_sd'],
-            ];
-        }
-
-        // Interpolasi Linear
-        $lowerKey = 0;
-        $upperKey = 60;
-        foreach (array_keys($dataset) as $key) {
-            if ($key < $umurBulan && $key > $lowerKey) $lowerKey = $key;
-            if ($key > $umurBulan && $key < $upperKey) {
-                $upperKey = $key;
-                break;
-            }
-        }
-
-        $lower = $dataset[$lowerKey];
-        $upper = $dataset[$upperKey];
-        $ratio = ($umurBulan - $lowerKey) / ($upperKey - $lowerKey);
+        $bb = $this->interpolateRow('bbu_' . $sex, $age);
+        $tb = $this->interpolateRow('tbu_' . $sex, $age);
 
         return [
-            'bb_median' => $lower['bb_m'] + (($upper['bb_m'] - $lower['bb_m']) * $ratio),
-            'bb_sd'     => $lower['bb_sd'] + (($upper['bb_sd'] - $lower['bb_sd']) * $ratio),
-            'tb_median' => $lower['tb_m'] + (($upper['tb_m'] - $lower['tb_m']) * $ratio),
-            'tb_sd'     => $lower['tb_sd'] + (($upper['tb_sd'] - $lower['tb_sd']) * $ratio),
+            'bb_median' => $bb[0 + 1],   // M
+            'bb_sd'     => $bb[0 + 1] * $bb[2], // SD (kg) = M * S
+            'bb_l'      => $bb[0],
+            'bb_s'      => $bb[2],
+            'bb_sd0'    => $bb[5],
+            'bb_sd2n'   => $bb[3],
+            'bb_sd2'    => $bb[7],
+            'tb_median' => $tb[1],
+            'tb_sd'     => $tb[1] * $tb[2],
+            'tb_l'      => $tb[0],
+            'tb_s'      => $tb[2],
+            'tb_sd0'    => $tb[5],
+            'tb_sd2n'   => $tb[3],
+            'tb_sd2'    => $tb[7],
         ];
+    }
+
+    /**
+     * Ambil satu baris LMS (L,M,S,sd2n,sd1n,sd0,sd1,sd2) untuk umur tertentu.
+     */
+    private function interpolateRow(string $key, float $age): array
+    {
+        $row = $this->whoData[$key] ?? [];
+        if (!isset($row[(int) $age])) {
+            // interpolasi linear antara bulan terdekat
+            $below = (int) floor($age);
+            $above = (int) ceil($age);
+            $b = $row[$below] ?? reset($row);
+            $a = $row[$above] ?? end($row);
+            if ($above === $below || !isset($row[$above]) || !isset($row[$below])) {
+                return $b;
+            }
+            $ratio = $age - $below;
+            $out = [];
+            for ($i = 0; $i < 8; $i++) {
+                $out[$i] = $b[$i] + ($a[$i] - $b[$i]) * $ratio;
+            }
+            return $out;
+        }
+        return $row[(int) $age];
+    }
+
+    /**
+     * Z-Score transformasi LMS Box-Cox: z = ((x/M)^L - 1)/(L*S), L != 0; ln(x/M)/S, L = 0.
+     */
+    private function zScore(float $x, float $L, float $M, float $S): float
+    {
+        if ($x <= 0 || $M <= 0 || $S <= 0) {
+            return 0.0;
+        }
+        $ratio = $x / $M;
+        if (abs($L) < 1e-9) {
+            return log($ratio) / $S;
+        }
+        return (pow($ratio, $L) - 1) / ($L * $S);
+    }
+
+    /**
+     * Klasifikasi status gizi (WHO / BUKU KIA - Kemenkes).
+     */
+    private function determineStatusGizi(?float $zTbu, ?float $zBbu): string
+    {
+        if ($zTbu !== null && $zTbu < -2.0) {
+            return 'Stunting';
+        }
+        if ($zBbu !== null && $zBbu < -2.0) {
+            return 'Kurang';
+        }
+        if (($zTbu !== null && $zTbu < -1.5) || ($zBbu !== null && $zBbu < -1.5)) {
+            return 'Risiko';
+        }
+        return 'Normal';
     }
 }

@@ -19,7 +19,7 @@
     $childMaxMonth = $pts->max('month') ?? 0;
     $maxMonth = min(60, max(12, (int) (ceil($childMaxMonth / 6) * 6)));
     $months = range(0, (int) $maxMonth);
-    function whoBand($whoRef, $months, $field) { $band = []; foreach ($months as $m) { $r = $whoRef[$m]; $band[$m]['mid'] = $r[$field.'_median']; $band[$m]['hi'] = $r[$field.'_median'] + 2*$r[$field.'_sd']; $band[$m]['lo'] = $r[$field.'_median'] - 2*$r[$field.'_sd']; } return $band; }
+    function whoBand($whoRef, $months, $field) { $band = []; foreach ($months as $m) { $r = $whoRef[$m]; $band[$m]['mid'] = $r[$field.'_sd0']; $band[$m]['hi'] = $r[$field.'_sd2']; $band[$m]['lo'] = $r[$field.'_sd2n']; } return $band; }
     function bandRange($band) { $min = INF; $max = -INF; foreach ($band as $b) { $min = min($min, $b['lo']); $max = max($max, $b['hi']); } return [$min, $max]; }
     $bbBand = whoBand($whoRef, $months, 'bb');
     $tbBand = whoBand($whoRef, $months, 'tb');
