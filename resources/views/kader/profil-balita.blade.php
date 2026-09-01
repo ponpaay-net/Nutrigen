@@ -18,23 +18,36 @@
     })->filter(fn($p) => $p['w'] !== null || $p['h'] !== null)->values();
     $childMaxMonth = $pts->max('month') ?? 0;
     $maxMonth = min(60, max(12, (int) (ceil($childMaxMonth / 6) * 6)));
-    $months = range(0, (int) $maxMonth);
+    // WINDOW pertumbuhan: rentang bulan data anak (ber-pad), bukan 0-baru-lahir, agar data normal terbaca + outlier ter-flag
+    $dataMonths = $pts->pluck('month')->filter(fn ($m) => $m !== null)->sort()->values();
+    $winLo = (int) ($dataMonths->first() ?? 0);
+    $winHi = (int) ($dataMonths->last() ?? $maxMonth);
+    $winLoPad = max(0, $winLo - 1);
+    $winHiPad = max($winLoPad + 2, min(60, $winHi + 1));
+    $winSpan = max(1, $winHiPad - $winLoPad);
+    $months = range($winLoPad, $winHiPad);
+    $monthsTotal = $winSpan;
     function whoBand($whoRef, $months, $field) { $band = []; foreach ($months as $m) { $r = $whoRef[$m]; $band[$m]['mid'] = $r[$field.'_sd0']; $band[$m]['hi'] = $r[$field.'_sd2']; $band[$m]['lo'] = $r[$field.'_sd2n']; } return $band; }
-    function bandRange($band) { $min = INF; $max = -INF; foreach ($band as $b) { $min = min($min, $b['lo']); $max = max($max, $b['hi']); } return [$min, $max]; }
     $bbBand = whoBand($whoRef, $months, 'bb');
     $tbBand = whoBand($whoRef, $months, 'tb');
-    [$bbLo, $bbHi] = bandRange($bbBand); [$bbMin, $bbMax] = [floor($bbLo - 2), ceil($bbHi + 2)];
-    [$tbLo, $tbHi] = bandRange($tbBand); [$tbMin, $tbMax] = [floor($tbLo - 4), ceil($tbHi + 4)];
     $unit = ['w' => 'kg', 'h' => 'cm'];
     function clamp($v, $lo, $hi) { return max($lo, min($hi, $v)); }
-    $W = 720; $H = 320; $padL = 44; $padR = 16; $padT = 18; $padB = 34;
+    $W = 720; $H = 320; $padL = 46; $padR = 20; $padT = 26; $padB = 38;
     $X0 = $padL; $X1 = $W - $padR; $Y0 = $padT; $Y1 = $H - $padB;
-    $monthsTotal = $maxMonth > 0 ? $maxMonth : 1;
-    function xOf($m, $X0, $X1, $monthsTotal) { return $X0 + ($m / $monthsTotal) * ($X1 - $X0); }
-    function yOf($v, $min, $max, $Y0, $Y1) { return $Y1 - (($v - $min) / max(1, $max - $min)) * ($Y1 - $Y0); }
-    function bandPath($band, $X0, $X1, $Y0, $Y1, $monthsTotal, $min, $max, $key, $months) { $str = ''; foreach ($months as $i => $m) { $x = xOf($m, $X0, $X1, $monthsTotal); $y = yOf($band[$m][$key], $min, $max, $Y0, $Y1); $str .= ($i === 0 ? 'M' : 'L') . round($x, 1) . ' ' . round($y, 1) . ' '; } return trim($str); }
-    function bandAreaPath($band, $X0, $X1, $Y0, $Y1, $monthsTotal, $min, $max, $months) { $up = bandPath($band, $X0, $X1, $Y0, $Y1, $monthsTotal, $min, $max, 'hi', $months); $down = ''; foreach (array_reverse($months) as $m) { $x = xOf($m, $X0, $X1, $monthsTotal); $y = yOf($band[$m]['lo'], $min, $max, $Y0, $Y1); $down .= 'L' . round($x,1) . ' ' . round($y,1) . ' '; } return trim($up . ' ' . trim($down) . ' Z'); }
-    $tri = [ 'w' => ['band' => $bbBand, 'min' => $bbMin, 'max' => $bbMax, 'field' => 'w'], 'h' => ['band' => $tbBand, 'min' => $tbMin, 'max' => $tbMax, 'field' => 'h'] ];
+    function xOf($m, $X0, $X1, $lo, $span) { return $X0 + (($m - $lo) / $span) * ($X1 - $X0); }
+    function yOf($v, $min, $max, $Y0, $Y1) { return $Y1 - (($v - $min) / max(1e-6, $max - $min)) * ($Y1 - $Y0); }
+    function bandPath($band, $X0, $X1, $Y0, $Y1, $lo, $span, $min, $max, $key, $months) { $str = ''; foreach ($months as $i => $m) { $x = xOf($m, $X0, $X1, $lo, $span); $y = yOf($band[$m][$key], $min, $max, $Y0, $Y1); $str .= ($i === 0 ? 'M' : 'L') . round($x, 1) . ' ' . round($y, 1) . ' '; } return trim($str); }
+    function bandAreaPath($band, $X0, $X1, $Y0, $Y1, $lo, $span, $min, $max, $months) { $up = bandPath($band, $X0, $X1, $Y0, $Y1, $lo, $span, $min, $max, 'hi', $months); $down = ''; foreach (array_reverse($months) as $m) { $x = xOf($m, $X0, $X1, $lo, $span); $y = yOf($band[$m]['lo'], $min, $max, $Y0, $Y1); $down .= 'L' . round($x,1) . ' ' . round($y,1) . ' '; } return trim($up . ' ' . trim($down) . ' Z'); }
+    function chartRange($band, $step) { $lo = INF; $hi = -INF; foreach ($band as $b) { $lo = min($lo, $b['lo']); $hi = max($hi, $b['hi']); } $pad = max(0.5, ($hi - $lo) * 0.08); return [max(0, floor(($lo - $pad) / $step) * $step), ceil(($hi + $pad) / $step) * $step]; }
+    function pColor($z) { if ($z === null) return '#94a3b8'; if ($z < -2) return '#e11d48'; if ($z < -1) return '#f59e0b'; return '#10b981'; }
+    function pIsAnom($z) { return $z !== null && abs($z) > 3; }
+    function buildXTicks($months, $lo, $hi, $span) { $xs = max(1, (int) ceil($span / 7)); $out = []; foreach ($months as $m) { if ((($m - $lo) % $xs) === 0 || $m === $lo || $m === $hi) { $out[] = [$m]; } } return $out; }
+    $bbRange = chartRange($bbBand, 2);
+    $tbRange = chartRange($tbBand, 4);
+    $genXTicks = buildXTicks($months, $winLoPad, $winHiPad, $winSpan);
+    // precompute rendered points per field (cx, cy, color, value, anomaly)
+    function buildPts($pts, $field, $zk, $min, $max, $X0, $X1, $Y0, $Y1, $winLoPad, $winHiPad, $winSpan) { $out = []; $v = collect($pts)->filter(fn ($p) => $p[$field] !== null)->map(function ($p) use ($field, $zk, $min, $max, $X0, $X1, $Y0, $Y1, $winLoPad, $winHiPad, $winSpan) { $z = $p[$zk] ?? null; $x = xOf(clamp($p['month'], $winLoPad, $winHiPad), $X0, $X1, $winLoPad, $winSpan); $y = yOf(clamp($p[$field], $min, $max), $min, $max, $Y0, $Y1); return ['cx' => $x, 'cy' => $y, 'c' => pColor($z), 'a' => pIsAnom($z), 'val' => $p[$field]]; })->values(); $out['pts'] = $v; $out['line'] = $v->map(fn ($q) => round($q['cx'],1).','.round($q['cy'],1))->join(' '); return $out; }
+    $tri = [ 'w' => ['band' => $bbBand, 'min' => $bbRange[0], 'max' => $bbRange[1], 'field' => 'w', 'dec' => 1, 'zk' => 'zb', 'xticks' => $genXTicks, 'pts' => buildPts($pts, 'w', 'zb', $bbRange[0], $bbRange[1], $X0, $X1, $Y0, $Y1, $winLoPad, $winHiPad, $winSpan)], 'h' => ['band' => $tbBand, 'min' => $tbRange[0], 'max' => $tbRange[1], 'field' => 'h', 'dec' => 0, 'zk' => 'zt', 'xticks' => $genXTicks, 'pts' => buildPts($pts, 'h', 'zt', $tbRange[0], $tbRange[1], $X0, $X1, $Y0, $Y1, $winLoPad, $winHiPad, $winSpan)] ];
     $lastZb = $latestMeasure['z_score_bbu'] ?? null;
     $lastZt = $latestMeasure['z_score_tbu'] ?? null;
     function zClass($z) { return $z < -2 ? 'text-rose-600' : ($z < -1 ? 'text-amber-600' : 'text-emerald-600'); }
@@ -258,20 +271,20 @@
                 <div x-show="chartType === '{{ $type }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
                     <svg viewBox="0 0 {{ $W }} {{ $H }}" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Kurva pertumbuhan {{ $type === 'w' ? 'berat badan (kg)' : 'tinggi badan (cm)' }} terhadap standar WHO">
                         <g class="text-slate-100" stroke="currentColor" stroke-width="1">@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<line x1="{{ $X0 }}" y1="{{ $y }}" x2="{{ $X1 }}" y2="{{ $y }}" />@endfor</g>
-                        <path d="{{ bandAreaPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], $months) }}" fill="#0d9488" fill-opacity="0.08" />
-                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], 'hi', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
-                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], 'lo', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
-                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], 'mid', $months) }}" fill="none" stroke="#0d9488" stroke-width="2.5" />
-                        <polyline fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="{{ collect($pts)->filter(fn($p) => $p[$t['field']] !== null)->map(fn($p) => round(xOf(clamp($p['month'], 0, $monthsTotal), $X0, $X1, $monthsTotal),1).','.round(yOf(clamp($p[$t['field']], $t['min'], $t['max']), $t['min'], $t['max'], $Y0, $Y1),1))->join(' ') }}" />
-                        @php $dec = ($t['field'] === 'w') ? 1 : 0; @endphp
-                        @foreach($pts->filter(fn($p) => $p[$t['field']] !== null) as $p)<circle cx="{{ xOf(clamp($p['month'], 0, $monthsTotal), $X0, $X1, $monthsTotal) }}" cy="{{ yOf(clamp($p[$t['field']], $t['min'], $t['max']), $t['min'], $t['max'], $Y0, $Y1) }}" r="4" fill="#e11d48" stroke="#fff" stroke-width="1.5" />@endforeach
-                        <g class="text-slate-400" text-anchor="end" font-size="11"><text x="{{ $X0 - 8 }}" y="{{ $Y0 + 4 }}" class="font-semibold fill-slate-500">{{ $unit[$t['field']] }}</text>@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<text x="{{ $X0 - 8 }}" y="{{ $y + 4 }}">{{ $dec ? number_format($v, 1, ',', '') : (string)round($v) }}</text>@endfor</g>
-                        <g class="text-slate-400" text-anchor="middle" font-size="11">@for($i = 0; $i <= 6; $i++) @php $mm = round($monthsTotal * $i / 6); $x = xOf($mm, $X0, $X1, $monthsTotal); @endphp<text x="{{ $x }}" y="{{ $Y1 + 20 }}">{{ $mm }} bln</text>@endfor</g>
+                        <path d="{{ bandAreaPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], $months) }}" fill="#0d9488" fill-opacity="0.09" />
+                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], 'hi', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
+                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], 'lo', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
+                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], 'mid', $months) }}" fill="none" stroke="#0d9488" stroke-width="2.5" />
+                        <polyline fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="{{ $t['pts']['line'] }}" />
+                        @foreach($t['pts']['pts'] as $pt)@if($pt['a'])<circle cx="{{ $pt['cx'] }}" cy="{{ $pt['cy'] }}" r="9" fill="none" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="3 3" />@endif<circle cx="{{ $pt['cx'] }}" cy="{{ $pt['cy'] }}" r="4.5" fill="{{ $pt['c'] }}" stroke="#fff" stroke-width="1.6" /><text x="{{ $pt['cx'] }}" y="{{ $pt['cy'] - 9 }}" text-anchor="middle" font-size="10.5" font-weight="700" class="fill-slate-600">{{ $t['dec'] ? number_format($pt['val'], 1, ',', '') : (string) round($pt['val']) }}</text>@endforeach
+                        <g class="text-slate-400" text-anchor="end" font-size="11"><text x="{{ $X0 - 8 }}" y="{{ $Y0 - 6 }}" class="font-semibold" fill="#64748b">{{ $unit[$t['field']] }}</text>@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<text x="{{ $X0 - 8 }}" y="{{ $y + 4 }}">{{ $t['dec'] ? number_format($v, 1, ',', '') : (string) round($v) }}</text>@endfor</g>
+                        <g class="text-slate-400" text-anchor="middle" font-size="11">@foreach($t['xticks'] as $xt)<text x="{{ xOf($xt[0], $X0, $X1, $winLoPad, $winSpan) }}" y="{{ $Y1 + 20 }}">{{ $xt[0] }} bln</text>@endforeach</g>
                     </svg>
-                    <div class="flex items-center gap-4 mt-2 text-[11px] text-slate-500">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-[11px] text-slate-500">
                         <span class="inline-flex items-center gap-1.5"><span class="w-3 h-0.5 bg-teal-600 rounded"></span> Median WHO</span>
                         <span class="inline-flex items-center gap-1.5"><span class="w-3 h-0.5 bg-teal-400 opacity-60 rounded"></span> ±2 SD</span>
                         <span class="inline-flex items-center gap-1.5"><span class="w-3 h-0.5 bg-rose-600 rounded"></span> Data balita</span>
+                        <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full border-2 border-dashed border-rose-500"></span> Data anomali (cek ulang)</span>
                     </div>
                 </div>
                 @endforeach
