@@ -392,4 +392,22 @@
             Elements.warningBox.classList.add('hidden');
         }
     }
+
+    // AUTO titik desimal utk berat/tinggi/lingkar kepala (dari permintaan user)
+    function decimalMask(s) {
+        let v = String(s || '').replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1');
+        if (v.includes('.')) {
+            let p = v.split('.');
+            let i = p[0].replace(/^0+(?=\d)/, '');
+            return (i === '' ? '0' : i) + '.' + p[1].slice(0, 1);
+        }
+        let d = v.replace(/^0+(?=\d)/, '');
+        if (!d) return '';
+        if (d.length <= 2) return d;
+        return d.slice(0, -1) + '.' + d.slice(-1);
+    }
+    ['berat', 'tinggi', 'lingkar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => { el.value = decimalMask(el.value); if (id === 'berat') validateWeight(el.value); });
+    });
 </script>
