@@ -16,20 +16,24 @@
     $pts = collect($measurements)->map(function ($m) use ($birth) {
         return ['month' => (int) $birth->diffInMonths(\Carbon\Carbon::parse($m['raw_date'])), 'w' => $m['weight'], 'h' => $m['height']];
     })->filter(fn($p) => $p['w'] !== null || $p['h'] !== null)->values();
-    $maxMonth = max(60, $pts->max('month') ?? 0);
+    $childMaxMonth = $pts->max('month') ?? 0;
+    $maxMonth = min(60, max(12, (int) (ceil($childMaxMonth / 6) * 6)));
     $months = range(0, (int) $maxMonth);
     function whoBand($whoRef, $months, $field) { $band = []; foreach ($months as $m) { $r = $whoRef[$m]; $band[$m]['mid'] = $r[$field.'_median']; $band[$m]['hi'] = $r[$field.'_median'] + 2*$r[$field.'_sd']; $band[$m]['lo'] = $r[$field.'_median'] - 2*$r[$field.'_sd']; } return $band; }
-    function chartScales($band, $measurements, $field) { $vals = []; foreach ($band as $b) { $vals[] = $b['hi']; $vals[] = $b['lo']; } foreach ($measurements as $m) { if ($m[$field] !== null) $vals[] = $m[$field]; } return [floor(min($vals)) - 2, ceil(max($vals)) + 2]; }
+    function bandRange($band) { $min = INF; $max = -INF; foreach ($band as $b) { $min = min($min, $b['lo']); $max = max($max, $b['hi']); } return [$min, $max]; }
     $bbBand = whoBand($whoRef, $months, 'bb');
     $tbBand = whoBand($whoRef, $months, 'tb');
-    [$bbMin, $bbMax] = chartScales($bbBand, $pts, 'w');
-    [$tbMin, $tbMax] = chartScales($tbBand, $pts, 'h');
+    [$bbLo, $bbHi] = bandRange($bbBand); [$bbMin, $bbMax] = [floor($bbLo - 2), ceil($bbHi + 2)];
+    [$tbLo, $tbHi] = bandRange($tbBand); [$tbMin, $tbMax] = [floor($tbLo - 4), ceil($tbHi + 4)];
+    $unit = ['w' => 'kg', 'h' => 'cm'];
+    function clamp($v, $lo, $hi) { return max($lo, min($hi, $v)); }
     $W = 720; $H = 320; $padL = 44; $padR = 16; $padT = 18; $padB = 34;
     $X0 = $padL; $X1 = $W - $padR; $Y0 = $padT; $Y1 = $H - $padB;
     $monthsTotal = $maxMonth > 0 ? $maxMonth : 1;
     function xOf($m, $X0, $X1, $monthsTotal) { return $X0 + ($m / $monthsTotal) * ($X1 - $X0); }
     function yOf($v, $min, $max, $Y0, $Y1) { return $Y1 - (($v - $min) / max(1, $max - $min)) * ($Y1 - $Y0); }
     function bandPath($band, $X0, $X1, $Y0, $Y1, $monthsTotal, $min, $max, $key, $months) { $str = ''; foreach ($months as $i => $m) { $x = xOf($m, $X0, $X1, $monthsTotal); $y = yOf($band[$m][$key], $min, $max, $Y0, $Y1); $str .= ($i === 0 ? 'M' : 'L') . round($x, 1) . ' ' . round($y, 1) . ' '; } return trim($str); }
+    function bandAreaPath($band, $X0, $X1, $Y0, $Y1, $monthsTotal, $min, $max, $months) { $up = bandPath($band, $X0, $X1, $Y0, $Y1, $monthsTotal, $min, $max, 'hi', $months); $down = ''; foreach (array_reverse($months) as $m) { $x = xOf($m, $X0, $X1, $monthsTotal); $y = yOf($band[$m]['lo'], $min, $max, $Y0, $Y1); $down .= 'L' . round($x,1) . ' ' . round($y,1) . ' '; } return trim($up . ' ' . trim($down) . ' Z'); }
     $tri = [ 'w' => ['band' => $bbBand, 'min' => $bbMin, 'max' => $bbMax, 'field' => 'w'], 'h' => ['band' => $tbBand, 'min' => $tbMin, 'max' => $tbMax, 'field' => 'h'] ];
     $lastZb = $latestMeasure['z_score_bbu'] ?? null;
     $lastZt = $latestMeasure['z_score_tbu'] ?? null;
@@ -252,14 +256,16 @@
             <div class="relative">
                 @foreach($tri as $type => $t)
                 <div x-show="chartType === '{{ $type }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                    <svg viewBox="0 0 {{ $W }} {{ $H }}" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Kurva pertumbuhan {{ $type === 'w' ? 'berat badan' : 'tinggi badan' }} terhadap standar WHO">
-                        <g class="text-slate-200" stroke="currentColor" stroke-width="1">@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<line x1="{{ $X0 }}" y1="{{ $y }}" x2="{{ $X1 }}" y2="{{ $y }}" />@endfor</g>
-                        <g class="text-slate-400" text-anchor="end" font-size="11">@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<text x="{{ $X0 - 8 }}" y="{{ $y + 4 }}">{{ round($v, 1) }}</text>@endfor</g>
-                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], 'mid', $months) }}" fill="none" stroke="#0d9488" stroke-width="2" stroke-dasharray="5 5" />
-                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], 'hi', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.2" opacity="0.55" />
-                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], 'lo', $months) }}" fill="none" stroke="#0f766e" stroke-width="1.2" opacity="0.55" />
-                        <polyline fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="{{ collect($pts)->filter(fn($p) => $p[$t['field']] !== null)->map(fn($p) => round(xOf($p['month'], $X0, $X1, $monthsTotal),1).','.round(yOf($p[$t['field']], $t['min'], $t['max'], $Y0, $Y1),1))->join(' ') }}" />
-                        @foreach($pts->filter(fn($p) => $p[$t['field']] !== null) as $p)<circle cx="{{ xOf($p['month'], $X0, $X1, $monthsTotal) }}" cy="{{ yOf($p[$t['field']], $t['min'], $t['max'], $Y0, $Y1) }}" r="3.5" fill="#e11d48" stroke="#fff" stroke-width="1.5" />@endforeach
+                    <svg viewBox="0 0 {{ $W }} {{ $H }}" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Kurva pertumbuhan {{ $type === 'w' ? 'berat badan (kg)' : 'tinggi badan (cm)' }} terhadap standar WHO">
+                        <g class="text-slate-100" stroke="currentColor" stroke-width="1">@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<line x1="{{ $X0 }}" y1="{{ $y }}" x2="{{ $X1 }}" y2="{{ $y }}" />@endfor</g>
+                        <path d="{{ bandAreaPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], $months) }}" fill="#0d9488" fill-opacity="0.08" />
+                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], 'hi', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
+                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], 'lo', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
+                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $monthsTotal, $t['min'], $t['max'], 'mid', $months) }}" fill="none" stroke="#0d9488" stroke-width="2.5" />
+                        <polyline fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="{{ collect($pts)->filter(fn($p) => $p[$t['field']] !== null)->map(fn($p) => round(xOf(clamp($p['month'], 0, $monthsTotal), $X0, $X1, $monthsTotal),1).','.round(yOf(clamp($p[$t['field']], $t['min'], $t['max']), $t['min'], $t['max'], $Y0, $Y1),1))->join(' ') }}" />
+                        @php $dec = ($t['field'] === 'w') ? 1 : 0; @endphp
+                        @foreach($pts->filter(fn($p) => $p[$t['field']] !== null) as $p)<circle cx="{{ xOf(clamp($p['month'], 0, $monthsTotal), $X0, $X1, $monthsTotal) }}" cy="{{ yOf(clamp($p[$t['field']], $t['min'], $t['max']), $t['min'], $t['max'], $Y0, $Y1) }}" r="4" fill="#e11d48" stroke="#fff" stroke-width="1.5" />@endforeach
+                        <g class="text-slate-400" text-anchor="end" font-size="11"><text x="{{ $X0 - 8 }}" y="{{ $Y0 + 4 }}" class="font-semibold fill-slate-500">{{ $unit[$t['field']] }}</text>@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<text x="{{ $X0 - 8 }}" y="{{ $y + 4 }}">{{ $dec ? number_format($v, 1, ',', '') : (string)round($v) }}</text>@endfor</g>
                         <g class="text-slate-400" text-anchor="middle" font-size="11">@for($i = 0; $i <= 6; $i++) @php $mm = round($monthsTotal * $i / 6); $x = xOf($mm, $X0, $X1, $monthsTotal); @endphp<text x="{{ $x }}" y="{{ $Y1 + 20 }}">{{ $mm }} bln</text>@endfor</g>
                     </svg>
                     <div class="flex items-center gap-4 mt-2 text-[11px] text-slate-500">
