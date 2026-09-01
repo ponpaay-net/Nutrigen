@@ -9,6 +9,10 @@
     $displayBalitas  = $isFiltered ? $balitasCollection : $balitasCollection->filter(fn($b) => !in_array($b['status_type'] ?? '', ['danger', 'warning']));
     $total      = count($balitas ?? []);
     $displayCount = $displayBalitas->count();
+    $sudah      = (int) ($statSelesai ?? 0);
+    $belum      = (int) ($statBelum ?? 0);
+    $totalAnak  = $sudah + $belum;
+    $percentage = $totalAnak > 0 ? round(($sudah / $totalAnak) * 100) : 0;
 @endphp
 
 <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-6 flex flex-col gap-5 lg:gap-6">
@@ -26,6 +30,40 @@
             </a>
         </div>
     </div>
+
+    {{-- CAPAIAN / PROGRESS CARD (refined, anti-slop) --}}
+    <section class="relative rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 text-white p-5 sm:p-6 overflow-hidden shadow-sm">
+        <div class="absolute -top-12 -right-12 w-52 h-52 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+            <div>
+                <div class="flex items-center gap-2 text-teal-100">
+                    <x-icon name="scales" weight="bold" class="text-base" />
+                    <span class="text-xs font-semibold uppercase tracking-widest">Capaian Pengukuran</span>
+                </div>
+                <div class="flex items-baseline gap-2 mt-2.5">
+                    <span class="text-4xl font-bold tabular-nums leading-none">{{ $sudah }}</span>
+                    <span class="text-teal-100 text-sm font-medium">dari {{ $totalAnak }} balita terukur</span>
+                </div>
+                <p class="mt-3 text-sm text-teal-50/90">Pantau progres pengukuran balita di posyandu Anda.</p>
+            </div>
+            <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wide text-teal-100">Progres</span>
+                    <span class="text-lg font-bold tabular-nums">{{ $percentage }}%</span>
+                </div>
+                <div class="w-full h-2.5 bg-white/20 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full bg-white transition-all" style="width: {{ $percentage }}%"></div>
+                </div>
+                <div class="flex items-center justify-between mt-3.5 text-sm font-semibold">
+                    <span class="inline-flex items-center gap-1.5 text-teal-50"><x-icon name="check-circle" weight="fill" /> Selesai {{ $sudah }}</span>
+                    <span class="inline-flex items-center gap-1.5 text-teal-100"><x-icon name="clock" weight="fill" /> Antrean {{ $belum }}</span>
+                </div>
+                <a href="{{ route('balita.index', ['filter' => 'belum_diukur']) }}" class="mt-4 inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-white text-teal-700 hover:bg-teal-50 font-semibold text-sm transition-colors">
+                    <x-icon name="scales" weight="bold" /> Mulai Timbang
+                </a>
+            </div>
+        </div>
+    </section>
 
     {{-- SEARCH + FILTER TIER --}}
     <div class="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
