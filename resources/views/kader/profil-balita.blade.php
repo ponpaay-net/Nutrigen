@@ -76,13 +76,30 @@
                     </div>
                 </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0 flex-wrap">
+            <div class="flex items-center gap-2 shrink-0 flex-wrap" x-data="{ confirmDelete: false }">
                 <a href="{{ route('balita.index') }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors"><x-icon name="arrow-left" weight="bold" class="text-[15px]" /> Kembali</a>
                 <a href="{{ route('balita.edit', $balitaId) }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> Edit</a>
-                <form id="delete-balita-{{ $balitaId }}" action="{{ route('balita.destroy', $balitaId) }}" method="POST" class="inline">@csrf @method('DELETE')
-                    <button type="button" onclick="if(confirm('Hapus balita ini? Data tidak bisa dikembalikan.')) document.getElementById('delete-balita-{{ $balitaId }}').submit()" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-[13px] font-semibold transition-colors"><x-icon name="trash" weight="bold" class="text-[15px]" /> Hapus</button>
-                </form>
+                <form id="delete-balita-{{ $balitaId }}" action="{{ route('balita.destroy', $balitaId) }}" method="POST" class="hidden">@csrf @method('DELETE')</form>
+                <button type="button" @click="confirmDelete = true" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-[13px] font-semibold transition-colors"><x-icon name="trash" weight="bold" class="text-[15px]" /> Hapus</button>
                 <a href="{{ route('balita.show', [$balitaId, 'action' => 'ukur']) }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-semibold shadow-sm transition-colors"><x-icon name="scales" weight="bold" class="text-[15px]" /> Ukur Sekarang</a>
+
+                {{-- Konfirmasi hapus --}}
+                <template x-teleport="body">
+                    <div x-show="confirmDelete" x-cloak class="fixed inset-0 z-[70] flex items-center justify-center p-4" x-transition.opacity>
+                        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="confirmDelete = false"></div>
+                        <div x-show="confirmDelete" x-transition.scale.origin.center class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6">
+                            <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+                                <x-icon name="warning" weight="fill" class="text-[22px]" />
+                            </div>
+                            <h3 class="text-center text-[16px] font-bold text-slate-900 mt-3">Hapus Data Balita?</h3>
+                            <p class="text-center text-[13px] text-slate-500 mt-1.5 leading-relaxed">Data balita ini <span class="font-semibold text-slate-700">beserta seluruh riwayat pengukuran</span> akan dihapus permanen dan tidak dapat dikembalikan.</p>
+                            <div class="grid grid-cols-2 gap-2.5 mt-5">
+                                <button type="button" @click="confirmDelete = false" class="h-11 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors">Batal</button>
+                                <button type="button" @click="document.getElementById('delete-balita-{{ $balitaId }}').submit()" class="h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center justify-center gap-2"><x-icon name="trash" weight="bold" class="text-[15px]" /> Ya, Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
 
