@@ -324,7 +324,7 @@
         </div>
 
         {{-- RIGHT: riwayat pengukuran (table + modal detail) --}}
-        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6" x-data="{ active: null, items: @json($measurements) }">
+        <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6" x-data='{ active: null, items: @json($measurements, 15) }'>
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h4 class="text-[15px] font-bold text-slate-900">Riwayat Pengukuran</h4>
@@ -352,22 +352,22 @@
                             @php
                                 $s = $m['status_validasi'] ?? 'pending';
                                 $isRejected = $s === 'rejected';
-                                $badge = match($s) {
-                                    'rejected' => 'bg-rose-50 text-rose-700 border-rose-200',
-                                    'pending'  => 'bg-amber-50 text-amber-700 border-amber-200',
-                                    'approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                    default    => 'bg-slate-50 text-slate-600 border-slate-200',
+                                $badgeText = match($s) {
+                                    'rejected' => 'text-rose-600',
+                                    'pending'  => 'text-amber-600',
+                                    'approved' => 'text-emerald-600',
+                                    default    => 'text-slate-500',
                                 };
                             @endphp
                             <tr @click="active = {{ $i }}" class="{{ $isRejected ? 'bg-rose-50/40' : '' }} cursor-pointer transition-colors hover:bg-slate-50">
-                                <td class="py-3 pr-3 text-[13px] font-bold text-slate-800 whitespace-nowrap">{{ $m['date'] }}</td>
-                                <td class="py-3 pr-3 text-[12.5px] text-slate-500 whitespace-nowrap">{{ $m['age_at_measure'] }}</td>
-                                <td class="py-3 pr-3 text-[13px] font-semibold text-slate-700 tabular-nums">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</td>
-                                <td class="py-3 pr-3 text-[13px] font-semibold text-slate-700 tabular-nums">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</td>
-                                <td class="py-3 pr-3 text-[13px] font-semibold tabular-nums hidden sm:table-cell {{ $m['z_score_bbu'] !== null ? ($m['z_score_bbu'] < -2 ? 'text-rose-600' : ($m['z_score_bbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_bbu'] !== null ? $m['z_score_bbu'] . ' SD' : '—' }}</td>
-                                <td class="py-3 pr-3 text-[13px] font-semibold tabular-nums hidden sm:table-cell {{ $m['z_score_tbu'] !== null ? ($m['z_score_tbu'] < -2 ? 'text-rose-600' : ($m['z_score_tbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_tbu'] !== null ? $m['z_score_tbu'] . ' SD' : '—' }}</td>
-                                <td class="py-3 pr-3 whitespace-nowrap"><span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[10.5px] font-bold {{ $badge }}">{{ $m['status'] }}</span></td>
-                                <td class="py-3 text-right whitespace-nowrap">
+                                <td class="py-4 pr-3 text-[13px] font-bold text-slate-800 whitespace-nowrap">{{ $m['date'] }}</td>
+                                <td class="py-4 pr-3 text-[12.5px] text-slate-500 whitespace-nowrap">{{ $m['age_at_measure'] }}</td>
+                                <td class="py-4 pr-3 text-[13px] font-semibold text-slate-700 tabular-nums">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</td>
+                                <td class="py-4 pr-3 text-[13px] font-semibold text-slate-700 tabular-nums">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</td>
+                                <td class="py-4 pr-3 text-[13px] font-semibold tabular-nums hidden sm:table-cell {{ $m['z_score_bbu'] !== null ? ($m['z_score_bbu'] < -2 ? 'text-rose-600' : ($m['z_score_bbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_bbu'] !== null ? $m['z_score_bbu'] . ' SD' : '—' }}</td>
+                                <td class="py-4 pr-3 text-[13px] font-semibold tabular-nums hidden sm:table-cell {{ $m['z_score_tbu'] !== null ? ($m['z_score_tbu'] < -2 ? 'text-rose-600' : ($m['z_score_tbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_tbu'] !== null ? $m['z_score_tbu'] . ' SD' : '—' }}</td>
+                                <td class="py-4 pr-3 whitespace-nowrap"><span class="text-[12.5px] font-semibold {{ $badgeText }}">{{ $m['status'] }}</span></td>
+                                <td class="py-4 text-right whitespace-nowrap">
                                     <button type="button" @click.stop="active = {{ $i }}" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-700 text-[12px] font-semibold transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
                                 </td>
                             </tr>
@@ -406,7 +406,7 @@
                                     </div>
                                     <div class="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-lg">
                                         <span class="text-[12px] font-semibold text-slate-500">Status</span>
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'bg-rose-50 text-rose-700 border border-rose-200' : (items[active]?.status_validasi === 'pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200')" x-text="items[active]?.status"></span>
+                                        <span class="text-[13px] font-semibold" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'text-rose-600' : (items[active]?.status_validasi === 'pending' ? 'text-amber-600' : 'text-emerald-600')" x-text="items[active]?.status"></span>
                                     </div>
                                     {{-- Puskesmas note --}}
                                     <template x-if="items[active]?.status_validasi === 'rejected' && items[active]?.catatan_validator">
