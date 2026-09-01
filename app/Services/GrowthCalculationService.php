@@ -33,9 +33,11 @@ class GrowthCalculationService
         
         $reference = $this->getWhoReference($umurIndex, $jenisKelamin);
 
-        // Kalkulasi Z-Score (Nilai Aktual - Median) / Standar Deviasi
-        $zScoreBbu = $this->calculateZScore($beratBadan, $reference['bb_median'], $reference['bb_sd']);
-        $zScoreTbu = $this->calculateZScore($tinggiBadan, $reference['tb_median'], $reference['tb_sd']);
+        // Kalkulasi Z-Score (LMS / Box-Cox, L=0 → log): z = ln(x / M) / S, dengan S = SD/M (koefisien relatif WHO)
+        $bbS = $reference['bb_median'] > 0 ? $reference['bb_sd'] / $reference['bb_median'] : 0;
+        $tbS = $reference['tb_median'] > 0 ? $reference['tb_sd'] / $reference['tb_median'] : 0;
+        $zScoreBbu = ($bbS > 0 && $beratBadan > 0) ? log($beratBadan / $reference['bb_median']) / $bbS : 0.0;
+        $zScoreTbu = ($tbS > 0 && $tinggiBadan > 0) ? log($tinggiBadan / $reference['tb_median']) / $tbS : 0.0;
 
         // Penentuan Status Gizi Gabungan
         $statusGizi = $this->determineStatusGizi($zScoreTbu, $zScoreBbu);
