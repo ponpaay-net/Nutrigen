@@ -104,7 +104,7 @@
     </section>
 
     {{-- WORKSPACE --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 mt-2 sm:mt-3">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 mt-2 sm:mt-3 lg:items-start">
 
         {{-- PRIORITAS PEMANTAUAN GIZI --}}
         <section class="lg:col-span-7 flex flex-col gap-4">
@@ -177,12 +177,12 @@
                 </div>
 
                 @if(isset($jadwalTerdekat) && $jadwalTerdekat)
-                    <a href="{{ route('jadwal.show', $jadwalTerdekat['id']) }}" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm group flex items-start gap-4 flex-1 hover:border-teal-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400">
+                    <a href="{{ route('jadwal.show', $jadwalTerdekat['id']) }}" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm group flex items-start gap-4 hover:border-teal-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400">
                         <div class="w-14 h-14 rounded-xl bg-teal-50 text-teal-700 flex flex-col items-center justify-center shrink-0 border border-teal-200 group-hover:bg-teal-100 transition-colors">
                             <span class="text-[11px] font-bold uppercase tracking-wider">{{ $jadwalTerdekat['tgl_bulan'] ?? 'AGT' }}</span>
                             <span class="text-xl font-bold leading-none tabular-nums mt-0.5">{{ $jadwalTerdekat['tgl_nomor'] ?? '23' }}</span>
                         </div>
-                        <div class="flex-1 min-w-0 flex flex-col justify-between gap-1">
+                        <div class="flex-1 min-w-0">
                             <h3 class="text-sm font-semibold text-slate-900 leading-snug mb-1.5 group-hover:text-teal-700 transition-colors">{{ $jadwalTerdekat['judul'] }}</h3>
                             <div class="text-[13px] text-slate-500 flex flex-col gap-1.5 mb-3">
                                 <div class="flex items-center gap-1.5 truncate"><x-icon name="clock" class="shrink-0 text-slate-400" /> <span class="truncate">{{ $jadwalTerdekat['waktu'] }}</span></div>
@@ -193,7 +193,7 @@
                                 $chipCls = $st === 'today' ? 'bg-amber-100 text-amber-800' : ($st === 'past' ? 'bg-slate-100 text-slate-500' : 'bg-teal-600 text-white');
                                 $chipIcon = $st === 'today' ? 'warning' : 'hourglass';
                             @endphp
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full {{ $chipCls }} text-xs font-bold"><x-icon name="{{ $chipIcon }}" weight="bold" /> {{ $jadwalTerdekat['countdown'] }}</span>
+                            <span class="inline-flex items-center gap-1.5 w-fit self-start px-2.5 py-1 rounded-full {{ $chipCls }} text-xs font-bold"><x-icon name="{{ $chipIcon }}" weight="fill" /> {{ $jadwalTerdekat['countdown'] }}</span>
                         </div>
                     </a>
                 @else
