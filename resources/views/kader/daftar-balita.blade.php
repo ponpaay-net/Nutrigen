@@ -47,7 +47,7 @@
         {{-- Donut --}}
         <div class="relative w-32 h-32 shrink-0">
             <svg viewBox="0 0 36 36" class="w-32 h-32">
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3.4"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ccfbf1" stroke-width="3.4"></circle>
                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0d9488" stroke-width="3.4" stroke-linecap="round"
                         stroke-dasharray="{{ $percentage }} {{ max(0, 100 - $percentage) }}" pathLength="100"></circle>
             </svg>
@@ -62,12 +62,12 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Ringkasan Pengukuran</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 @foreach($stats as $stat)
-                    <div class="rounded-xl bg-slate-50 border border-slate-100 p-3 flex items-center gap-2.5">
-                        <span class="w-9 h-9 shrink-0 rounded-lg bg-{{ $stat['color'] }}-50 text-{{ $stat['color'] }}-600 flex items-center justify-center ring-1 ring-{{ $stat['color'] }}-100">
-                            <x-icon name="{{ $stat['icon'] }}" weight="fill" class="text-[16px]" />
+                    <div class="rounded-xl bg-{{ $stat['color'] }}-50 border border-{{ $stat['color'] }}-100 p-3 flex items-center gap-2.5">
+                        <span class="w-9 h-9 shrink-0 rounded-lg bg-white text-{{ $stat['color'] }}-600 flex items-center justify-center shadow-sm">
+                            <x-icon name="{{ $stat['icon'] }}" weight="fill" class="text-[17px]" />
                         </span>
                         <div class="min-w-0">
-                            <p class="text-xl font-bold tabular-nums leading-none {{ $stat['color'] === 'teal' ? 'text-slate-900' : 'text-' . $stat['color'] . '-600' }}">{{ $stat['value'] }}</p>
+                            <p class="text-xl font-bold tabular-nums leading-none text-{{ $stat['color'] }}-700">{{ $stat['value'] }}</p>
                             <p class="text-[10.5px] font-semibold text-slate-500 mt-0.5 truncate">{{ $stat['label'] }}</p>
                         </div>
                     </div>
