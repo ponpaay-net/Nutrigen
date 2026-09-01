@@ -62,6 +62,22 @@ class GrowthCalculationService
     }
 
     /**
+     * Z-Score IMT/U (BMI-for-age) — indeks massa tubuh per umur, standar WHO 2006.
+     * BMI = berat(kg) / tinggi(m)^2. Lalu Box-Cox vs referensi imtu (bmifa).
+     */
+    public function imtuZscore(int $umurBulan, string $jenisKelamin, float $berat, float $tinggiCm): ?float
+    {
+        $sex = strtoupper($jenisKelamin) === 'P' ? 'P' : 'L';
+        $umur = max(0, min(60, $umurBulan));
+        if ($berat <= 0 || $tinggiCm <= 0) {
+            return null;
+        }
+        $bmi = $berat / pow($tinggiCm / 100, 2);
+        $r = $this->interpolateRow('imtu_' . $sex, $umur);
+        return round($this->zScore($bmi, $r[0], $r[1], $r[2]), 2);
+    }
+
+    /**
      * Referensi WHO (L, M, S + titik SD) untuk satu umur (bulan) per jenis kelamin.
      * Untuk umur non-bulat dilakukan interpolasi linear antar bulan WHO.
      */
