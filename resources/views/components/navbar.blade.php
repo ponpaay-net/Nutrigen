@@ -54,9 +54,7 @@
         <div class="relative">
             <button @click="openProfile = !openProfile" @click.outside="openProfile = false"
                 class="flex items-center gap-2.5 pl-1.5 pr-2 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-teal-300 shadow-sm transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/20">
-                <span class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center text-sm font-bold border-2 border-white shadow-sm overflow-hidden">
-                    {{ strtoupper(substr($greetingName, 0, 1)) }}
-                </span>
+                <span class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center text-sm font-bold border-2 border-white shadow-sm overflow-hidden">{{ strtoupper(substr($greetingName, 0, 1)) }}</span>
                 <span class="hidden sm:flex flex-col text-left leading-tight">
                     <span class="text-[12.5px] font-bold text-slate-800 truncate max-w-[130px]">{{ $greetingName }}</span>
                     <span class="text-[10.5px] text-slate-500 font-medium truncate max-w-[130px]">{{ $greetRole }}</span>
@@ -87,51 +85,118 @@
             </div>
         </div>
 
-        <!-- Notification Modal (teleported to body, shares openNotif scope) -->
-        <div x-teleport="body">
-            <div x-show="openNotif" style="display: none;" class="fixed inset-0 z-[140] flex p-3 sm:p-4">
-                <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="openNotif = false"></div>
-                <div class="relative w-full max-w-lg mx-auto sm:my-auto bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col"
-                     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95 translate-y-2" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-                    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-                        <div>
-                            <h3 class="text-base font-bold text-slate-900">Notifikasi</h3>
-                            <p class="text-xs text-slate-500">Pembaruan pantauan &amp; validasi gizi</p>
-                        </div>
-                        <button @click="openNotif = false" class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none" aria-label="Tutup">
-                            <x-icon name="x" weight="bold" class="text-lg" />
-                        </button>
-                    </div>
-                    <div class="p-4 overflow-y-auto max-h-[60vh] space-y-2">
-                        @php
-                            $notifs = ($notificationRole === 'puskesmas' ? ($validationNotifs ?? []) : ($revisiNotifs ?? []));
-                            $notifs = collect($notifs);
-                        @endphp
-                        @forelse($notifs as $n)
-                            <a href="{{ $n['url'] ?? '#' }}" @click="openNotif = false"
-                               class="flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-white hover:bg-slate-50 hover:border-teal-200 transition-colors">
-                                <span class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center {{ ($n['type'] ?? 'revisi') === 'accept' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600' }}">
-                                    <x-icon name="{{ ($n['type'] ?? 'revisi') === 'accept' ? 'check-circle' : 'clock' }}" weight="fill" class="text-base" />
-                                </span>
-                                <span class="flex-1 min-w-0">
-                                    <span class="block text-[13px] font-semibold text-slate-800 leading-snug truncate">{{ $n['title'] ?? 'Notifikasi' }}</span>
-                                    <span class="block text-xs text-slate-500 leading-snug mt-0.5">{{ $n['message'] ?? '' }}</span>
-                                    <span class="block text-[11px] text-slate-400 mt-1 font-medium">{{ $n['time'] ?? '' }}</span>
-                                </span>
-                                <x-icon name="caret-right" weight="bold" class="text-slate-300 mt-1 shrink-0" />
-                            </a>
-                        @empty
-                            <div class="bg-slate-50 border border-slate-100 rounded-xl p-6 text-center">
-                                <div class="w-12 h-12 mx-auto rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 mb-3">
-                                    <x-icon name="bell" weight="fill" class="text-2xl" />
-                                </div>
-                                <p class="text-sm font-semibold text-slate-600">Tidak ada notifikasi</p>
-                                <p class="text-xs text-slate-400 mt-1">Semua sudah dibaca &amp; terbaru.</p>
+        <!-- Notification Modal (template x-teleport — proven working) -->
+        <template x-teleport="body">
+            <div x-show="openNotif" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6"
+                style="display: none;" role="dialog" aria-modal="true" @keydown.escape.window="openNotif = false">
+
+                {{-- Backdrop Blur --}}
+                <div x-show="openNotif" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="openNotif = false" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+
+                {{-- Modal Box --}}
+                <div x-show="openNotif" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95 translate-y-3" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100 translate-y-0" x-transition:leave-end="opacity-0 scale-95 translate-y-3" @click.stop class="relative w-full max-w-[560px] max-h-[90vh] sm:max-h-[85vh] bg-white rounded-2xl sm:rounded-[28px] shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] border border-slate-100 overflow-hidden flex flex-col z-10">
+
+                    {{-- Header --}}
+                    <div class="px-4 pt-4 pb-3 sm:px-6 sm:pt-6 sm:pb-4 flex items-center justify-between border-b border-slate-100/80 shrink-0">
+                        <div class="flex items-center gap-2.5 sm:gap-3">
+                            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-rose-50 border border-rose-100 text-rose-500 flex items-center justify-center shrink-0">
+                                <x-icon name="bell-ringing" weight="fill" class="text-xl" />
                             </div>
-                        @endforelse
+                            <div>
+                                <h3 class="text-sm sm:text-[17px] font-bold text-slate-900 tracking-tight leading-tight">{{ $notificationRole === 'puskesmas' ? 'Data Baru untuk Validasi' : 'Revisi dari Puskesmas' }}</h3>
+                                <p class="text-[10.5px] sm:text-xs text-slate-400 font-medium mt-0.5">{{ $notificationRole === 'puskesmas' ? 'Pengukuran baru dari kader posyandu' : 'Catatan perbaikan data balita' }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-2.5">
+                            @if ($notificationRole === 'puskesmas' && ($validationNotifsCount ?? 0) > 0)
+                                <span class="bg-teal-50 text-teal-600 border border-teal-200/60 text-[9.5px] sm:text-[10.5px] font-bold px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full uppercase tracking-wider">{{ $validationNotifsCount }} PENDING</span>
+                            @elseif(isset($revisiNotifsCount) && $revisiNotifsCount > 0)
+                                <span class="bg-rose-50 text-rose-600 border border-rose-200/60 text-[9.5px] sm:text-[10.5px] font-bold px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full uppercase tracking-wider">{{ $revisiNotifsCount }} REVISI</span>
+                            @endif
+                            <button @click="openNotif = false" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer" aria-label="Tutup modal">
+                                <x-icon name="x" weight="bold" class="text-sm" />
+                            </button>
+                        </div>
                     </div>
+
+                    {{-- Body --}}
+                    <div class="px-4 py-3 sm:px-6 sm:py-4 space-y-3 sm:space-y-4 max-h-[calc(90vh-140px)] sm:max-h-[420px] overflow-y-auto hide-scrollbar divide-y divide-slate-100">
+                        @if ($notificationRole === 'puskesmas')
+                            @forelse($validationNotifs ?? [] as $notif)
+                                <a href="{{ route('puskesmas.validasi', ['tab' => 'pending']) }}" class="flex items-start gap-3 group pt-3 first:pt-0 pb-1 cursor-pointer block">
+                                    <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center shrink-0 font-bold text-xs">{{ strtoupper(substr($notif['balita_nama'], 0, 2)) }}</div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <h4 class="text-sm font-bold text-slate-900 group-hover:text-teal-700 transition-colors truncate">{{ Str::title($notif['balita_nama']) }}</h4>
+                                            <span class="text-[10px] font-semibold text-slate-400 shrink-0">{{ $notif['tanggal'] }}</span>
+                                        </div>
+                                        <p class="text-[11px] font-semibold text-slate-600 mt-1">Dikirim oleh {{ $notif['kader_nama'] }}</p>
+                                        <div class="mt-2 p-2.5 rounded-xl bg-teal-50/70 border border-teal-100 text-[11px] text-teal-900 font-medium">BB {{ $notif['bb'] }} kg / TB {{ $notif['tb'] }} cm &middot; Menunggu validasi</div>
+                                    </div>
+                                </a>
+                            @empty
+                                <div class="p-6 sm:p-8 text-center">
+                                    <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center mx-auto mb-3"><x-icon name="check-circle" weight="fill" class="text-xl" /></div>
+                                    <h4 class="text-sm font-bold text-slate-800">Tidak ada data baru</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Semua pengukuran kader sudah diproses.</p>
+                                </div>
+                            @endforelse
+                        @else
+                            @if (isset($revisiNotifs) && count($revisiNotifs) > 0)
+                                @foreach ($revisiNotifs as $notif)
+                                    @php
+                                        $palettes = [
+                                            0 => ['avatar' => 'bg-rose-100/70 text-rose-700 ring-rose-200/60', 'bubble' => 'bg-rose-50/80 border-rose-100 text-rose-900', 'icon' => 'text-rose-500'],
+                                            1 => ['avatar' => 'bg-teal-100/70 text-teal-700 ring-teal-200/60', 'bubble' => 'bg-teal-50/80 border-teal-100 text-teal-900', 'icon' => 'text-teal-500'],
+                                            2 => ['avatar' => 'bg-amber-100/70 text-amber-700 ring-amber-200/60', 'bubble' => 'bg-amber-50/80 border-amber-100 text-amber-900', 'icon' => 'text-amber-500'],
+                                        ];
+                                        $pal = $palettes[$loop->index % 3];
+                                    @endphp
+                                    <a href="{{ route('balita.show', ['id' => $notif['balita_id'], 'action' => 'ukur']) }}" class="flex items-start gap-2.5 sm:gap-3.5 group pt-3 sm:pt-3.5 first:pt-0 pb-1 cursor-pointer block">
+                                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full {{ $pal['avatar'] }} ring-2 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[11px] sm:text-xs">{{ strtoupper(substr($notif['balita_nama'], 0, 2)) }}</div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between gap-1.5 sm:gap-2">
+                                                <h4 class="text-[13px] sm:text-sm font-bold text-slate-900 group-hover:text-teal-700 transition-colors truncate">{{ Str::title($notif['balita_nama']) }}</h4>
+                                                <div class="flex items-center gap-1 text-[10.5px] sm:text-xs font-semibold text-slate-400 group-hover:text-teal-600 transition-colors shrink-0">
+                                                    <span>{{ $notif['tanggal'] }}</span>
+                                                    <x-icon name="caret-right" weight="bold" class="text-xs group-hover:translate-x-1 transition-transform" />
+                                                </div>
+                                            </div>
+                                            <p class="text-[11.5px] sm:text-xs font-bold text-slate-700 mt-0.5">BB {{ $notif['bb'] }} kg / TB {{ $notif['tb'] }} cm</p>
+                                            <div class="mt-2 sm:mt-2.5 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl {{ $pal['bubble'] }} border text-[11px] sm:text-xs leading-relaxed font-medium">
+                                                <div class="flex items-start gap-1.5 sm:gap-2">
+                                                    <x-icon name="warning-circle" weight="fill" class="{{ $pal['icon'] }} text-sm shrink-0 mt-0.5" />
+                                                    <span class="line-clamp-2">{{ $notif['catatan'] }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            @else
+                                <div class="p-6 sm:p-8 text-center">
+                                    <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center mx-auto mb-2.5 sm:mb-3"><x-icon name="check-circle" weight="fill" class="text-xl" /></div>
+                                    <h4 class="text-sm font-bold text-slate-800">Semua Data Valid</h4>
+                                    <p class="text-[11px] sm:text-xs text-slate-500 font-normal mt-1 max-w-[260px] mx-auto leading-relaxed">Tidak ada catatan revisi balita dari Puskesmas saat ini.</p>
+                                </div>
+                            @endif
+                        @endif
+                    </div>
+
+                    {{-- Footer --}}
+                    <div class="bg-slate-50/70 border-t border-slate-100 px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between gap-2 shrink-0">
+                        <div class="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-slate-600 font-medium min-w-0">
+                            <x-icon name="info" weight="bold" class="text-emerald-600 text-sm shrink-0" />
+                            <span class="hidden sm:inline truncate">{{ $notificationRole === 'puskesmas' ? 'Periksa pengukuran yang masuk dari kader' : 'Pastikan data sudah diperbaiki agar laporan lebih akurat' }}</span>
+                            <span class="sm:hidden text-[10.5px] truncate">{{ $notificationRole === 'puskesmas' ? 'Validasi data baru' : 'Perbaiki data balita' }}</span>
+                        </div>
+                        <a href="{{ $notificationRole === 'puskesmas' ? route('puskesmas.validasi') : route('balita.index', ['filter' => 'ditolak']) }}" class="h-8 sm:h-9 px-3 sm:px-4 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-[11px] sm:text-xs flex items-center gap-1.5 transition-all cursor-pointer shrink-0">
+                            <span>Lihat Semua</span>
+                            <x-icon name="arrow-right" weight="bold" class="text-xs" />
+                        </a>
+                    </div>
+
                 </div>
             </div>
-        </div>
+        </template>
     </div>
 </header>
