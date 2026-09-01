@@ -75,7 +75,7 @@
            class="h-11 flex-1 flex items-center justify-center gap-1.5 text-[13px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-xl transition-all">
             <x-icon name="user" weight="bold" class="text-[15px]" /> Detail
         </a>
-        <a href="{{ route('balita.show', ['id' => $balita['id'] ?? '', 'action' => 'ukur']) }}"
+        <a href="{{ route('balita.ukur', $balita['id'] ?? '') }}"
            class="h-11 flex-1 flex items-center justify-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-semibold rounded-xl transition-all shadow-sm active:scale-[0.99]">
             <x-icon name="scales" weight="bold" class="text-[15px]" /> Ukur
         </a>

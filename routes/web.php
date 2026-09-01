@@ -136,6 +136,7 @@ Route::prefix('kader')->middleware(['web', 'auth', 'prevent-back-history', 'role
     Route::get('/balita/baru', [KaderController::class, 'createBalita'])->name('balita.create');
     Route::post('/balita', [KaderController::class, 'simpanBalita'])->name('balita.store');
     Route::get('/balita/{id}', [KaderController::class, 'profilBalita'])->name('balita.show');
+    Route::get('/balita/{id}/ukur', [KaderController::class, 'ukurBalita'])->name('balita.ukur');
     Route::get('/balita/{id}/edit', [KaderController::class, 'editBalita'])->name('balita.edit');
     Route::put('/balita/{id}', [KaderController::class, 'updateBalita'])->name('balita.update');
     Route::delete('/balita/{id}', [KaderController::class, 'hapusBalita'])->name('balita.destroy');

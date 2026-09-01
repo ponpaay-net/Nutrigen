@@ -152,7 +152,7 @@
                                         ];
                                         $pal = $palettes[$loop->index % 3];
                                     @endphp
-                                    <a href="{{ route('balita.show', ['id' => $notif['balita_id'], 'action' => 'ukur']) }}" class="flex items-start gap-2.5 sm:gap-3.5 group pt-3 sm:pt-3.5 first:pt-0 pb-1 cursor-pointer block">
+                                    <a href="{{ route('balita.ukur', $notif['balita_id']) }}" class="flex items-start gap-2.5 sm:gap-3.5 group pt-3 sm:pt-3.5 first:pt-0 pb-1 cursor-pointer block">
                                         <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full {{ $pal['avatar'] }} ring-2 flex items-center justify-center shrink-0 mt-0.5 font-bold text-[11px] sm:text-xs">{{ strtoupper(substr($notif['balita_nama'], 0, 2)) }}</div>
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-center justify-between gap-1.5 sm:gap-2">

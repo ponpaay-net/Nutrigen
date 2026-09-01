@@ -630,6 +630,36 @@ class KaderController extends Controller
         return view('kader.profil-balita', $data);
     }
 
+    /**
+     * Menyiapkan halaman pengukuran (Ukur Sekarang) untuk satu balita.
+     * Kader mengisi data pertumbuhan saat hari posyandu.
+     */
+    public function ukurBalita($id)
+    {
+        $posyanduId = $this->getKaderPosyanduId();
+        $b = Balita::with('orangTua')->where('posyandu_id', $posyanduId)->findOrFail($id);
+
+        $last = $b->pengukurans()->orderBy('tanggal_ukur', 'desc')->orderBy('id', 'desc')->first();
+
+        $ageDiff = Carbon::parse($b->tanggal_lahir)->diff(Carbon::now());
+        $age = $ageDiff->y > 0
+            ? $ageDiff->y . ' Thn ' . $ageDiff->m . ' Bln'
+            : ($ageDiff->m > 0 ? $ageDiff->m . ' Bln' : $ageDiff->d . ' Hari');
+
+        return view('kader.ukur-balita', [
+            'balitaId'      => $b->id,
+            'childName'     => $b->nama,
+            'gender'        => $b->jenis_kelamin,
+            'age'           => $age,
+            'birthDate'     => Carbon::parse($b->tanggal_lahir)->translatedFormat('d M Y'),
+            'lastWeight'    => $last?->berat_badan,
+            'lastHeight'    => $last?->tinggi_badan,
+            'lastHeadCirc'  => $last?->lingkar_kepala,
+            'lastDate'      => $last?->tanggal_ukur ? Carbon::parse($last->tanggal_ukur)->translatedFormat('d M Y') : null,
+            'lastStatus'    => $last ? $this->formatDisplayStatus($last->status_gizi, $last->status_validasi) : null,
+        ]);
+    }
+
     public function pengukuran()
     {
         // Measurements are now handled via modal in the profile page.

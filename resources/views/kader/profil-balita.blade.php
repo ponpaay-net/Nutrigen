@@ -56,6 +56,17 @@
 <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-6">
 <div x-data="{ tab: 'info' }" class="flex flex-col gap-5 lg:gap-6">
 
+    @if(session('success') || session('advice'))
+    <div x-data="{ showToast: true }" x-show="showToast" x-cloak class="flex items-start gap-3 bg-teal-50 border border-teal-200 rounded-2xl px-4 py-3.5">
+        <span class="w-9 h-9 shrink-0 rounded-xl bg-teal-600 text-white flex items-center justify-center"><x-icon name="check" weight="bold" class="text-[17px]" /></span>
+        <div class="flex-1 min-w-0 text-[13px] text-teal-900">
+            <p class="font-bold">{{ session('success') }}</p>
+            @if(session('advice'))<p class="mt-0.5 text-teal-800/80">{{ session('advice') }}</p>@endif
+        </div>
+        <button type="button" @click="showToast = false" aria-label="Tutup" class="ml-auto w-7 h-7 rounded-lg text-teal-700 hover:bg-teal-100 flex items-center justify-center transition-colors"><x-icon name="x" weight="bold" class="text-[14px]" /></button>
+    </div>
+    @endif
+
     {{-- HEADER: identity + actions (always) --}}
     <section class="bg-white border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.06),0_12px_32px_-16px_rgba(15,23,42,0.14)] p-5 sm:p-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -81,7 +92,7 @@
                 <a href="{{ route('balita.edit', $balitaId) }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> Edit</a>
                 <form id="delete-balita-{{ $balitaId }}" action="{{ route('balita.destroy', $balitaId) }}" method="POST" class="hidden">@csrf @method('DELETE')</form>
                 <button type="button" @click="confirmDelete = true" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-[13px] font-semibold transition-colors"><x-icon name="trash" weight="bold" class="text-[15px]" /> Hapus</button>
-                <a href="{{ route('balita.show', [$balitaId, 'action' => 'ukur']) }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-semibold shadow-sm transition-colors"><x-icon name="scales" weight="bold" class="text-[15px]" /> Ukur Sekarang</a>
+                <a href="{{ route('balita.ukur', $balitaId) }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-semibold shadow-sm transition-colors"><x-icon name="scales" weight="bold" class="text-[15px]" /> Ukur Sekarang</a>
 
                 {{-- Konfirmasi hapus --}}
                 <template x-teleport="body">
@@ -127,7 +138,7 @@
             <x-icon name="{{ $status_type === 'danger' ? 'warning' : 'activity' }}" weight="fill" class="text-[22px] {{ $status_type === 'danger' ? 'text-rose-600' : 'text-amber-600' }} shrink-0 mt-0.5" />
             <div><p class="text-[14px] font-bold {{ $status_type === 'danger' ? 'text-rose-700' : 'text-amber-700' }}">Balita ini memerlukan perhatian</p><p class="text-[12.5px] text-slate-600 mt-0.5">Status gizi: <span class="font-semibold">{{ $status }}</span>. {{ $status_type === 'danger' ? 'Segera tindak lanjuti & rujuk ke Puskesmas.' : 'Lakukan penimbangan ulang rutin bulan ini.' }}</p></div>
         </div>
-        <a href="{{ route('balita.show', [$balitaId, 'action' => 'ukur']) }}" class="shrink-0 inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[13px] font-semibold transition-colors"><x-icon name="scales" weight="bold" class="text-[15px]" /> Ukur Ulang</a>
+        <a href="{{ route('balita.ukur', $balitaId) }}" class="shrink-0 inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[13px] font-semibold transition-colors"><x-icon name="scales" weight="bold" class="text-[15px]" /> Ukur Ulang</a>
     </div>
     @endif
 
@@ -254,7 +265,7 @@
                                 </div>
                                 <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2 shrink-0">
                                     <button type="button" @click="active = null" class="h-10 px-5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors">Tutup</button>
-                                    <template x-if="items[active]?.status_validasi === 'rejected'"><a :href="'{{ url('/kader/balita') }}/' + {{ $balitaId }} + '?action=ukur'" class="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[14px]" /> Perbaiki Data</a></template>
+                                    <template x-if="items[active]?.status_validasi === 'rejected'"><a :href="'{{ route('balita.ukur', $balitaId) }}'" class="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[14px]" /> Perbaiki Data</a></template>
                                 </div>
                             </div>
                         </template>
