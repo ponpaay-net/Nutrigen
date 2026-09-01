@@ -54,17 +54,17 @@
             </span>
         </div>
 
-        {{-- Last measurement --}}
-        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center justify-between gap-3">
+        {{-- Last measurement (mt-auto = sejajar di bawah antar kartu) --}}
+        <div class="mt-auto bg-slate-50 border border-slate-100 rounded-xl p-3 grid grid-cols-2 gap-3">
             <div class="min-w-0">
-                <p class="flex items-center gap-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
-                    <x-icon name="calendar" weight="bold" class="text-[13px] shrink-0" /> Pengukuran Terakhir
+                <p class="flex items-center gap-1 text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">
+                    <x-icon name="calendar" weight="bold" class="text-[12px] shrink-0" /> Pengukuran
                 </p>
-                <p class="text-[13px] font-bold text-slate-800 mt-1 truncate">{{ $balita['last_measure'] ?? 'Belum ada' }}</p>
+                <p class="text-[12.5px] font-bold text-slate-800 mt-1 truncate">{{ $balita['last_measure'] ?? 'Belum ada' }}</p>
             </div>
-            <div class="text-right shrink-0">
-                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">BB / TB</p>
-                <p class="text-[13px] font-bold text-slate-800 mt-1 tabular-nums">{{ $balita['bb_tb'] ?? '—' }}</p>
+            <div class="min-w-0 text-right">
+                <p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">BB / TB</p>
+                <p class="text-[12.5px] font-bold text-slate-800 mt-1 tabular-nums truncate">{{ $balita['bb_tb'] ?? '—' }}</p>
             </div>
         </div>
     </div>
