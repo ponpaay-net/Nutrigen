@@ -101,7 +101,7 @@
     </section>
 
     {{-- WORKSPACE --}}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 mt-2 sm:mt-3">
 
         {{-- PRIORITAS PEMANTAUAN GIZI --}}
         <section class="lg:col-span-7 flex flex-col gap-4">
