@@ -162,6 +162,7 @@ class PuskesmasController extends Controller
                 'BB/U' => ['val' => number_format((float)$p->z_score_bbu, 2), 'status' => ((float)$p->z_score_bbu < -2 ? 'Kurang' : 'Normal'), 'color' => 'slate'],
                 'TB/U' => ['val' => number_format((float)$p->z_score_tbu, 2), 'status' => ((float)$p->z_score_tbu < -2 ? 'Pendek' : 'Normal'), 'color' => ((float)$p->z_score_tbu < -2 ? 'rose' : 'slate')],
                 'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'],
+                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
             ],
             'history' => $history,
             'chartData' => $chartData,
@@ -304,6 +305,7 @@ class PuskesmasController extends Controller
                     'BB/U' => ['val' => number_format((float)$p->z_score_bbu, 2), 'status' => ((float)$p->z_score_bbu < -2 ? 'Kurang' : 'Normal'), 'color' => 'slate'],
                     'TB/U' => ['val' => number_format((float)$p->z_score_tbu, 2), 'status' => ((float)$p->z_score_tbu < -2 ? 'Pendek' : 'Normal'), 'color' => ((float)$p->z_score_tbu < -2 ? 'rose' : 'slate')],
                     'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // IMT/U asli (BMI-for-age WHO)
+                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
                 ],
                 'history' => $history,
                 'chartData' => $chartData,

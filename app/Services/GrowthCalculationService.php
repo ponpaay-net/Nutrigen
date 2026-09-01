@@ -78,6 +78,69 @@ class GrowthCalculationService
     }
 
     /**
+     * Z-Score BB/TB (weight-for-height / wasting) — WHO 2006.
+     * <24 bln (recumbent): wfl by length ; >=24 bln (standing): wfh by height.
+     */
+    public function bbtZscore(int $umurBulan, string $jenisKelamin, float $berat, float $tinggiCm): ?float
+    {
+        $sex = strtoupper($jenisKelamin) === 'P' ? 'P' : 'L';
+        if ($berat <= 0 || $tinggiCm <= 0) {
+            return null;
+        }
+        $set = $umurBulan < 24 ? 'wfl_' . $sex : 'wfh_' . $sex;
+        $row = $this->heightInterpolate($set, $tinggiCm);
+        if (!$row) {
+            return null;
+        }
+        return round($this->zScore($berat, $row[0], $row[1], $row[2]), 2);
+    }
+
+    /**
+     * Ambil baris LMS (L,M,S,...) untuk satu tinggi (cm) dengan interpolasi linear
+     * antar titik WHO (resolusi 0.5 cm). $set = 'wfl_X'|'wfh_X'.
+     */
+    private function heightInterpolate(string $set, float $cm): ?array
+    {
+        if (!isset($this->whoData[$set])) {
+            return null;
+        }
+        $rows = $this->whoData[$set];
+        $keys = array_keys($rows);
+        $min = min($keys);
+        $max = max($keys);
+        $target = (int) round($cm * 10);
+        if ($target <= $min) {
+            return $rows[$min];
+        }
+        if ($target >= $max) {
+            return $rows[$max];
+        }
+        if (isset($rows[$target])) {
+            return $rows[$target];
+        }
+        // cari key terdekat di bawah & di atas
+        $below = $min;
+        $above = $max;
+        foreach ($keys as $k) {
+            if ($k <= $target) {
+                $below = $k;
+            }
+            if ($k > $target) {
+                $above = $k;
+                break;
+            }
+        }
+        $b = $rows[$below];
+        $a = $rows[$above];
+        $ratio = ($target - $below) / ($above - $below);
+        $out = [];
+        for ($i = 0; $i < 8; $i++) {
+            $out[$i] = $b[$i] + ($a[$i] - $b[$i]) * $ratio;
+        }
+        return $out;
+    }
+
+    /**
      * Referensi WHO (L, M, S + titik SD) untuk satu umur (bulan) per jenis kelamin.
      * Untuk umur non-bulat dilakukan interpolasi linear antar bulan WHO.
      */
