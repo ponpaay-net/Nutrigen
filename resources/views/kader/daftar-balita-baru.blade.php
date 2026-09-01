@@ -14,7 +14,7 @@
     @endphp
 
 @section('content')
-<div class="bg-slate-50 min-h-[100dvh]" x-data="editForm()">
+<div class="bg-slate-50 min-h-full" x-data="editForm()">
     <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
 
         {{-- Breadcrumb + header --}}
@@ -287,7 +287,7 @@
             </div>
 
             {{-- Mobile action bar --}}
-            <div class="lg:hidden sticky bottom-0 mt-6 bg-slate-50/95 backdrop-blur border-t border-slate-200 py-3.5 flex items-center justify-between gap-3">
+            <div class="lg:hidden mt-6 bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between gap-3">
                 <a href="{{ $isEdit ? route('balita.show', $balitaId ?? '') : route('balita.index') }}"
                    class="flex-1 h-11 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
                 <button type="submit"

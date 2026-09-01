@@ -10,7 +10,7 @@
     @endphp
 
 @section('content')
-<div class="bg-slate-50 min-h-[100dvh]">
+<div class="bg-slate-50 min-h-full">
     <div class="max-w-3xl mx-auto w-full px-4 sm:px-6 py-5 sm:py-8">
 
         {{-- Header --}}
@@ -20,8 +20,8 @@
                 <x-icon name="arrow-left" weight="bold" class="text-[15px] sm:text-[17px]" />
             </a>
             <div>
-                <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight leading-tight">Ukur Balita</h1>
-                <p class="text-[12px] sm:text-[13px] text-slate-500">Catat pertumbuhan saat hari posyandu.</p>
+                <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight leading-tight">Catat Pengukuran</h1>
+                <p class="text-[12px] sm:text-[13px] text-slate-500">Isi hasil pengukuran balita hari ini.</p>
             </div>
         </div>
 
@@ -91,7 +91,7 @@
                             @error('tinggi_badan') <p class="text-[12px] text-rose-600 font-medium">{{ $message }}</p> @enderror
                         </div>
                         <div class="{{ $field }}">
-                            <label for="lingkar" class="{{ $lbl }} flex items-center justify-between"><span>Lingkar Kepala</span><span class="text-[11px] font-medium text-slate-400">Ops.</span></label>
+                            <label for="lingkar" class="{{ $lbl }} flex items-center justify-between"><span>Lingkar Kepala</span><span class="text-[11px] font-medium text-slate-400">Opsional</span></label>
                             <div class="relative">
                                 <input type="text" inputmode="decimal" id="lingkar" name="lingkar_kepala" value="{{ old('lingkar_kepala') }}" placeholder="43.00" class="{{ $inp }} pr-14 text-right">
                                 <span class="absolute right-4 inset-y-0 flex items-center text-[12px] sm:text-[13px] font-bold text-slate-400">cm</span>
@@ -153,8 +153,8 @@
                 </section>
             </div>
 
-            {{-- Sticky submit --}}
-            <div class="sticky bottom-0 bg-white/95 backdrop-blur border-t border-slate-100 px-5 sm:px-6 py-3.5 sm:py-4 flex items-center justify-end gap-2.5 sm:gap-3">
+            {{-- Action row --}}
+            <div class="border-t border-slate-100 px-5 sm:px-6 py-4 flex items-center justify-end gap-2.5 sm:gap-3">
                 <a href="{{ route('balita.show', $balitaId) }}" class="h-11 sm:h-12 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] sm:text-[14px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
                 <button type="submit" id="btn-submit"
                     class="flex-1 sm:flex-none h-11 sm:h-12 px-7 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] sm:text-[14px] font-bold transition-colors inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20">

@@ -150,7 +150,7 @@
     </div>
 
     {{-- TAB: IDENTITAS & ORANG TUA --}}
-    <div x-show="tab === 'info'" x-cloak class="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6 items-stretch">
+    <div x-show="tab === 'info'" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 items-stretch">
         {{-- Card 1: Identitas Balita (teal) --}}
         <section class="bg-white border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col">
             <div class="h-1 bg-teal-500"></div>
@@ -177,7 +177,7 @@
         </section>
 
         {{-- Card 3: Orang Tua & Domisili (amber) --}}
-        <section class="bg-white border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col">
+        <section class="md:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col">
             <div class="h-1 bg-amber-400"></div>
             <div class="p-5 flex flex-col gap-0.5 flex-1">
                 <div class="flex items-center gap-2.5 pb-3 mb-1 border-b border-slate-100"><span class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><x-icon name="users" weight="bold" class="text-[17px]" /></span><h4 class="text-[14px] font-bold text-slate-900">Orang Tua & Domisili</h4></div>
