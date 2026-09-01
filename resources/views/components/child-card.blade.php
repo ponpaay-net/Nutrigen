@@ -31,7 +31,7 @@
     $initials = strtoupper(substr($name, 0, 2));
 @endphp
 
-<div class="group relative flex flex-col h-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-teal-200 transition-all duration-200">
+<div class="group relative flex flex-col h-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_1px_3px_rgba(15,23,42,0.05),0_8px_20px_-12px_rgba(15,23,42,0.10)] hover:shadow-[0_2px_6px_rgba(15,23,42,0.07),0_16px_36px_-16px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 hover:border-teal-200 transition-all duration-200">
     <span class="absolute left-0 top-0 bottom-0 w-1 {{ $theme['bar'] }}"></span>
 
     <div class="flex-1 p-4 pl-5 flex flex-col gap-3">

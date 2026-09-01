@@ -43,9 +43,9 @@
     </div>
 
     {{-- SUMMARY: DONUT CHART + STATS --}}
-    <section class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-6">
+    <section class="bg-white border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.06),0_12px_32px_-16px_rgba(15,23,42,0.14)] p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-6">
         {{-- Donut --}}
-        <div class="relative w-32 h-32 shrink-0">
+        <div class="relative w-32 h-32 shrink-0 rounded-full bg-teal-50 flex items-center justify-center">
             <svg viewBox="0 0 36 36" class="w-32 h-32">
                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ccfbf1" stroke-width="3.4"></circle>
                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0d9488" stroke-width="3.4" stroke-linecap="round"
@@ -62,7 +62,7 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Ringkasan Pengukuran</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 @foreach($stats as $stat)
-                    <div class="rounded-xl bg-{{ $stat['color'] }}-50 border border-{{ $stat['color'] }}-100 p-3 flex items-center gap-2.5">
+                    <div class="rounded-xl bg-{{ $stat['color'] }}-50 border border-{{ $stat['color'] }}-100 p-3 flex items-center gap-2.5 shadow-sm">
                         <span class="w-9 h-9 shrink-0 rounded-lg bg-white text-{{ $stat['color'] }}-600 flex items-center justify-center shadow-sm">
                             <x-icon name="{{ $stat['icon'] }}" weight="fill" class="text-[17px]" />
                         </span>
