@@ -253,6 +253,16 @@
     {{-- TAB: KURVA WHO --}}
     <div x-show="tab === 'kurva'" x-cloak>
         <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6" x-data="{ chartType: 'w' }">
+            <style>
+                .chart-svg text { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif; }
+                .chart-svg .w-band { animation: chartFade .9s ease both; }
+                .chart-svg .w-line { stroke-dasharray: 2200; stroke-dashoffset: 2200; animation: chartDraw 1.4s ease .12s forwards; }
+                .chart-svg .w-dot { transform-box: fill-box; transform-origin: center; opacity: 0; animation: chartPop .35s cubic-bezier(.2,.8,.3,1.25) forwards; }
+                @keyframes chartDraw { to { stroke-dashoffset: 0; } }
+                @keyframes chartFade { from { opacity: 0; } to { opacity: 1; } }
+                @keyframes chartPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                @media (prefers-reduced-motion: reduce) { .chart-svg .w-line, .chart-svg .w-dot, .chart-svg .w-band { animation: none !important; stroke-dashoffset: 0 !important; opacity: 1 !important; } }
+            </style>
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                 <div><h3 class="text-base font-bold text-slate-900">Kurva Pertumbuhan WHO</h3><p class="text-[12px] text-slate-500 mt-0.5">Berat/tinggi badan terhadap standar WHO (+/-2 SD)</p></div>
                 <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100">
@@ -269,16 +279,16 @@
             <div class="relative">
                 @foreach($tri as $type => $t)
                 <div x-show="chartType === '{{ $type }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                    <svg viewBox="0 0 {{ $W }} {{ $H }}" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Kurva pertumbuhan {{ $type === 'w' ? 'berat badan (kg)' : 'tinggi badan (cm)' }} terhadap standar WHO">
+                    <svg class="chart-svg w-full h-auto" viewBox="0 0 {{ $W }} {{ $H }}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Kurva pertumbuhan {{ $type === 'w' ? 'berat badan (kg)' : 'tinggi badan (cm)' }} terhadap standar WHO">
                         <g class="text-slate-100" stroke="currentColor" stroke-width="1">@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<line x1="{{ $X0 }}" y1="{{ $y }}" x2="{{ $X1 }}" y2="{{ $y }}" />@endfor</g>
-                        <path d="{{ bandAreaPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], $months) }}" fill="#0d9488" fill-opacity="0.09" />
-                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], 'hi', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
-                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], 'lo', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
-                        <path d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], 'mid', $months) }}" fill="none" stroke="#0d9488" stroke-width="2.5" />
-                        <polyline fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="{{ $t['pts']['line'] }}" />
-                        @foreach($t['pts']['pts'] as $pt)@if($pt['a'])<circle cx="{{ $pt['cx'] }}" cy="{{ $pt['cy'] }}" r="9" fill="none" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="3 3" />@endif<circle cx="{{ $pt['cx'] }}" cy="{{ $pt['cy'] }}" r="4.5" fill="{{ $pt['c'] }}" stroke="#fff" stroke-width="1.6" /><text x="{{ $pt['cx'] }}" y="{{ $pt['cy'] - 9 }}" text-anchor="middle" font-size="10.5" font-weight="700" class="fill-slate-600">{{ $t['dec'] ? number_format($pt['val'], 1, ',', '') : (string) round($pt['val']) }}</text>@endforeach
-                        <g class="text-slate-400" text-anchor="end" font-size="11"><text x="{{ $X0 - 8 }}" y="{{ $Y0 - 6 }}" class="font-semibold" fill="#64748b">{{ $unit[$t['field']] }}</text>@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<text x="{{ $X0 - 8 }}" y="{{ $y + 4 }}">{{ $t['dec'] ? number_format($v, 1, ',', '') : (string) round($v) }}</text>@endfor</g>
-                        <g class="text-slate-400" text-anchor="middle" font-size="11">@foreach($t['xticks'] as $xt)<text x="{{ xOf($xt[0], $X0, $X1, $winLoPad, $winSpan) }}" y="{{ $Y1 + 20 }}">{{ $xt[0] }} bln</text>@endforeach</g>
+                        <path class="w-band" d="{{ bandAreaPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], $months) }}" fill="#0d9488" fill-opacity="0.09" />
+                        <path class="w-band" d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], 'hi', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
+                        <path class="w-band" d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], 'lo', $months) }}" fill="none" stroke="#2dd4bf" stroke-width="1.5" />
+                        <path class="w-band" d="{{ bandPath($t['band'], $X0, $X1, $Y0, $Y1, $winLoPad, $winSpan, $t['min'], $t['max'], 'mid', $months) }}" fill="none" stroke="#0d9488" stroke-width="2.5" />
+                        <polyline class="w-line" fill="none" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="{{ $t['pts']['line'] }}"/>
+                        @foreach($t['pts']['pts'] as $pt)@php $lv = $t['dec'] ? number_format($pt['val'], 1, ',', '') : (string) round($pt['val']); $ly = ($pt['a']) ? max($pt['cy'] - 14, $Y0 + 6) : $pt['cy'] - 10; $lcol = ($pt['a']) ? '#e11d48' : '#475569'; $lsuf = ($pt['a']) ? '?' : ''; @endphp@if($pt['a'])<circle class="w-dot" cx="{{ $pt['cx'] }}" cy="{{ $pt['cy'] }}" r="9" fill="none" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="3 3" style="animation-delay:{{ $loop->index * 80 }}ms" />@endif<circle class="w-dot" cx="{{ $pt['cx'] }}" cy="{{ $pt['cy'] }}" r="4.5" fill="{{ $pt['c'] }}" stroke="#fff" stroke-width="1.6" style="animation-delay:{{ $loop->index * 80 }}ms" /><text x="{{ $pt['cx'] }}" y="{{ $ly }}" text-anchor="middle" font-size="10.5" font-weight="700" fill="{{ $lcol }}">{{ $lv }}{{ $lsuf }}</text>@endforeach
+                        <g class="text-slate-400" text-anchor="end" font-size="11"><text x="{{ $X0 - 8 }}" y="{{ $Y0 - 4 }}" class="font-semibold" fill="#94a3b8">{{ $unit[$t['field']] }}</text>@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<text x="{{ $X0 - 8 }}" y="{{ $y + 4 }}" class="tabular-nums">{{ $t['dec'] ? number_format($v, 1, ',', '') : (string) round($v) }}</text>@endfor</g>
+                        <g class="text-slate-400" text-anchor="middle" font-size="11">@foreach($t['xticks'] as $xt)<text x="{{ xOf($xt[0], $X0, $X1, $winLoPad, $winSpan) }}" y="{{ $Y1 + 20 }}" class="tabular-nums">{{ $xt[0] }} bln</text>@endforeach</g>
                     </svg>
                     <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-[11px] text-slate-500">
                         <span class="inline-flex items-center gap-1.5"><span class="w-3 h-0.5 bg-teal-600 rounded"></span> Median WHO</span>
