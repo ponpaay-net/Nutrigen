@@ -98,10 +98,10 @@
     @endif
 
     {{-- TAB BAR --}}
-    <div class="flex gap-1.5 p-1 rounded-2xl bg-white border border-slate-200 shadow-sm overflow-x-auto hide-scrollbar">
-        <button type="button" @click="tab = 'info'" x-bind:class="tab === 'info' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 shrink-0 inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl text-[13px] font-semibold transition-all"><x-icon name="identification-card" weight="bold" class="text-[15px]" /> Identitas</button>
-        <button type="button" @click="tab = 'riwayat'" x-bind:class="tab === 'riwayat' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 shrink-0 inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl text-[13px] font-semibold transition-all"><x-icon name="chart-line-up" weight="bold" class="text-[15px]" /> Riwayat</button>
-        <button type="button" @click="tab = 'kurva'" x-bind:class="tab === 'kurva' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 shrink-0 inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl text-[13px] font-semibold transition-all"><x-icon name="trend-chart" weight="bold" class="text-[15px]" /> Kurva WHO</button>
+    <div class="flex gap-1 p-1 rounded-2xl bg-white border border-slate-200 shadow-sm">
+        <button type="button" @click="tab = 'info'" x-bind:class="tab === 'info' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl text-[12.5px] sm:text-[13px] font-semibold transition-all min-w-0"><x-icon name="identification-card" weight="bold" class="text-[15px] shrink-0" /><span class="truncate">Identitas</span></button>
+        <button type="button" @click="tab = 'riwayat'" x-bind:class="tab === 'riwayat' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl text-[12.5px] sm:text-[13px] font-semibold transition-all min-w-0"><x-icon name="chart-line-up" weight="bold" class="text-[15px] shrink-0" /><span class="truncate">Riwayat</span></button>
+        <button type="button" @click="tab = 'kurva'" x-bind:class="tab === 'kurva' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl text-[12.5px] sm:text-[13px] font-semibold transition-all min-w-0"><x-icon name="trend-chart" weight="bold" class="text-[15px] shrink-0" /><span class="truncate">Kurva WHO</span></button>
     </div>
 
     {{-- TAB: IDENTITAS & ORANG TUA --}}
@@ -251,7 +251,7 @@
             </div>
             <div class="relative">
                 @foreach($tri as $type => $t)
-                <div x-show="chartType === '{{ $type }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-cloak>
+                <div x-show="chartType === '{{ $type }}'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
                     <svg viewBox="0 0 {{ $W }} {{ $H }}" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Kurva pertumbuhan {{ $type === 'w' ? 'berat badan' : 'tinggi badan' }} terhadap standar WHO">
                         <g class="text-slate-200" stroke="currentColor" stroke-width="1">@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<line x1="{{ $X0 }}" y1="{{ $y }}" x2="{{ $X1 }}" y2="{{ $y }}" />@endfor</g>
                         <g class="text-slate-400" text-anchor="end" font-size="11">@for($i = 0; $i <= 4; $i++) @php $v = $t['min'] + (($t['max'] - $t['min']) * $i / 4); $y = yOf($v, $t['min'], $t['max'], $Y0, $Y1); @endphp<text x="{{ $X0 - 8 }}" y="{{ $y + 4 }}">{{ round($v, 1) }}</text>@endfor</g>
