@@ -332,6 +332,7 @@
                 </div>
             </div>
 
+            <div class="space-y-2.5">
             @forelse($measurements as $m)
                 @php
                     $s = $m['status_validasi'] ?? 'pending';
@@ -344,43 +345,42 @@
                     };
                     $valDot = $s === 'rejected' ? 'bg-rose-500' : ($s === 'pending' ? 'bg-amber-400' : 'bg-emerald-500');
                 @endphp
-                <div class="{{ $isRejected ? 'bg-rose-50/60 border border-rose-200 rounded-xl px-4 py-3.5' : 'py-3.5 border-b border-slate-100' }}">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="flex items-center gap-2.5 min-w-0">
+                <div class="bg-white border rounded-xl p-4 flex flex-col gap-3 {{ $isRejected ? 'border-rose-200 bg-rose-50/40' : 'border-slate-200' }}">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
                             <span class="w-2 h-2 rounded-full {{ $valDot }} shrink-0"></span>
                             <span class="text-[13.5px] font-bold text-slate-800 whitespace-nowrap">{{ $m['date'] }}</span>
                             <span class="text-[12px] text-slate-400 whitespace-nowrap">· {{ $m['age_at_measure'] }}</span>
                         </div>
-                        <div class="flex items-center gap-4 sm:gap-5">
-                            <div class="text-right">
-                                <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide leading-none">BB</p>
-                                <p class="text-[13.5px] font-bold text-slate-800 tabular-nums mt-1">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide leading-none">TB</p>
-                                <p class="text-[13.5px] font-bold text-slate-800 tabular-nums mt-1">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</p>
-                            </div>
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-bold {{ $valBadge }} whitespace-nowrap">{{ $m['status'] }}</span>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-bold {{ $valBadge }} whitespace-nowrap shrink-0">{{ $m['status'] }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="bg-slate-50 rounded-lg px-3 py-2 min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Berat Badan</p>
+                            <p class="text-[14px] font-bold text-slate-800 tabular-nums mt-0.5 truncate">{{ $m['weight'] ? number_format($m['weight'],1,',','.') . ' kg' : '—' }}</p>
+                        </div>
+                        <div class="bg-slate-50 rounded-lg px-3 py-2 min-w-0">
+                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Tinggi Badan</p>
+                            <p class="text-[14px] font-bold text-slate-800 tabular-nums mt-0.5 truncate">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</p>
                         </div>
                     </div>
 
-                    {{-- Note from Puskesmas nutrition officer (for rejected) --}}
                     @if($isRejected && !empty($m['catatan_validator']))
-                        <div class="mt-3 bg-white border border-rose-200 rounded-lg p-3 flex items-start gap-2.5">
+                        <div class="border border-rose-200 rounded-lg p-3 flex items-start gap-2.5 bg-white">
                             <x-icon name="chat-circle-text" weight="fill" class="text-rose-500 text-[18px] shrink-0 mt-0.5" />
                             <div class="min-w-0">
                                 <p class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">Catatan Petugas Gizi Puskesmas</p>
                                 <p class="text-[13px] text-slate-700 mt-1 leading-relaxed">{{ $m['catatan_validator'] }}</p>
                             </div>
                         </div>
-                        <div class="mt-2.5 flex justify-end">
-                            <a href="{{ route('balita.show', [$balitaId, 'action' => 'ukur']) }}" class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[12.5px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[14px]" /> Perbaiki Data</a>
-                        </div>
+                        <a href="{{ route('balita.show', [$balitaId, 'action' => 'ukur']) }}" class="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[12.5px] font-semibold transition-colors w-full"><x-icon name="pencil-line" weight="bold" class="text-[14px]" /> Perbaiki Data</a>
                     @endif
                 </div>
             @empty
                 <div class="py-12 text-center text-[13px] text-slate-400">Belum ada data pengukuran.</div>
             @endforelse
+            </div>
         </div>
     </div>
 
