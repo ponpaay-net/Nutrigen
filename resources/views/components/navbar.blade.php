@@ -32,7 +32,7 @@
         @if (request()->is('puskesmas*'))
             <!-- Search Button (Puskesmas Only) -->
             <button
-                class="relative w-10 h-10 hidden sm:flex items-center justify-center text-slate-600 hover:text-sky-600 hover:bg-sky-50/80 rounded-xl transition-all duration-200 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500/20"
+                class="relative w-10 h-10 hidden sm:flex items-center justify-center text-slate-600 hover:text-teal-600 hover:bg-teal-50/80 rounded-xl transition-all duration-200 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                 aria-label="Cari">
                 <x-icon name="magnifying-glass" weight="bold" class="text-[20px] group-hover:scale-110 transition-transform" />
             </button>
@@ -40,7 +40,7 @@
 
         <!-- Notification Modal Trigger -->
         <button @click="openNotif = true"
-            class="relative w-10 h-10 flex items-center justify-center text-slate-600 hover:text-cyan-600 hover:bg-cyan-50/80 rounded-xl transition-all duration-200 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+            class="relative w-10 h-10 flex items-center justify-center text-slate-600 hover:text-teal-600 hover:bg-teal-50/80 rounded-xl transition-all duration-200 group cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/20"
             aria-label="Notifikasi">
             
             <x-icon name="bell" weight="bold" class="text-[22px] group-hover:animate-[wiggle_1s_ease-in-out_infinite]" />
@@ -48,7 +48,7 @@
             {{-- Notification Badge (Red dot with count) --}}
             @if ($notificationRole === 'puskesmas' && ($validationNotifsCount ?? 0) > 0)
                 <span
-                    class="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-sky-500 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white shadow-xs animate-pulse">
+                    class="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-teal-500 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center border-2 border-white shadow-xs animate-pulse">
                     {{ $validationNotifsCount }}
                 </span>
             @elseif(isset($revisiNotifsCount) && $revisiNotifsCount > 0)
@@ -102,7 +102,7 @@
                         <div class="flex items-center gap-2 sm:gap-2.5">
                             @if ($notificationRole === 'puskesmas' && ($validationNotifsCount ?? 0) > 0)
                                 <span
-                                    class="bg-sky-50 text-sky-600 border border-sky-200/60 text-[9.5px] sm:text-[10.5px] font-bold px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full uppercase tracking-wider shadow-2xs">
+                                    class="bg-teal-50 text-teal-600 border border-teal-200/60 text-[9.5px] sm:text-[10.5px] font-bold px-2.5 py-0.5 sm:px-3.5 sm:py-1 rounded-full uppercase tracking-wider shadow-2xs">
                                     {{ $validationNotifsCount }} PENDING
                                 </span>
                             @elseif(isset($revisiNotifsCount) && $revisiNotifsCount > 0)
@@ -127,13 +127,13 @@
                                 <a href="{{ route('puskesmas.validasi', ['tab' => 'pending']) }}"
                                     class="flex items-start gap-3 group pt-3 first:pt-0 pb-1 cursor-pointer block">
                                     <div
-                                        class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center shrink-0 font-bold text-xs">
+                                        class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center shrink-0 font-bold text-xs">
                                         {{ strtoupper(substr($notif['balita_nama'], 0, 2)) }}
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between gap-2">
                                             <h4
-                                                class="text-sm font-bold text-slate-900 group-hover:text-sky-700 transition-colors truncate">
+                                                class="text-sm font-bold text-slate-900 group-hover:text-teal-700 transition-colors truncate">
                                                 {{ Str::title($notif['balita_nama']) }}</h4>
                                             <span
                                                 class="text-[10px] font-semibold text-slate-400 shrink-0">{{ $notif['tanggal'] }}</span>
@@ -141,7 +141,7 @@
                                         <p class="text-[11px] font-semibold text-slate-600 mt-1">Dikirim oleh
                                             {{ $notif['kader_nama'] }}</p>
                                         <div
-                                            class="mt-2 p-2.5 rounded-xl bg-sky-50/70 border border-sky-100 text-[11px] text-sky-900 font-medium">
+                                            class="mt-2 p-2.5 rounded-xl bg-teal-50/70 border border-teal-100 text-[11px] text-teal-900 font-medium">
                                             BB {{ $notif['bb'] }} kg / TB {{ $notif['tb'] }} cm &middot; Menunggu
                                             validasi
                                         </div>
@@ -168,9 +168,9 @@
                                                 'icon' => 'text-rose-500',
                                             ],
                                             1 => [
-                                                'avatar' => 'bg-cyan-100/70 text-cyan-700 ring-cyan-200/60',
-                                                'bubble' => 'bg-cyan-50/80 border-cyan-100 text-cyan-900',
-                                                'icon' => 'text-cyan-500',
+                                                'avatar' => 'bg-teal-100/70 text-teal-700 ring-teal-200/60',
+                                                'bubble' => 'bg-teal-50/80 border-teal-100 text-teal-900',
+                                                'icon' => 'text-teal-500',
                                             ],
                                             2 => [
                                                 'avatar' => 'bg-amber-100/70 text-amber-700 ring-amber-200/60',
@@ -193,11 +193,11 @@
                                         <div class="flex-1 min-w-0">
                                             <div class="flex items-center justify-between gap-1.5 sm:gap-2">
                                                 <h4
-                                                    class="text-[13px] sm:text-sm font-bold text-slate-900 group-hover:text-cyan-700 transition-colors truncate">
+                                                    class="text-[13px] sm:text-sm font-bold text-slate-900 group-hover:text-teal-700 transition-colors truncate">
                                                     {{ Str::title($notif['balita_nama']) }}
                                                 </h4>
                                                 <div
-                                                    class="flex items-center gap-1 text-[10.5px] sm:text-xs font-semibold text-slate-400 group-hover:text-cyan-600 transition-colors shrink-0">
+                                                    class="flex items-center gap-1 text-[10.5px] sm:text-xs font-semibold text-slate-400 group-hover:text-teal-600 transition-colors shrink-0">
                                                     <span>{{ $notif['tanggal'] }}</span>
                                                     <x-icon name="caret-right" weight="bold" class="text-xs group-hover:translate-x-1 transition-transform" />
                                                 </div>

@@ -1,3 +1,5 @@
+@import '@phosphor-icons/web/regular';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -34,7 +36,7 @@
  * ============================================================ */
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Navbar — glassmorphism effect (applied via Alpine :class on scroll) */

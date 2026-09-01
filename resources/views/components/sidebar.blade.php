@@ -14,10 +14,10 @@
     $isPush = request()->is('puskesmas*');
 
     // Brand class strings (kept as literals so Tailwind picks them up)
-    $activeCls    = $isPush ? 'bg-sky-600 text-white' : 'bg-cyan-600 text-white';
-    $inactiveCls  = $isPush ? 'text-slate-500 hover:bg-slate-50 hover:text-sky-600' : 'text-slate-500 hover:bg-cyan-50 hover:text-cyan-600';
-    $indicatorCls = $isPush ? 'bg-sky-400' : 'bg-cyan-500';
-    $brandGrad    = $isPush ? 'from-sky-400 to-blue-600' : 'from-cyan-500 to-cyan-600';
+    $activeCls    = $isPush ? 'bg-teal-600 text-white' : 'bg-teal-600 text-white';
+    $inactiveCls  = $isPush ? 'text-slate-500 hover:bg-slate-50 hover:text-teal-600' : 'text-slate-500 hover:bg-teal-50 hover:text-teal-600';
+    $indicatorCls = $isPush ? 'bg-teal-400' : 'bg-teal-500';
+    $brandGrad    = $isPush ? 'from-teal-400 to-teal-600' : 'from-teal-500 to-teal-600';
 
     $items = $isPush ? [
         ['label' => 'Dashboard',        'icon' => 'squares-four',   'route' => 'puskesmas.dashboard', 'active' => request()->routeIs('puskesmas.dashboard')],
@@ -97,7 +97,7 @@
     <div class="p-4 border-t border-slate-100 shrink-0">
         <div class="relative w-full" x-data="{ openProfileMenu: false }">
             <button @click="openProfileMenu = !openProfileMenu" @click.outside="openProfileMenu = false"
-                    class="flex items-center gap-3 w-full p-1.5 hover:bg-slate-50 rounded-xl transition-all duration-200 group text-left border border-transparent hover:border-slate-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+                    class="flex items-center gap-3 w-full p-1.5 hover:bg-slate-50 rounded-xl transition-all duration-200 group text-left border border-transparent hover:border-slate-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/20"
                     :class="{ 'justify-center': !sidebarExpanded && window.innerWidth >= 1024 }">
 
                 <div class="w-9 h-9 rounded-full bg-gradient-to-br {{ $brandGrad }} flex items-center justify-center text-white shrink-0 shadow-sm border-2 border-white group-hover:scale-105 transition-all overflow-hidden">

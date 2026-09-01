@@ -16,6 +16,7 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
+        "@phosphor-icons/web": "^2.1.2",
         "framer-motion": "^13.1.0",
         "svg-path-bbox": "^2.1.0",
         "svg-path-bounds": "^1.0.2",
