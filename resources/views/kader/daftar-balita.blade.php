@@ -45,12 +45,7 @@
     {{-- SUMMARY: DONUT CHART + STATS --}}
     <section class="bg-white border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.06),0_12px_32px_-16px_rgba(15,23,42,0.14)] p-5 sm:p-6">
         {{-- Header row --}}
-        <div class="flex items-center justify-between gap-3 mb-5">
-            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Ringkasan Pengukuran</p>
-            <a href="{{ route('balita.index', ['filter' => 'belum_diukur']) }}" class="inline-flex items-center gap-2 h-9 px-4 rounded-full bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:shadow-lg hover:shadow-teal-500/30 font-semibold text-[12.5px] transition-all duration-200 active:scale-95">
-                <x-icon name="scales" weight="bold" /> Mulai Timbang
-            </a>
-        </div>
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-5">Ringkasan Pengukuran</p>
 
         {{-- Body: donut + stats, vertically centered --}}
         <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-6 items-center">
