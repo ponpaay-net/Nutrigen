@@ -37,7 +37,7 @@
             <p class="text-[13px] text-slate-400 mt-0.5">Kelola data & pantau pengukuran balita di posyandu Anda.</p>
         </div>
         <a href="{{ route('balita.create') }}"
-           class="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/40">
+           class="inline-flex items-center justify-center gap-2 px-4 h-11 w-full sm:w-auto rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/40">
             <x-icon name="plus" weight="bold" class="text-base" /> Balita Baru
         </a>
     </div>
