@@ -790,20 +790,6 @@ class KaderController extends Controller
         ]); 
     }
 
-    public function tambahJadwal() 
-    { 
-        $posyanduId = $this->getKaderPosyanduId();
-        $posyandu = Posyandu::find($posyanduId);
-        $posyanduName = $posyandu?->nama ?? 'Posyandu Kader';
-
-        return view('kader.tambah-jadwal', [
-            'posyanduId' => $posyanduId,
-            'posyanduName' => $posyanduName,
-            'isEdit' => false,
-            'jadwal' => null
-        ]); 
-    }
-
     public function simpanJadwal(StoreJadwalRequest $request)
     {
         $posyanduId = $this->getKaderPosyanduId();
@@ -825,55 +811,6 @@ class KaderController extends Controller
 
         return redirect()->route('jadwal.index')
             ->with('success', 'Jadwal Posyandu berhasil dibuat dan otomatis terbit di Portal Ibu.');
-    }
-
-    public function detailJadwal($id)
-    {
-        Carbon::setLocale('id');
-        $posyanduId = $this->getKaderPosyanduId();
-        $jadwal = Jadwal::where('posyandu_id', $posyanduId)->findOrFail($id);
-
-        $tgl = Carbon::parse($jadwal->tanggal);
-        $isPast = $tgl->isPast() && !$tgl->isToday();
-        $isToday = $tgl->isToday();
-
-        $statusText = $isToday ? 'Hari Ini' : ($isPast ? 'Selesai' : 'Akan Datang');
-        $statusType = $isToday ? 'today' : ($isPast ? 'past' : 'upcoming');
-
-        $data = [
-            'id' => $jadwal->id,
-            'judul' => $jadwal->judul,
-            'lokasi' => $jadwal->lokasi,
-            'tanggal' => $tgl->translatedFormat('d F Y'),
-            'hari' => $tgl->translatedFormat('l'),
-            'waktu' => substr($jadwal->waktu_mulai, 0, 5) . ' - ' . substr($jadwal->waktu_selesai, 0, 5) . ' WIB',
-            'waktu_mulai' => substr($jadwal->waktu_mulai, 0, 5),
-            'waktu_selesai' => substr($jadwal->waktu_selesai, 0, 5),
-            'catatan' => $jadwal->catatan,
-            'status' => $statusText,
-            'status_type' => $statusType,
-            'posyandu_nama' => $jadwal->posyandu?->nama ?? 'Posyandu Kader',
-            'desa' => $jadwal->posyandu?->desa_kelurahan ?? '-',
-            'alamat_posyandu' => $jadwal->posyandu?->alamat ?? '-',
-            'kader_nama' => $jadwal->kader?->user?->name ?? 'Kader Posyandu'
-        ];
-
-        return view('kader.detail-jadwal', ['jadwal' => $data]);
-    }
-
-    public function editJadwal($id)
-    {
-        $posyanduId = $this->getKaderPosyanduId();
-        $jadwal = Jadwal::where('posyandu_id', $posyanduId)->findOrFail($id);
-        $posyandu = Posyandu::find($posyanduId);
-        $posyanduName = $posyandu?->nama ?? 'Posyandu Kader';
-
-        return view('kader.tambah-jadwal', [
-            'posyanduId' => $posyanduId,
-            'posyanduName' => $posyanduName,
-            'isEdit' => true,
-            'jadwal' => $jadwal
-        ]);
     }
 
     public function updateJadwal(Request $request, $id)

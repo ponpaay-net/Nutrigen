@@ -148,10 +148,7 @@ Route::prefix('kader')->middleware(['web', 'auth', 'prevent-back-history', 'role
 
     // Jadwal CRUD
     Route::get('/jadwal', [KaderController::class, 'jadwal'])->name('jadwal.index');
-    Route::get('/jadwal/baru', [KaderController::class, 'tambahJadwal'])->name('jadwal.create');
     Route::post('/jadwal', [KaderController::class, 'simpanJadwal'])->name('jadwal.store');
-    Route::get('/jadwal/{id}', [KaderController::class, 'detailJadwal'])->name('jadwal.show');
-    Route::get('/jadwal/{id}/edit', [KaderController::class, 'editJadwal'])->name('jadwal.edit');
     Route::put('/jadwal/{id}', [KaderController::class, 'updateJadwal'])->name('jadwal.update');
     Route::delete('/jadwal/{id}', [KaderController::class, 'hapusJadwal'])->name('jadwal.destroy');
     Route::post('/jadwal/{id}/notif', [KaderController::class, 'kirimNotifikasiJadwal'])->name('jadwal.notif');

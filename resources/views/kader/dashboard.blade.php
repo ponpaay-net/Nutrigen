@@ -177,7 +177,7 @@
                 </div>
 
                 @if(isset($jadwalTerdekat) && $jadwalTerdekat)
-                    <a href="{{ route('jadwal.show', $jadwalTerdekat['id']) }}" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm group flex items-start gap-4 hover:border-teal-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400">
+                    <a href="{{ route('jadwal.index') }}" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm group flex items-start gap-4 hover:border-teal-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-400">
                         <div class="w-14 h-14 rounded-xl bg-teal-50 text-teal-700 flex flex-col items-center justify-center shrink-0 border border-teal-200 group-hover:bg-teal-100 transition-colors">
                             <span class="text-[11px] font-bold uppercase tracking-wider">{{ $jadwalTerdekat['tgl_bulan'] ?? 'AGT' }}</span>
                             <span class="text-xl font-bold leading-none tabular-nums mt-0.5">{{ $jadwalTerdekat['tgl_nomor'] ?? '23' }}</span>
@@ -199,7 +199,7 @@
                 @else
                     <div class="bg-white border border-slate-200 rounded-2xl p-6 text-center text-slate-500 shadow-sm">
                         <p class="text-sm font-medium text-slate-900">Belum ada agenda jadwal</p>
-                        <a href="{{ route('jadwal.create') }}" class="text-sm font-medium text-teal-600 hover:underline mt-1 inline-block focus:outline-none">+ Buat jadwal posyandu</a>
+                        <a href="{{ route('jadwal.index') }}" class="text-sm font-medium text-teal-600 hover:underline mt-1 inline-block focus:outline-none">+ Buat jadwal posyandu</a>
                     </div>
                 @endif
             </div>
