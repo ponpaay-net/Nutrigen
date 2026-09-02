@@ -11,7 +11,7 @@
     $infoloc = $lokasi ?: ($posyanduName ?? '');
 @endphp
 
-<div class="w-full pb-28 sm:pb-12">
+<div class="w-full px-4 sm:px-6 lg:px-8 pt-5 sm:pt-8 pb-28 sm:pb-12">
     <div class="max-w-5xl mx-auto">
 
         {{-- Page header --}}
@@ -51,7 +51,7 @@
 
                     {{-- right: actions --}}
                     <div class="flex flex-col sm:flex-row items-stretch gap-2.5 w-full sm:w-auto shrink-0">
-                        <a href="{{ route('kader.profil.edit') }}" class="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 text-[13.5px] font-bold shadow-md shadow-amber-400/30 transition-all hover:shadow-lg hover:shadow-amber-500/30 active:scale-[0.98]"><x-icon name="pencil-line" weight="bold" class="text-[16px]" />Edit Profil</a>
+                        <a href="{{ route('kader.profil.edit') }}" class="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 text-[13.5px] font-bold shadow-md shadow-amber-400/30 transition-all hover:shadow-lg hover:shadow-amber-500/30 active:scale-[0.98]"><x-icon name="pencil-line" weight="bold" class="text-[16px]" />Edit Profile</a>
                         <a href="{{ route('kader.keamanan') }}" class="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:border-teal-300 hover:text-teal-700 hover:bg-teal-50/40 text-[13.5px] font-semibold transition-colors"><x-icon name="lock" weight="bold" class="text-[16px]" />Keamanan Akun</a>
                     </div>
                 </div>
