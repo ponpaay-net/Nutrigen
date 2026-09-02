@@ -108,9 +108,9 @@
                 <div class="mt-auto border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $j['status_type']==='today' ? 'bg-amber-50 text-amber-700' : 'bg-teal-50 text-teal-700' }}"><span class="w-1.5 h-1.5 rounded-full {{ $j['status_type']==='today' ? 'bg-amber-500' : 'bg-teal-500' }}"></span>{{ $j['status'] }}</span>
                     <div class="flex items-center gap-1.5">
-                        <button type="button" @click="askNotif({{ $j['id'] }})" aria-label="Kirim Notifikasi" title="Kirim Notifikasi" class="h-8 w-8 inline-flex items-center justify-center text-teal-600 hover:bg-teal-50 border border-slate-200 hover:border-teal-200 rounded-lg transition-colors"><x-icon name="bell" weight="bold" class="text-[13px]" /></button>
-                        <button type="button" @click="openDetail({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
-                        <button type="button" @click="openEdit({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-white border border-slate-200 hover:bg-teal-50 hover:border-teal-200 rounded-lg transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[13px]" /> Edit</button>
+                        <button type="button" @click="askNotif({{ $j['id'] }})" aria-label="Kirim Notifikasi" title="Kirim Notifikasi" class="h-8 w-8 inline-flex items-center justify-center text-teal-600 hover:bg-teal-100 bg-teal-50 border border-teal-200 rounded-lg transition-colors"><x-icon name="bell" weight="bold" class="text-[13px]" /></button>
+                        <button type="button" @click="openDetail({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
+                        <button type="button" @click="openEdit({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-white border border-teal-200 hover:bg-teal-50 rounded-lg transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[13px]" /> Edit</button>
                         <button type="button" @click="askDelete({{ $j['id'] }})" aria-label="Hapus" class="h-8 w-8 inline-flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg transition-colors"><x-icon name="trash" weight="bold" class="text-[13px]" /></button>
                     </div>
                 </div>
@@ -151,8 +151,8 @@
                 <div class="mt-auto border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Selesai</span>
                     <div class="flex items-center gap-1.5">
-                        <button type="button" @click="openDetail({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
-                        <a href="{{ route('laporan.index') }}" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors"><x-icon name="printer" weight="bold" class="text-[13px]" /> Laporan</a>
+                        <button type="button" @click="openDetail({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
+                        <a href="{{ route('laporan.index') }}" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-white border border-teal-200 hover:bg-teal-50 rounded-lg transition-colors"><x-icon name="printer" weight="bold" class="text-[13px]" /> Laporan</a>
                     </div>
                 </div>
             </article>
@@ -200,7 +200,7 @@
                         <textarea name="catatan" x-model="form.catatan" rows="3" placeholder="Contoh: Harap membawa Buku KIA." class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[14px] font-medium text-slate-800 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all resize-none"></textarea>
                     </div>
                     <div class="flex items-center justify-end gap-2.5 border-t border-slate-100 pt-4">
-                        <button type="button" @click="formOpen = false" class="h-11 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors">Batal</button>
+                        <button type="button" @click="formOpen = false" class="h-11 px-5 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors">Batal</button>
                         <button type="submit" class="h-11 px-6 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center gap-2 shadow-md shadow-teal-600/20"><x-icon name="check" weight="bold" class="text-[15px]" /> <span x-text="form.id ? 'Simpan Perubahan' : 'Simpan & Terbitkan'"></span></button>
                     </div>
                 </form>
@@ -237,7 +237,7 @@
                     </template>
                 </div>
                 <div class="px-5 sm:px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2.5 shrink-0">
-                    <button type="button" @click="detail = null" class="h-10 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors">Tutup</button>
+                    <button type="button" @click="detail = null" class="h-10 px-5 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors">Tutup</button>
                     <button type="button" @click="askNotif(detail.id)" class="h-10 px-4 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors inline-flex items-center gap-2"><x-icon name="bell" weight="bold" class="text-[15px]" /> Kirim Notifikasi</button>
                     <button type="button" @click="openEditFromDetail()" class="h-10 px-5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center gap-2 shadow-md shadow-teal-600/20"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> Edit</button>
                 </div>
@@ -255,7 +255,7 @@
                 <p class="text-center text-[13px] text-slate-500 mt-1.5 leading-relaxed">Jadwal ini tidak akan tampil lagi di Portal Ibu Balita.</p>
                 <form :action="'{{ route('jadwal.destroy', '__id__') }}'.replace('__id__', deleteId)" method="POST" class="grid grid-cols-2 gap-2.5 mt-5">
                     @csrf @method('DELETE')
-                    <button type="button" @click="deleteId = null" class="h-11 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors">Batal</button>
+                    <button type="button" @click="deleteId = null" class="h-11 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors">Batal</button>
                     <button type="submit" class="h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[13.5px] font-semibold inline-flex items-center justify-center gap-2 transition-colors"><x-icon name="trash" weight="bold" class="text-[15px]" /> Ya, Hapus</button>
                 </form>
             </div>
@@ -272,7 +272,7 @@
                 <p class="text-center text-[13px] text-slate-500 mt-1.5 leading-relaxed">Pengingat WhatsApp tentang jadwal posyandu akan dikirim ke <span class="font-semibold text-slate-700">semua Ibu balita di posyandu ini</span>.</p>
                 <form :action="'{{ route('jadwal.notif', '__id__') }}'.replace('__id__', notifId)" method="POST" class="grid grid-cols-2 gap-2.5 mt-5">
                     @csrf
-                    <button type="button" @click="notifId = null" class="h-11 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors">Batal</button>
+                    <button type="button" @click="notifId = null" class="h-11 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors">Batal</button>
                     <button type="submit" class="h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold inline-flex items-center justify-center gap-2 transition-colors"><x-icon name="bell" weight="bold" class="text-[15px]" /> Ya, Kirim</button>
                 </form>
             </div>
