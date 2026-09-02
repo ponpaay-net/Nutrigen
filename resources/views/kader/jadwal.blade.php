@@ -7,7 +7,8 @@
     $past     = collect($jadwals)->where('status_type', 'past')->values();
     // sesi terdekat (tanggal paling awal dari yang mendatang)
     $next = $upcoming->sortBy('raw_tanggal')->first();
-    $cardActions = fn($j) => $j['status_type'] === 'past';
+    // list mendatang TANPA next (hindari duplikasi di hero + list)
+    $upcomingList = $upcoming->filter(fn($j) => $j['id'] !== ($next['id'] ?? null))->values();
     @endphp
 
 @section('content')
@@ -45,8 +46,11 @@
                     </div>
                     <div class="min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-[10.5px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-lg">{{ $next['status'] }}</span>
-                            @if($next['countdown'] && $next['status_type'] !== 'past')<span class="text-[10.5px] font-bold uppercase tracking-wider bg-amber-400/90 text-amber-950 px-2 py-0.5 rounded-lg">{{ $next['countdown'] }}</span>@endif
+                            @if($next['status_type'] === 'past')
+                            <span class="inline-flex items-center gap-1 text-[10.5px] font-bold uppercase tracking-wider bg-slate-500/40 text-white px-2.5 py-1 rounded-lg"><x-icon name="check-circle" weight="fill" class="text-[12px]" /> Selesai</span>
+                            @else
+                            <span class="inline-flex items-center gap-1 text-[10.5px] font-bold uppercase tracking-wider bg-amber-300/95 text-amber-950 px-2.5 py-1 rounded-lg"><x-icon name="{{ $next['status_type']==='today' ? 'warning' : 'hourglass' }}" weight="fill" class="text-[12px]" /> {{ $next['countdown'] }}</span>
+                            @endif
                         </div>
                         <h2 class="text-[17px] sm:text-lg font-bold leading-snug mt-1 line-clamp-2">{{ $next['judul'] }}</h2>
                         <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-[12px] text-teal-50">
@@ -59,6 +63,7 @@
                 <div class="shrink-0 flex items-center gap-2">
                     <button type="button" @click="askNotif(next.id)" class="inline-flex items-center justify-center gap-2 h-11 px-4 rounded-xl border border-white/30 bg-white/10 hover:bg-white/20 text-white text-[13.5px] font-semibold transition-colors"><x-icon name="bell" weight="bold" class="text-[15px]" /> Kirim Notifikasi</button>
                     <button type="button" @click="openDetail(next.id)" class="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-white hover:bg-teal-50 text-teal-700 text-[14px] font-semibold transition-colors"><x-icon name="eye" weight="bold" class="text-[15px]" /> Detail</button>
+                    <button type="button" @click="openEdit(next.id)" class="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 text-[14px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> Edit</button>
                 </div>
             </div>
         </div>
@@ -75,15 +80,15 @@
     </div>
     @endif
 
-    @if(count($upcoming) > 0)
+    @if(count($upcomingList) > 0)
     <section class="mb-8">
         <div class="flex items-center gap-3 mb-4">
             <span class="w-1 h-6 bg-teal-600 rounded-full"></span>
             <h2 class="text-base font-bold text-slate-900">Jadwal Mendatang</h2>
-            <span class="text-[12px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-lg">{{ count($upcoming) }}</span>
+            <span class="text-[12px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-lg">{{ count($upcomingList) }}</span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-            @foreach($upcoming as $j)
+            @foreach($upcomingList as $j)
             <article class="group flex flex-col bg-white border border-slate-200 hover:border-teal-300 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden">
                 <div class="p-5 flex items-start gap-4">
                     <div class="w-12 shrink-0 rounded-xl {{ $j['status_type']==='today' ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200' : 'bg-teal-50 text-teal-700 ring-1 ring-teal-100' }} flex flex-col items-center justify-center py-1.5">
@@ -106,12 +111,12 @@
                 </div>
                 @endif
                 <div class="mt-auto border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $j['status_type']==='today' ? 'bg-amber-50 text-amber-700' : 'bg-teal-50 text-teal-700' }}"><span class="w-1.5 h-1.5 rounded-full {{ $j['status_type']==='today' ? 'bg-amber-500' : 'bg-teal-500' }}"></span>{{ $j['status'] }}</span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $j['status_type']==='today' ? 'bg-amber-500 text-white' : 'bg-teal-600 text-white' }}"><span class="w-1.5 h-1.5 rounded-full {{ $j['status_type']==='today' ? 'bg-white' : 'bg-white' }}"></span>{{ $j['countdown'] }}</span>
                     <div class="flex items-center gap-1.5">
-                        <button type="button" @click="askNotif({{ $j['id'] }})" aria-label="Kirim Notifikasi" title="Kirim Notifikasi" class="h-9 w-9 sm:h-8 sm:w-8 inline-flex items-center justify-center text-teal-600 hover:bg-teal-100 bg-teal-50 border border-teal-200 rounded-lg transition-colors"><x-icon name="bell" weight="bold" class="text-[15px] sm:text-[13px]" /></button>
-                        <button type="button" @click="openDetail({{ $j['id'] }})" title="Detail" class="h-9 w-9 sm:w-auto sm:px-2.5 inline-flex items-center justify-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[15px] sm:text-[13px]" /><span class="hidden sm:inline">Detail</span></button>
-                        <button type="button" @click="openEdit({{ $j['id'] }})" title="Edit" class="h-9 w-9 sm:w-auto sm:px-2.5 inline-flex items-center justify-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-white border border-teal-200 hover:bg-teal-50 rounded-lg transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[15px] sm:text-[13px]" /><span class="hidden sm:inline">Edit</span></button>
-                        <button type="button" @click="askDelete({{ $j['id'] }})" aria-label="Hapus" title="Hapus" class="h-9 w-9 sm:h-8 sm:w-8 inline-flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg transition-colors"><x-icon name="trash" weight="bold" class="text-[15px] sm:text-[13px]" /></button>
+                        <button type="button" @click="askNotif({{ $j['id'] }})" aria-label="Kirim Notifikasi" title="Kirim Notifikasi" class="h-9 w-9 sm:h-8 sm:w-8 inline-flex items-center justify-center text-teal-600 hover:bg-teal-200 bg-teal-100 border border-teal-300 rounded-lg transition-colors"><x-icon name="bell" weight="bold" class="text-[15px] sm:text-[13px]" /></button>
+                        <button type="button" @click="openDetail({{ $j['id'] }})" title="Detail" class="h-9 w-9 sm:w-auto sm:px-2.5 inline-flex items-center justify-center gap-1 text-[11.5px] font-semibold text-white bg-teal-600 hover:bg-teal-700 border border-teal-600 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[15px] sm:text-[13px]" /><span class="hidden sm:inline">Detail</span></button>
+                        <button type="button" @click="openEdit({{ $j['id'] }})" title="Edit" class="h-9 w-9 sm:w-auto sm:px-2.5 inline-flex items-center justify-center gap-1 text-[11.5px] font-semibold text-slate-900 bg-amber-400 hover:bg-amber-500 border border-amber-400 rounded-lg transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[15px] sm:text-[13px]" /><span class="hidden sm:inline">Edit</span></button>
+                        <button type="button" @click="askDelete({{ $j['id'] }})" aria-label="Hapus" title="Hapus" class="h-9 w-9 sm:h-8 sm:w-8 inline-flex items-center justify-center text-rose-600 hover:text-rose-700 hover:bg-rose-100 bg-rose-50 border border-rose-200 rounded-lg transition-colors"><x-icon name="trash" weight="bold" class="text-[15px] sm:text-[13px]" /></button>
                     </div>
                 </div>
             </article>
@@ -222,7 +227,7 @@
                         <div>
                             <div class="flex items-center gap-2 flex-wrap mb-2">
                                 <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg" :class="detail.status_type === 'past' ? 'bg-slate-100 text-slate-500' : (detail.status_type === 'today' ? 'bg-amber-50 text-amber-700' : 'bg-teal-50 text-teal-700')" x-text="detail.status"></span>
-                                <template x-if="detail.countdown && detail.status_type === 'upcoming'"><span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg bg-cyan-50 text-cyan-700" x-text="detail.countdown"></span></template>
+                                <template x-if="detail.countdown && detail.status_type === 'upcoming'"><span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800" x-text="detail.countdown"></span></template>
                             </div>
                             <h3 class="text-[17px] font-bold text-slate-900 leading-snug" x-text="detail.judul"></h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
@@ -239,7 +244,7 @@
                 <div class="px-5 sm:px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2.5 shrink-0">
                     <button type="button" @click="detail = null" class="h-10 px-5 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors">Tutup</button>
                     <template x-if="detail && detail.status_type !== 'past'"><button type="button" @click="askNotif(detail.id)" class="h-10 px-4 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors inline-flex items-center gap-2"><x-icon name="bell" weight="bold" class="text-[15px]" /> Kirim Notifikasi</button></template>
-                    <button type="button" @click="openEditFromDetail()" class="h-10 px-5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center gap-2 shadow-md shadow-teal-600/20"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> Edit</button>
+                    <button type="button" @click="openEditFromDetail()" class="h-10 px-5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 text-[13.5px] font-semibold transition-colors inline-flex items-center gap-2 shadow-md shadow-amber-400/20"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> Edit</button>
                 </div>
             </div>
         </div>

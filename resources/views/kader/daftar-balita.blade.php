@@ -58,7 +58,7 @@
                         </linearGradient>
                     </defs>
                     <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ccfbf1" stroke-width="3.6"></circle>
-                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="url(#donutGrad)" stroke-width="3.6" stroke-linecap="round"
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="url(#donutGrad)" stroke-width="3.6" stroke-linecap="{{ $percentage > 0 ? 'round' : 'butt' }}"
                             stroke-dasharray="{{ $percentage }} {{ max(0, 100 - $percentage) }}" pathLength="100"></circle>
                 </svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
