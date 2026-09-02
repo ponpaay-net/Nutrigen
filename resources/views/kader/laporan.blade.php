@@ -13,12 +13,17 @@
             <p class="text-[13px] text-slate-500 mt-1 flex items-center gap-1.5"><x-icon name="map-pin" weight="bold" class="text-[14px] text-teal-600" /> {{ $posyanduAktif ?? 'Posyandu Kader' }} · Tinjau metrik penimbangan bulanan & ekspor laporan resmi.</p>
         </div>
         <form action="{{ route('laporan.index') }}" method="GET" class="relative w-full sm:w-auto">
+            <style>
+                .periode-picker-overlay::-webkit-calendar-picker-indicator { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+                .periode-picker-overlay:hover { cursor: pointer; }
+            </style>
             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Periode</label>
             <div class="inline-flex items-center gap-2 h-11 px-4 rounded-xl border border-slate-200 bg-white shadow-sm">
                 <x-icon name="calendar-blank" weight="bold" class="text-[15px] text-slate-400" />
                 <span class="text-[14px] font-semibold text-slate-800">{{ $periode ?? '' }}</span>
+                <x-icon name="caret-down" weight="bold" class="text-[13px] text-slate-400" />
             </div>
-            <input type="month" name="periode" value="{{ $periodeValue }}" onchange="this.form.submit()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Ubah Periode">
+            <input type="month" name="periode" value="{{ $periodeValue }}" onchange="this.form.submit()" class="periode-picker-overlay absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Ubah Periode" aria-label="Ubah Periode">
         </form>
     </div>
 
