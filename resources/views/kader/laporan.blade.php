@@ -45,14 +45,10 @@
                     <p class="text-[10.5px] font-bold uppercase tracking-widest text-teal-100">Rekapitulasi Penimbangan</p>
                     <p class="text-[12px] text-teal-50 mt-0.5">{{ $periode ?? '' }}</p>
                 </div>
-                <div class="flex items-baseline gap-0.5 mt-5">
-                    <span class="text-[52px] font-black leading-none tracking-tight">{{ $persentase ?? 0 }}</span><span class="text-2xl font-bold">%</span>
+                <div class="flex justify-center my-4">
+                    <div id="rekap-gauge" data-pct="{{ round($persentase ?? 0) }}" data-total="{{ $sudahDiukur ?? 0 }}/{{ $totalBalita ?? 0 }}" class="w-40 h-40"></div>
                 </div>
-                <p class="text-[13px] text-teal-50 font-medium mt-1">{{ $sudahDiukur ?? 0 }} / {{ $totalBalita ?? 0 }} balita terukur</p>
-                <div class="mt-4 h-2 w-full bg-white/20 rounded-full overflow-hidden">
-                    <div class="h-2 bg-white rounded-full transition-all" style="width: {{ $persentase ?? 0 }}%"></div>
-                </div>
-                <p class="text-right text-[11px] font-semibold text-teal-50 mt-2">Sesuai target kunjungan</p>
+                <p class="text-center text-[12px] text-teal-50 font-medium">{{ $sudahDiukur ?? 0 }}/{{ $totalBalita ?? 0 }} balita terukur · <span class="font-semibold">Sesuai target kunjungan</span></p>
             </div>
 
             {{-- 4 KPI --}}
@@ -196,6 +192,31 @@
                     markers: { size: 4, colors: ['#0d9488'], strokeColors: '#fff', strokeWidth: 2 }
                 });
                 elT._apex.render();
+            }
+
+            // Rekap radial gauge (kartu hijau)
+            var elR = document.getElementById('rekap-gauge');
+            if (elR && !elR._apex) {
+                var pct = Math.min(100, Math.max(0, parseFloat(elR.getAttribute('data-pct')) || 0));
+                var total = elR.getAttribute('data-total') || '';
+                elR._apex = new window.ApexCharts(elR, {
+                    chart: { type: 'radialBar', height: 160, toolbar: { show: false }, fontFamily: 'Plus Jakarta Sans, sans-serif' },
+                    series: [pct],
+                    colors: ['#ffffff'],
+                    stroke: { lineCap: 'round' },
+                    plotOptions: {
+                        radialBar: {
+                            hollow: { size: '58%' },
+                            track: { background: 'rgba(255,255,255,0.22)', strokeWidth: '100%' },
+                            dataLabels: {
+                                name: { show: false },
+                                value: { show: true, fontSize: '32px', fontWeight: '800', color: '#ffffff', offsetY: 0, formatter: function(v){ return Math.round(v) + '%'; } }
+                            }
+                        }
+                    },
+                    tooltip: { enabled: false }
+                });
+                elR._apex.render();
             }
 
             var elD = document.getElementById('chart-donut');
