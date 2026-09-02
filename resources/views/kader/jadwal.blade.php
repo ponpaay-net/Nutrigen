@@ -12,7 +12,8 @@
 
 @section('content')
 <div class="bg-slate-50 min-h-full">
-<div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-5 sm:py-8" x-data="jadwalPage(@json($jadwals, 15), @json($next, 15))">
+<div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-5 sm:py-8" x-data="jadwalPage()">
+    <script>window.__NUTRI_JADWALS = @json($jadwals, 15); window.__NUTRI_NEXT = @json($next, 15);</script>
 
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
@@ -106,8 +107,8 @@
                 <div class="mt-auto border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $j['status_type']==='today' ? 'bg-amber-50 text-amber-700' : 'bg-teal-50 text-teal-700' }}"><span class="w-1.5 h-1.5 rounded-full {{ $j['status_type']==='today' ? 'bg-amber-500' : 'bg-teal-500' }}"></span>{{ $j['status'] }}</span>
                     <div class="flex items-center gap-1.5">
-                        <button type="button" @click="openDetail(j.id)" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
-                        <button type="button" @click="openEdit(j.id)" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-white border border-slate-200 hover:bg-teal-50 hover:border-teal-200 rounded-lg transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[13px]" /> Edit</button>
+                        <button type="button" @click="openDetail({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
+                        <button type="button" @click="openEdit({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-white border border-slate-200 hover:bg-teal-50 hover:border-teal-200 rounded-lg transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[13px]" /> Edit</button>
                         <button type="button" @click="askDelete({{ $j['id'] }})" aria-label="Hapus" class="h-8 w-8 inline-flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg transition-colors"><x-icon name="trash" weight="bold" class="text-[13px]" /></button>
                     </div>
                 </div>
@@ -148,7 +149,7 @@
                 <div class="mt-auto border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Selesai</span>
                     <div class="flex items-center gap-1.5">
-                        <button type="button" @click="openDetail(j.id)" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
+                        <button type="button" @click="openDetail({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
                         <a href="{{ route('laporan.index') }}" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors"><x-icon name="printer" weight="bold" class="text-[13px]" /> Laporan</a>
                     </div>
                 </div>
@@ -263,13 +264,14 @@
 
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('jadwalPage', (jadwals, next) => ({
+    Alpine.data('jadwalPage', () => ({
         formOpen: false,
         detail: null,
         deleteId: null,
-        jadwals: jadwals || [],
-        next: next || null,
+        jadwals: [],
+        next: null,
         form: { id: null, judul: '', lokasi: '', tanggal: '', mulai: '08:30', selesai: '11:30', catatan: '' },
+        init() { this.jadwals = window.__NUTRI_JADWALS || []; this.next = window.__NUTRI_NEXT || null; },
         byId(id) { return this.jadwals.find(x => x.id === id); },
         openCreate() { this.form = { id: null, judul: '', lokasi: '', tanggal: new Date().toISOString().split('T')[0], mulai: '08:30', selesai: '11:30', catatan: '' }; this.formOpen = true; },
         openEdit(id) { const j = this.byId(id); if (!j) return; this.form = { id: j.id, judul: j.judul || '', lokasi: j.lokasi || '', tanggal: j.raw_tanggal || '', mulai: j.waktu_mulai || '08:30', selesai: j.waktu_selesai || '11:30', catatan: j.catatan || '' }; this.detail = null; this.formOpen = true; },
