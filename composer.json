@@ -9,7 +9,6 @@
         "ext-bcmath": "*",
         "ext-ctype": "*",
         "ext-fileinfo": "*",
-        "ext-gd": "*",
         "ext-intl": "*",
         "ext-mbstring": "*",
         "ext-pdo_mysql": "*",
