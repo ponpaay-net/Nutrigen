@@ -8,6 +8,7 @@ use App\Services\DashboardService;
 use App\Services\GrowthCalculationService;
 use App\Services\RecommendationService;
 use App\Services\StatisticsService;
+use App\Services\WhatsAppService;
 use App\Models\Balita;
 use App\Models\Pengukuran;
 use App\Models\Posyandu;
@@ -28,7 +29,8 @@ class KaderController extends Controller
         protected DashboardService $dashboardService,
         protected GrowthCalculationService $growthService,
         protected RecommendationService $recommendationService,
-        protected StatisticsService $statisticsService
+        protected StatisticsService $statisticsService,
+        protected WhatsAppService $whatsAppService
     ) {}
 
     private function getKaderPosyanduId(): int
@@ -915,6 +917,46 @@ class KaderController extends Controller
 
         return redirect()->route('jadwal.index')
             ->with('success', 'Jadwal Posyandu berhasil dihapus.');
+    }
+
+    /**
+     * Kirim pengingat WhatsApp ke seluruh Ibu (orang tua) balita di posyandu ini
+     * tentang sebuah jadwal posyandu.
+     */
+    public function kirimNotifikasiJadwal($id)
+    {
+        $posyanduId = $this->getKaderPosyanduId();
+        $jadwal = Jadwal::where('posyandu_id', $posyanduId)->findOrFail($id);
+
+        // Semua ibu (orang tua) yang punya balita terdaftar di posyandu ini
+        $orangs = OrangTua::whereHas('balitas', fn ($q) => $q->where('posyandu_id', $posyanduId))
+            ->whereNotNull('no_hp_whatsapp')
+            ->get();
+
+        if ($orangs->isEmpty()) {
+            return back()->with('success', 'Tidak ada Ibu balita dengan nomor WhatsApp di posyandu ini.');
+        }
+
+        $tgl = Carbon::parse($jadwal->tanggal);
+        $pesan = "📢 *PENGUMUMAN JADWAL POSYANDU*\n\n"
+            . "*{$jadwal->judul}*\n"
+            . "📅 {$tgl->translatedFormat('l, d F Y')}\n"
+            . "⏰ " . substr($jadwal->waktu_mulai, 0, 5) . " - " . substr($jadwal->waktu_selesai, 0, 5) . " WIB\n"
+            . "📍 {$jadwal->lokasi}"
+            . ($jadwal->catatan ? "\n\n📝 {$jadwal->catatan}" : '')
+            . "\n\nMohon hadir tepat waktu & bawa Buku KIA. Terima kasih 🙏";
+
+        $sent = 0; $failed = 0;
+        foreach ($orangs as $ortu) {
+            $r = $this->whatsAppService->send($ortu->id, null, $ortu->no_hp_whatsapp, $pesan, 'whatsapp');
+            if ($r['status'] === 'sent') { $sent++; } else { $failed++; }
+        }
+
+        $kata = $failed > 0
+            ? "Pengingat terkirim ke {$sent} ibu ({$failed} gagal)."
+            : "Pengingat WhatsApp terkirim ke {$sent} ibu di posyandu ini.";
+
+        return back()->with('success', $kata);
     }
     public function laporan(Request $request) 
     { 

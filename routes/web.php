@@ -154,6 +154,7 @@ Route::prefix('kader')->middleware(['web', 'auth', 'prevent-back-history', 'role
     Route::get('/jadwal/{id}/edit', [KaderController::class, 'editJadwal'])->name('jadwal.edit');
     Route::put('/jadwal/{id}', [KaderController::class, 'updateJadwal'])->name('jadwal.update');
     Route::delete('/jadwal/{id}', [KaderController::class, 'hapusJadwal'])->name('jadwal.destroy');
+    Route::post('/jadwal/{id}/notif', [KaderController::class, 'kirimNotifikasiJadwal'])->name('jadwal.notif');
     Route::get('/laporan', [KaderController::class, 'laporan'])->name('laporan.index');
     Route::post('/laporan/generate', [KaderController::class, 'generatePdf'])->name('laporan.generate');
     Route::get('/laporan/generate', [KaderController::class, 'generatePdf']); // In case accessed directly
