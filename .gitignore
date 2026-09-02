@@ -41,3 +41,14 @@ __pycache__/
 DAFTAR_MASALAH.txt
 todo.txt
 welcome_viewed_*.txt
+
+# === DEV-HELPER AGENT SCRIPTS (bukan code app; jangan publik) ===
+.codex/
+.impeccable/
+deploy.sh
+add_dark_mode.cjs
+clean_view.py
+fix_svg.cjs
+get_bounds*
+insert_review.py
+refactor.cjs
