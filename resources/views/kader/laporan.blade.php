@@ -199,21 +199,22 @@
             if (elR && !elR._apex) {
                 var rpct = Math.min(100, Math.max(0, parseFloat(elR.getAttribute('data-pct')) || 0));
                 elR._apex = new window.ApexCharts(elR, {
-                    chart: { type: 'donut', height: 176, fontFamily: 'Plus Jakarta Sans, sans-serif' },
+                    chart: { type: 'donut', height: 188, fontFamily: 'Plus Jakarta Sans, sans-serif', animations: { enabled: true, speed: 800 } },
                     labels: ['Terukur', 'Belum'],
                     series: [rpct, Math.max(0, 100 - rpct)],
                     colors: ['#0d9488', '#e2e8f0'],
-                    stroke: { width: 0 },
+                    stroke: { width: 2, colors: ['#ffffff'] },
+                    fill: { type: 'gradient', gradient: { shade: 'light', type: 'vertical', shadeIntensity: 0.4, opacityFrom: 1, opacityTo: 0.9 } },
                     dataLabels: { enabled: false },
                     plotOptions: {
                         pie: {
                             donut: {
-                                size: '72%',
+                                size: '74%',
                                 labels: {
                                     show: true,
                                     name: { show: false },
-                                    value: { show: true, fontSize: '30px', fontWeight: '800', color: '#0f172a', offsetY: -4 },
-                                    total: { show: true, label: 'terukur', fontSize: '12px', color: '#94a3b8', formatter: function(){ return Math.round(rpct) + '%'; } }
+                                    value: { show: true, fontSize: '34px', fontWeight: '800', color: '#0f172a', offsetY: -4 },
+                                    total: { show: true, label: 'terukur', fontSize: '12px', color: '#94a3b8', fontWeight: '600', formatter: function(){ return Math.round(rpct) + '%'; } }
                                 }
                             }
                         }
@@ -229,13 +230,15 @@
                 var categories = ['Normal', 'Risiko', 'Stunting', 'Kurang'];
                 var series = [donut.normal, donut.risiko, donut.stunting, donut.kurang];
                 elD._apex = new window.ApexCharts(elD, {
-                    chart: { type: 'donut', height: 260, fontFamily: 'Plus Jakarta Sans, sans-serif', foreColor: '#64748b' },
+                    chart: { type: 'donut', height: 280, fontFamily: 'Plus Jakarta Sans, sans-serif', foreColor: '#64748b', animations: { enabled: true, speed: 900, animateGradually: { enabled: true, delay: 120 } } },
                     labels: categories,
                     series: series,
                     colors: ['#0d9488', '#f59e0b', '#e11d48', '#0ea5e9'],
-                    legend: { position: 'bottom', fontSize: '12px' },
-                    dataLabels: { enabled: true, formatter: function(v){ return Math.round(v) + '%'; }, style: { fontSize: '11px', fontWeight: '600' } },
-                    plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { fontSize: '11px' }, value: { fontSize: '20px', fontWeight: '800', color: '#0f172a' }, total: { show: true, label: 'Terukur', fontSize: '11px', color: '#64748b' } } } } },
+                    stroke: { width: 3, colors: ['#ffffff'] },
+                    fill: { type: 'gradient', gradient: { shade: 'light', type: 'vertical', shadeIntensity: 0.4, opacityFrom: 1, opacityTo: 0.88 } },
+                    dataLabels: { enabled: true, formatter: function(v){ return Math.round(v) + '%'; }, style: { fontSize: '11px', fontWeight: '700', fontFamily: 'Plus Jakarta Sans, sans-serif' }, dropShadow: { enabled: false } },
+                    legend: { position: 'bottom', horizontalAlign: 'center', fontSize: '12.5px', fontWeight: '600', markers: { shape: 'circle', size: 7, offsetX: -2 }, itemMargin: { horizontal: 10, vertical: 2 } },
+                    plotOptions: { pie: { donut: { size: '72%', labels: { show: true, name: { fontSize: '11px', fontWeight: '600', color: '#64748b' }, value: { fontSize: '22px', fontWeight: '800', color: '#0f172a', offsetY: 1 }, total: { show: true, label: 'Terukur', fontSize: '11px', color: '#94a3b8', fontWeight: '600' } } } } },
                     tooltip: { y: { formatter: function(v){ return v + ' balita'; } } }
                 });
                 elD._apex.render();
