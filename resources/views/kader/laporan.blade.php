@@ -59,16 +59,16 @@
             <div class="md:col-span-2 grid grid-cols-2 gap-4">
                 @php
                     $kpis = [
-                        ['label' => 'Terukur', 'count' => $sudahDiukur ?? 0, 'icon' => 'check-circle', 'tone' => 'teal', 'note' => 'balita diukur', 'spark' => 'count'],
-                        ['label' => 'Belum Hadir', 'count' => $belumDiukur ?? 0, 'icon' => 'user-minus', 'tone' => 'amber', 'note' => 'belum timbang', 'spark' => 'belum'],
-                        ['label' => 'Pantauan Gizi', 'count' => $perluPerhatian ?? 0, 'icon' => 'chart-line', 'tone' => 'slate', 'note' => 'perlu perhatian', 'spark' => 'pantauan'],
-                        ['label' => 'Perlu Konfirmasi', 'count' => $berisiko ?? 0, 'icon' => 'warning', 'tone' => 'rose', 'note' => 'perlu validasi', 'spark' => 'konfirmasi'],
+                        ['label' => 'Terukur', 'count' => $sudahDiukur ?? 0, 'pct' => ($totalBalita ?? 0) > 0 ? round(($sudahDiukur / $totalBalita) * 100) : 0, 'icon' => 'check-circle', 'tone' => 'teal', 'note' => 'balita diukur'],
+                        ['label' => 'Belum Hadir', 'count' => $belumDiukur ?? 0, 'pct' => ($totalBalita ?? 0) > 0 ? round(($belumDiukur / $totalBalita) * 100) : 0, 'icon' => 'user-minus', 'tone' => 'amber', 'note' => 'belum timbang'],
+                        ['label' => 'Pantauan Gizi', 'count' => $perluPerhatian ?? 0, 'pct' => ($totalBalita ?? 0) > 0 ? round(($perluPerhatian / $totalBalita) * 100) : 0, 'icon' => 'heart', 'tone' => 'slate', 'note' => 'perlu perhatian'],
+                        ['label' => 'Perlu Konfirmasi', 'count' => $berisiko ?? 0, 'pct' => ($totalBalita ?? 0) > 0 ? round(($berisiko / $totalBalita) * 100) : 0, 'icon' => 'warning', 'tone' => 'rose', 'note' => 'perlu validasi'],
                     ];
                     $toneStyles = [
-                        'teal' => ['bg' => 'bg-gradient-to-br from-teal-600 to-teal-700', 'icon' => 'bg-teal-50 text-teal-600', 'bar' => 'from-teal-500 to-teal-600', 'txt' => 'text-teal-600', 'spark' => '#0d9488'],
-                        'amber' => ['bg' => 'bg-gradient-to-br from-amber-500 to-amber-600', 'icon' => 'bg-amber-50 text-amber-600', 'bar' => 'from-amber-400 to-amber-500', 'txt' => 'text-amber-600', 'spark' => '#f59e0b'],
-                        'slate' => ['bg' => 'bg-gradient-to-br from-slate-500 to-slate-600', 'icon' => 'bg-slate-100 text-slate-500', 'bar' => 'from-slate-300 to-slate-400', 'txt' => 'text-slate-500', 'spark' => '#94a3b8'],
-                        'rose' => ['bg' => 'bg-gradient-to-br from-rose-500 to-rose-600', 'icon' => 'bg-rose-50 text-rose-600', 'bar' => 'from-rose-400 to-rose-500', 'txt' => 'text-rose-600', 'spark' => '#e11d48'],
+                        'teal' => ['icon' => 'bg-teal-50 text-teal-600', 'bar' => 'from-teal-500 to-teal-600', 'txt' => 'text-teal-600', 'ring' => '#0d9488'],
+                        'amber' => ['icon' => 'bg-amber-50 text-amber-600', 'bar' => 'from-amber-400 to-amber-500', 'txt' => 'text-amber-600', 'ring' => '#f59e0b'],
+                        'slate' => ['icon' => 'bg-slate-100 text-slate-500', 'bar' => 'from-slate-300 to-slate-400', 'txt' => 'text-slate-500', 'ring' => '#94a3b8'],
+                        'rose' => ['icon' => 'bg-rose-50 text-rose-600', 'bar' => 'from-rose-400 to-rose-500', 'txt' => 'text-rose-600', 'ring' => '#e11d48'],
                     ];
                 @endphp
                 @foreach($kpis as $k)
@@ -84,7 +84,7 @@
                                 <span class="text-[30px] sm:text-[34px] font-black text-slate-900 leading-none tracking-tight">{{ $k['count'] }}</span>
                                 <p class="text-[11.5px] font-medium {{ $ts['txt'] }} mt-1">{{ $k['note'] }}</p>
                             </div>
-                            <div id="kpi-spark-{{ $loop->index }}" data-spark="{{ $k['spark'] }}" data-color="{{ $ts['spark'] }}" class="kpi-spark shrink-0 w-[72px] h-9"></div>
+                            <div id="kpi-ring-{{ $loop->index }}" data-pct="{{ $k['pct'] }}" data-color="{{ $ts['ring'] }}" class="kpi-ring shrink-0 w-12 h-12 sm:w-14 sm:h-14"></div>
                         </div>
                     </div>
                 @endforeach
@@ -215,26 +215,27 @@
                 elD._apex.render();
             }
 
-            // Mini sparklines pada 4 kartu KPI
-            document.querySelectorAll('.kpi-spark').forEach(function (el) {
+            // Mini radial gauge (diagram bulat) pada 4 kartu KPI
+            document.querySelectorAll('.kpi-ring').forEach(function (el) {
                 if (el._apex) return;
-                var key = el.getAttribute('data-spark');
+                var pct = Math.min(100, Math.max(0, parseFloat(el.getAttribute('data-pct')) || 0));
                 var color = el.getAttribute('data-color') || '#0d9488';
-                var series;
-                if (key === 'count') series = tren.count;
-                else if (key === 'belum') series = tren.total.map(function(t, i){ return Math.max(0, t - tren.count[i]); });
-                else if (key === 'pantauan') series = tren.risiko.map(function(x, i){ return x + (tren.stunting[i] || 0) + (tren.kurang[i] || 0); });
-                else series = tren.stunting;
-                // interpolasi bila data terlalu kecil (kurang 2 titik) agar tidak membingungkan
-                if (!series || series.length === 0) series = [0, 0];
                 el._apex = new window.ApexCharts(el, {
-                    chart: { type: 'area', height: 36, sparkline: { enabled: true }, fontFamily: 'Plus Jakarta Sans, sans-serif' },
-                    series: [{ name: key, data: series }],
-                    stroke: { curve: 'smooth', width: 2.5, colors: [color] },
-                    fill: { type: 'gradient', gradient: { opacityFrom: 0.3, opacityTo: 0.02 } },
+                    chart: { type: 'radialBar', height: 56, toolbar: { show: false }, fontFamily: 'Plus Jakarta Sans, sans-serif' },
+                    series: [pct],
                     colors: [color],
-                    tooltip: { enabled: false },
-                    xaxis: { labels: { show: false } }
+                    stroke: { lineCap: 'round' },
+                    plotOptions: {
+                        radialBar: {
+                            hollow: { size: '60%' },
+                            track: { background: '#e2e8f0', strokeWidth: '90%' },
+                            dataLabels: {
+                                name: { show: false },
+                                value: { show: true, fontSize: '11px', fontWeight: '800', color: '#0f172a', offsetY: 1, formatter: function(v){ return Math.round(v) + '%'; } }
+                            }
+                        }
+                    },
+                    tooltip: { enabled: false }
                 });
                 el._apex.render();
             });
