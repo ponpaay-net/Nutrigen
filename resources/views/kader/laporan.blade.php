@@ -40,7 +40,7 @@
         {{-- Rekap + KPI --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-8">
             {{-- Rekapitulasi (teal gradient) --}}
-            <div class="md:col-span-1 bg-white border border-slate-200 rounded-2xl p-6 flex flex-col shadow-sm">
+            <div class="md:col-span-1 bg-white border border-slate-200 rounded-2xl p-5 flex flex-col shadow-sm">
                 <div>
                     <p class="text-[10.5px] font-bold uppercase tracking-widest text-slate-400">Rekapitulasi Penimbangan</p>
                     <p class="text-[13px] text-slate-800 font-semibold mt-0.5">{{ $periode ?? '' }}</p>
@@ -55,10 +55,10 @@
             <div class="md:col-span-2 grid grid-cols-2 gap-4">
                 @php
                     $kpis = [
-                        ['label' => 'Terukur', 'count' => $sudahDiukur ?? 0, 'icon' => 'check-circle', 'tone' => 'teal', 'note' => 'balita diukur', 'spark' => 'count'],
-                        ['label' => 'Belum Hadir', 'count' => $belumDiukur ?? 0, 'icon' => 'user-minus', 'tone' => 'amber', 'note' => 'belum timbang', 'spark' => 'belum'],
-                        ['label' => 'Pantauan Gizi', 'count' => $perluPerhatian ?? 0, 'icon' => 'heart', 'tone' => 'slate', 'note' => 'perlu perhatian', 'spark' => 'pantauan'],
-                        ['label' => 'Perlu Konfirmasi', 'count' => $berisiko ?? 0, 'icon' => 'warning', 'tone' => 'rose', 'note' => 'perlu validasi', 'spark' => 'konfirmasi'],
+                        ['label' => 'Terukur', 'count' => $sudahDiukur ?? 0, 'icon' => 'check-circle', 'tone' => 'teal', 'note' => 'dari ' . ($totalBalita ?? 0) . ' balita', 'def' => 'Balita yang sudah ditimbang bulan ini', 'spark' => 'count'],
+                        ['label' => 'Belum Hadir', 'count' => $belumDiukur ?? 0, 'icon' => 'user-minus', 'tone' => 'amber', 'note' => 'dari ' . ($totalBalita ?? 0) . ' balita', 'def' => 'Balita belum ditimbang bulan ini', 'spark' => 'belum'],
+                        ['label' => 'Pantauan Gizi', 'count' => $perluPerhatian ?? 0, 'icon' => 'heart', 'tone' => 'slate', 'note' => 'dari ' . ($sudahDiukur ?? 0) . ' terukur', 'def' => 'Balita status gizi Non-Normal (Risiko/Stunting/Kurang)', 'spark' => 'pantauan'],
+                        ['label' => 'Perlu Konfirmasi', 'count' => $berisiko ?? 0, 'icon' => 'warning', 'tone' => 'rose', 'note' => 'dari ' . ($sudahDiukur ?? 0) . ' terukur', 'def' => 'Balita berisiko stunting yang perlu validasi Puskesmas', 'spark' => 'konfirmasi'],
                     ];
                     $toneStyles = [
                         'teal' => ['icon' => 'bg-teal-50 text-teal-600', 'bar' => 'from-teal-500 to-teal-600', 'txt' => 'text-teal-600', 'spark' => '#0d9488'],
@@ -69,13 +69,13 @@
                 @endphp
                 @foreach($kpis as $k)
                     @php $ts = $toneStyles[$k['tone']]; @endphp
-                    <div class="relative overflow-hidden bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex flex-col">
+                    <div class="relative overflow-hidden bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex flex-col" title="{{ $k['def'] }}">
                         <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r {{ $ts['bar'] }}"></div>
                         <div class="flex items-center justify-between">
                             <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl {{ $ts['icon'] }} flex items-center justify-center shadow-sm"><x-icon name="{{ $k['icon'] }}" weight="fill" class="text-[17px] sm:text-[19px]" /></span>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $k['label'] }}</span>
+                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{{ $k['label'] }}</span>
                         </div>
-                        <div class="mt-3 flex items-end justify-between gap-2">
+                        <div class="mt-2 flex items-end justify-between gap-2">
                             <div class="min-w-0">
                                 <span class="text-[30px] sm:text-[34px] font-black text-slate-900 leading-none tracking-tight">{{ $k['count'] }}</span>
                                 <p class="text-[11.5px] font-medium {{ $ts['txt'] }} mt-1">{{ $k['note'] }}</p>
@@ -95,7 +95,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
                 {{-- PDF --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col shadow-sm">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col shadow-sm">
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
                             <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Laporan Resmi Posyandu (PDF)</h3>
@@ -108,7 +108,7 @@
                         </div>
                         <span class="w-11 h-11 shrink-0 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="file-pdf" weight="fill" class="text-[20px]" /></span>
                     </div>
-                    <form action="{{ route('laporan.generate') }}" method="POST" class="mt-5">
+                    <form action="{{ route('laporan.generate') }}" method="POST" class="mt-auto pt-4">
                         @csrf
                         <input type="hidden" name="posyandu_id" value="{{ request('posyandu_id') }}">
                         <input type="hidden" name="periode" value="{{ $periodeValue }}">
@@ -116,7 +116,7 @@
                     </form>
                 </div>
                 {{-- Excel --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col shadow-sm">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col shadow-sm">
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
                             <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Data Tabel Pengukuran (Excel)</h3>
@@ -129,7 +129,7 @@
                         </div>
                         <span class="w-11 h-11 shrink-0 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="file-xlsx" weight="fill" class="text-[20px]" /></span>
                     </div>
-                    <a href="{{ route('laporan.export.excel', ['periode' => $periodeValue]) }}" class="mt-5 w-full h-11 rounded-xl border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-700 text-[14px] font-semibold inline-flex items-center justify-center gap-2 transition-colors"><x-icon name="download" weight="bold" class="text-[16px]" /> Export ke Excel (.xls)</a>
+                    <a href="{{ route('laporan.export.excel', ['periode' => $periodeValue]) }}" class="mt-auto pt-4 w-full h-11 rounded-xl border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-700 text-[14px] font-semibold inline-flex items-center justify-center gap-2 transition-colors"><x-icon name="download" weight="bold" class="text-[16px]" /> Export ke Excel (.xls)</a>
                 </div>
             </div>
         </section>
