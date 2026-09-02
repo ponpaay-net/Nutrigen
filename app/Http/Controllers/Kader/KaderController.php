@@ -1223,9 +1223,11 @@ class KaderController extends Controller
     {
         $kader = Auth::user()->kader;
         return view('kader.edit-profil-kader', [
-            'name' => $kader->nama ?? Auth::user()->name,
+            'name' => $kader?->nama ?? Auth::user()->name,
             'email' => Auth::user()->email,
-            'phone' => $kader->no_hp ?? ''
+            'phone' => $kader?->no_hp ?? '',
+            'posyanduName' => $kader?->posyandu?->nama ?? '-',
+            'puskesmasName' => $kader?->posyandu?->puskesmas?->nama ?? '-',
         ]);
     }
 
