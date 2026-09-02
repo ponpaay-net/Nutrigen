@@ -12,6 +12,14 @@
         'resources/js/app.js'
     ])
 
+    <!-- Sembunyikan scrollbar abu-abu (mobile + desktp); scroll tetap bisa -->
+    <style>
+        html { scrollbar-width: none; -ms-overflow-style: none; }
+        ::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none; background: transparent; }
+        body { scrollbar-width: none; -ms-overflow-style: none; }
+        *::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none; }
+    </style>
+
     <!-- Font: Plus Jakarta Sans (Design System v2) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
