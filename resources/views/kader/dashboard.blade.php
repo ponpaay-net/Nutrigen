@@ -31,8 +31,9 @@
         </div>
     </div>
 
-    {{-- CAPAIAN SESI (white card + panel progres TEAL khas NutriGen) --}}
+    {{-- CAPAIAN SESI (kartu PUTIH + teal merata + gradient hidup, bukan blok solid) --}}
     <section class="rounded-2xl bg-white border border-slate-200 shadow-sm p-5 sm:p-7 relative overflow-hidden">
+        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600"></div>
         <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-stretch">
             <div class="flex flex-col justify-center">
                 <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Capaian Sesi Ini</p>
@@ -42,17 +43,17 @@
                 </div>
                 <p class="mt-3 text-sm text-slate-500">Progres pengukuran bulan ini di posyandu Anda.</p>
             </div>
-            <div class="rounded-2xl bg-teal-600 text-white p-5 flex flex-col justify-center">
+            <div class="rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100/60 border border-teal-100 p-5 flex flex-col justify-center">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-semibold uppercase tracking-wide text-teal-100">Progres Sesi</span>
-                    <span class="text-lg font-bold tabular-nums">{{ $percent }}%</span>
+                    <span class="text-xs font-semibold uppercase tracking-wide text-teal-700">Progres Sesi</span>
+                    <span class="text-lg font-bold tabular-nums text-teal-700">{{ $percent }}%</span>
                 </div>
-                <div class="w-full h-2.5 bg-teal-700/50 rounded-full overflow-hidden">
-                    <div class="h-full rounded-full bg-white transition-all" style="width: {{ $percent }}%"></div>
+                <div class="w-full h-2.5 bg-teal-100 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 transition-all" style="width: {{ $percent }}%"></div>
                 </div>
                 <div class="flex items-center justify-between mt-3.5 text-sm font-semibold">
-                    <span class="inline-flex items-center gap-1.5 text-teal-50"><x-icon name="check-circle" weight="fill" /> Selesai {{ $sudah }}</span>
-                    <span class="inline-flex items-center gap-1.5 text-teal-100"><x-icon name="clock" weight="fill" /> Antrean {{ $belum }}</span>
+                    <span class="inline-flex items-center gap-1.5 text-teal-700"><x-icon name="check-circle" weight="fill" /> Selesai {{ $sudah }}</span>
+                    <span class="inline-flex items-center gap-1.5 text-teal-600"><x-icon name="clock" weight="fill" /> Antrean {{ $belum }}</span>
                 </div>
             </div>
         </div>
