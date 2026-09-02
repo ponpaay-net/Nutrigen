@@ -1,0 +1,22 @@
+# Keamanan + speed build: jangan kirim hal ini ke build context Railway/Docker
+.env
+.env.*
+!.env.example
+*.sql
+*.sqlite
+*.sql.gz
+node_modules
+vendor
+/public/build
+/public/hot
+storage/logs/*.log
+storage/app/*.sql
+tests
+.git
+.github
+.gitignore
+.vscode
+.idea
+DAFTAR_MASALAH.txt
+todo.txt
+welcome_viewed_*.txt
