@@ -31,24 +31,24 @@
         </div>
     </div>
 
-    {{-- CAPAIAN SESI (feature banner — TEAL) --}}
-    <section class="rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 text-white p-5 sm:p-7 relative overflow-hidden shadow-sm">
-        <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-center">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-widest text-teal-100">Capaian Sesi Ini</p>
+    {{-- CAPAIAN SESI (white card + panel progres TEAL khas NutriGen) --}}
+    <section class="rounded-2xl bg-white border border-slate-200 shadow-sm p-5 sm:p-7 relative overflow-hidden">
+        <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-stretch">
+            <div class="flex flex-col justify-center">
+                <p class="text-xs font-semibold uppercase tracking-widest text-slate-500">Capaian Sesi Ini</p>
                 <div class="flex items-baseline gap-2 mt-2.5">
-                    <span class="text-3xl sm:text-4xl font-bold tabular-nums leading-none">{{ $sudah }}</span>
-                    <span class="text-teal-100 text-sm sm:text-base font-medium">dari {{ $total }} balita terukur</span>
+                    <span class="text-3xl sm:text-4xl font-bold tabular-nums leading-none text-teal-600">{{ $sudah }}</span>
+                    <span class="text-slate-600 text-sm sm:text-base font-medium">dari {{ $total }} balita terukur</span>
                 </div>
-                <p class="mt-3 text-sm text-teal-50/90">Progres pengukuran bulan ini di posyandu Anda.</p>
+                <p class="mt-3 text-sm text-slate-500">Progres pengukuran bulan ini di posyandu Anda.</p>
             </div>
-            <div class="rounded-2xl bg-white/15 border border-white/20 p-5">
+            <div class="rounded-2xl bg-teal-600 text-white p-5 flex flex-col justify-center">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold uppercase tracking-wide text-teal-100">Progres Sesi</span>
                     <span class="text-lg font-bold tabular-nums">{{ $percent }}%</span>
                 </div>
-                <div class="w-full h-2.5 bg-white/20 rounded-full overflow-hidden">
-                    <div class="h-full rounded-full bg-gradient-to-r from-teal-300 to-white transition-all" style="width: {{ $percent }}%"></div>
+                <div class="w-full h-2.5 bg-teal-700/50 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full bg-white transition-all" style="width: {{ $percent }}%"></div>
                 </div>
                 <div class="flex items-center justify-between mt-3.5 text-sm font-semibold">
                     <span class="inline-flex items-center gap-1.5 text-teal-50"><x-icon name="check-circle" weight="fill" /> Selesai {{ $sudah }}</span>
