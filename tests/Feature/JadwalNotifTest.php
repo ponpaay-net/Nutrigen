@@ -84,4 +84,17 @@ class JadwalNotifTest extends TestCase
         // findOrFail discoped ke posyandu kader -> 404
         $this->post(route('jadwal.notif', $other->id))->assertNotFound();
     }
+
+    public function test_kader_tidak_bisa_notif_jadwal_yang_sudah_selesai(): void
+    {
+        $this->jadwal->tanggal = now()->subDays(3)->toDateString();
+        $this->jadwal->save();
+
+        // Siapa pun ibu di posyandu, jadwal yang sudah lewat tidak boleh mengirim
+        $this->actingAs($this->kaderUser);
+        $this->post(route('jadwal.notif', $this->jadwal->id))
+            ->assertRedirect()
+            ->assertSessionHas('success');
+        $this->assertSame(0, NotificationLog::count());
+    }
 }

@@ -928,6 +928,11 @@ class KaderController extends Controller
         $posyanduId = $this->getKaderPosyanduId();
         $jadwal = Jadwal::where('posyandu_id', $posyanduId)->findOrFail($id);
 
+        // Jangan kirim pengingat untuk jadwal yang sudah lewat.
+        if (Carbon::parse($jadwal->tanggal)->isPast()) {
+            return back()->with('success', 'Jadwal sudah selesai dilaksanakan — pengingat tidak dikirim.');
+        }
+
         // Semua ibu (orang tua) yang punya balita terdaftar di posyandu ini
         $orangs = OrangTua::whereHas('balitas', fn ($q) => $q->where('posyandu_id', $posyanduId))
             ->whereNotNull('no_hp_whatsapp')

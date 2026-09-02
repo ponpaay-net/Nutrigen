@@ -12,7 +12,7 @@
 
 @section('content')
 <div class="bg-slate-50 min-h-full">
-<div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-5 sm:py-8" x-data="jadwalPage()">
+<div class="max-w-6xl mx-auto w-full px-4 sm:px-6 pt-5 sm:pt-8 pb-28 sm:pb-12" x-data="jadwalPage()">
     <script>window.__NUTRI_JADWALS = @json($jadwals, 15); window.__NUTRI_NEXT = @json($next, 15);</script>
 
     {{-- Header --}}
@@ -48,7 +48,7 @@
                             <span class="text-[10.5px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-lg">{{ $next['status'] }}</span>
                             @if($next['countdown'] && $next['status_type'] !== 'past')<span class="text-[10.5px] font-bold uppercase tracking-wider bg-amber-400/90 text-amber-950 px-2 py-0.5 rounded-lg">{{ $next['countdown'] }}</span>@endif
                         </div>
-                        <h2 class="text-[17px] sm:text-lg font-bold leading-snug mt-1 truncate">{{ $next['judul'] }}</h2>
+                        <h2 class="text-[17px] sm:text-lg font-bold leading-snug mt-1 line-clamp-2">{{ $next['judul'] }}</h2>
                         <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-[12px] text-teal-50">
                             <span class="inline-flex items-center gap-1.5"><x-icon name="calendar-blank" weight="bold" class="text-[13px]" /> {{ $next['hari'] }}, {{ $next['tanggal'] }}</span>
                             <span class="inline-flex items-center gap-1.5"><x-icon name="clock" weight="bold" class="text-[13px]" /> {{ $next['waktu'] }}</span>
@@ -95,7 +95,7 @@
                         <h3 class="text-[14px] font-bold text-slate-800 group-hover:text-teal-700 transition-colors leading-snug line-clamp-2">{{ $j['judul'] }}</h3>
                         <div class="mt-2 flex flex-col gap-1 text-[12px] text-slate-500 font-medium">
                             <span class="inline-flex items-center gap-1.5"><x-icon name="clock" weight="regular" class="text-[14px] text-slate-400" /> {{ $j['waktu'] }}</span>
-                            <span class="inline-flex items-center gap-1.5"><x-icon name="map-pin" weight="regular" class="text-[14px] text-slate-400" /> <span class="line-clamp-1">{{ $j['lokasi'] }}</span></span>
+                            <span class="inline-flex items-center gap-1.5"><x-icon name="map-pin" weight="regular" class="text-[14px] text-slate-400" /> <span class="line-clamp-2">{{ $j['lokasi'] }}</span></span>
                         </div>
                     </div>
                 </div>
@@ -108,10 +108,10 @@
                 <div class="mt-auto border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $j['status_type']==='today' ? 'bg-amber-50 text-amber-700' : 'bg-teal-50 text-teal-700' }}"><span class="w-1.5 h-1.5 rounded-full {{ $j['status_type']==='today' ? 'bg-amber-500' : 'bg-teal-500' }}"></span>{{ $j['status'] }}</span>
                     <div class="flex items-center gap-1.5">
-                        <button type="button" @click="askNotif({{ $j['id'] }})" aria-label="Kirim Notifikasi" title="Kirim Notifikasi" class="h-8 w-8 inline-flex items-center justify-center text-teal-600 hover:bg-teal-100 bg-teal-50 border border-teal-200 rounded-lg transition-colors"><x-icon name="bell" weight="bold" class="text-[13px]" /></button>
-                        <button type="button" @click="openDetail({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
-                        <button type="button" @click="openEdit({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-white border border-teal-200 hover:bg-teal-50 rounded-lg transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[13px]" /> Edit</button>
-                        <button type="button" @click="askDelete({{ $j['id'] }})" aria-label="Hapus" class="h-8 w-8 inline-flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg transition-colors"><x-icon name="trash" weight="bold" class="text-[13px]" /></button>
+                        <button type="button" @click="askNotif({{ $j['id'] }})" aria-label="Kirim Notifikasi" title="Kirim Notifikasi" class="h-9 w-9 sm:h-8 sm:w-8 inline-flex items-center justify-center text-teal-600 hover:bg-teal-100 bg-teal-50 border border-teal-200 rounded-lg transition-colors"><x-icon name="bell" weight="bold" class="text-[15px] sm:text-[13px]" /></button>
+                        <button type="button" @click="openDetail({{ $j['id'] }})" title="Detail" class="h-9 w-9 sm:w-auto sm:px-2.5 inline-flex items-center justify-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[15px] sm:text-[13px]" /><span class="hidden sm:inline">Detail</span></button>
+                        <button type="button" @click="openEdit({{ $j['id'] }})" title="Edit" class="h-9 w-9 sm:w-auto sm:px-2.5 inline-flex items-center justify-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-white border border-teal-200 hover:bg-teal-50 rounded-lg transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[15px] sm:text-[13px]" /><span class="hidden sm:inline">Edit</span></button>
+                        <button type="button" @click="askDelete({{ $j['id'] }})" aria-label="Hapus" title="Hapus" class="h-9 w-9 sm:h-8 sm:w-8 inline-flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg transition-colors"><x-icon name="trash" weight="bold" class="text-[15px] sm:text-[13px]" /></button>
                     </div>
                 </div>
             </article>
@@ -140,7 +140,7 @@
                         <h3 class="text-[14px] font-bold text-slate-700 leading-snug line-clamp-2">{{ $j['judul'] }}</h3>
                         <div class="mt-2 flex flex-col gap-1 text-[12px] text-slate-500 font-medium">
                             <span class="inline-flex items-center gap-1.5"><x-icon name="clock" weight="regular" class="text-[14px]" /> {{ $j['waktu'] }}</span>
-                            <span class="inline-flex items-center gap-1.5"><x-icon name="map-pin" weight="regular" class="text-[14px]" /> <span class="line-clamp-1">{{ $j['lokasi'] }}</span></span>
+                            <span class="inline-flex items-center gap-1.5"><x-icon name="map-pin" weight="regular" class="text-[14px]" /> <span class="line-clamp-2">{{ $j['lokasi'] }}</span></span>
                         </div>
                     </div>
                 </div>
@@ -238,7 +238,7 @@
                 </div>
                 <div class="px-5 sm:px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2.5 shrink-0">
                     <button type="button" @click="detail = null" class="h-10 px-5 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors">Tutup</button>
-                    <button type="button" @click="askNotif(detail.id)" class="h-10 px-4 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors inline-flex items-center gap-2"><x-icon name="bell" weight="bold" class="text-[15px]" /> Kirim Notifikasi</button>
+                    <template x-if="detail && detail.status_type !== 'past'"><button type="button" @click="askNotif(detail.id)" class="h-10 px-4 rounded-xl border border-teal-200 bg-teal-50 text-teal-700 text-[13.5px] font-semibold hover:bg-teal-100 transition-colors inline-flex items-center gap-2"><x-icon name="bell" weight="bold" class="text-[15px]" /> Kirim Notifikasi</button></template>
                     <button type="button" @click="openEditFromDetail()" class="h-10 px-5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center gap-2 shadow-md shadow-teal-600/20"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> Edit</button>
                 </div>
             </div>
