@@ -52,3 +52,10 @@ fix_svg.cjs
 get_bounds*
 insert_review.py
 refactor.cjs
+
+# === AGENT ARTIFACTS / TEMP (jangan publik) ===
+skills-lock.json
+remove_dark_mode.cjs
+strip_drawer.py
+svg_bounds.py
+vite.config.js.timestamp-*.mjs
