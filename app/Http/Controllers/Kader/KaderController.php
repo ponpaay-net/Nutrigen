@@ -1189,31 +1189,32 @@ class KaderController extends Controller
     public function profilKader()
     {
         $kader = Auth::user()->kader;
+        $posyandu = $kader?->posyandu;
 
-        $alamatRaw = $kader->posyandu->alamat ?? '';
+        $alamatRaw = $posyandu?->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
-            $desa = $alamatData['desa'] ?? $kader->posyandu->desa ?? '-';
+            $desa = $alamatData['desa'] ?? $posyandu?->desa ?? '-';
             $kecamatan = $alamatData['kecamatan'] ?? '-';
         } else {
-            $desa = $kader->posyandu->desa ?? '-';
+            $desa = $posyandu?->desa ?? '-';
             $kecamatan = '-';
         }
 
         return view('kader.profil-kader', [
-            'kaderName' => $kader->nama ?? Auth::user()->name,
+            'kaderName' => $kader?->nama ?? Auth::user()->name,
             'role' => 'Kader Posyandu',
             'email' => Auth::user()->email,
-            'phone' => $kader->no_hp ?? '-',
-            'posyanduName' => $kader->posyandu->nama ?? '-',
+            'phone' => $kader?->no_hp ?? '-',
+            'posyanduName' => $posyandu?->nama ?? '-',
             'desa' => $desa,
             'kecamatan' => $kecamatan,
-            'puskesmas' => $kader->posyandu->puskesmas->nama ?? '-',
+            'puskesmas' => $posyandu?->puskesmas?->nama ?? '-',
             'status' => 'Aktif',
             'joinedAt' => optional(Auth::user()->created_at)->translatedFormat('M Y') ?? '-',
-            'balitaCount' => $kader->posyandu?->balitas()->count() ?? 0,
-            'pengukuranCount' => $kader->posyandu?->pengukurans()->count() ?? 0,
-            'jadwalCount' => $kader->posyandu?->jadwals()->count() ?? 0,
+            'balitaCount' => $posyandu?->balitas()->count() ?? 0,
+            'pengukuranCount' => $posyandu?->pengukurans()->count() ?? 0,
+            'jadwalCount' => $posyandu?->jadwals()->count() ?? 0,
             'avatarUrl' => null,
         ]);
     }

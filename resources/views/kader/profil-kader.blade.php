@@ -25,7 +25,7 @@
 
         {{-- HERO (white, soft elevation, aksen teal, CTA kuning) --}}
         <section class="mb-6">
-            <div class="bg-white ring-1 ring-slate-200/70 rounded-2xl shadow-sm shadow-slate-200/60 overflow-hidden">
+            <div class="bg-white ring-1 ring-slate-200/70 rounded-2xl shadow-sm shadow-slate-200/60 overflow-hidden transition-shadow hover:shadow-md">
                 <div class="flex flex-col sm:flex-row gap-6 p-6 sm:p-8">
                     {{-- left: avatar + nama --}}
                     <div class="flex items-center gap-5 flex-1 min-w-0">
@@ -52,7 +52,7 @@
                     {{-- right: actions --}}
                     <div class="flex flex-col sm:flex-row items-stretch gap-2.5 w-full sm:w-auto shrink-0">
                         <a href="{{ route('kader.profil.edit') }}" class="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 text-[13.5px] font-bold shadow-md shadow-amber-400/30 transition-all hover:shadow-lg hover:shadow-amber-500/30 active:scale-[0.98]"><x-icon name="pencil-line" weight="bold" class="text-[16px]" />Edit Profil</a>
-                        <a href="{{ route('kader.keamanan') }}" class="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:border-teal-300 hover:text-teal-700 hover:bg-teal-50/40 text-[13.5px] font-semibold transition-colors"><x-icon name="lock" weight="bold" class="text-[16px]" />Keamanan</a>
+                        <a href="{{ route('kader.keamanan') }}" class="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:border-teal-300 hover:text-teal-700 hover:bg-teal-50/40 text-[13.5px] font-semibold transition-colors"><x-icon name="lock" weight="bold" class="text-[16px]" />Keamanan Akun</a>
                     </div>
                 </div>
 
@@ -63,7 +63,7 @@
                             ['label' => 'Bergabung', 'value' => $joinedAt ?? '-', 'icon' => 'user-plus'],
                             ['label' => 'Balita Aktif', 'value' => (int)($balitaCount ?? 0), 'icon' => 'baby'],
                             ['label' => 'Pengukuran', 'value' => (int)($pengukuranCount ?? 0), 'icon' => 'ruler'],
-                            ['label' => 'Jadwal', 'value' => (int)($jadwalCount ?? 0), 'icon' => 'calendar-blank'],
+                            ['label' => 'Jadwal Posyandu', 'value' => (int)($jadwalCount ?? 0), 'icon' => 'calendar-blank'],
                         ];
                     @endphp
                     @foreach($stats as $s)
@@ -81,7 +81,7 @@
 
         {{-- INFO: kontak + penugasan (satu kartu, 2 kolom) --}}
         <section class="mb-6">
-            <div class="bg-white ring-1 ring-slate-200/70 rounded-2xl shadow-sm shadow-slate-200/50 p-6 sm:p-8">
+            <div class="bg-white ring-1 ring-slate-200/70 rounded-2xl shadow-sm shadow-slate-200/50 p-6 sm:p-8 transition-shadow hover:shadow-md">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
                     <div>
                         <h3 class="text-[13px] font-bold text-slate-800 flex items-center gap-2 mb-4"><span class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center"><x-icon name="clipboard-text" weight="bold" class="text-[16px]" /></span>Detail Kontak</h3>
@@ -129,13 +129,13 @@
 
         {{-- KEAMANAN / logout (soft danger) --}}
         <section class="mb-6">
-            <div class="bg-white ring-1 ring-slate-200/70 rounded-2xl shadow-sm shadow-slate-200/50 p-6">
+            <div class="bg-white ring-1 ring-slate-200/70 rounded-2xl shadow-sm shadow-slate-200/50 p-6 transition-shadow hover:shadow-md">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
                     <div class="flex items-center gap-4">
                         <span class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0"><x-icon name="sign-out" weight="bold" class="text-[19px]" /></span>
                         <div>
-                            <h3 class="text-[14px] font-bold text-slate-800">Keamanan Sesi</h3>
-                            <p class="text-[12.5px] text-slate-500 mt-0.5">Akhiri sesi Anda sekarang untuk menjaga keamanan data Posyandu.</p>
+                            <h3 class="text-[14px] font-bold text-slate-800">Akhiri Sesi</h3>
+                            <p class="text-[12.5px] text-slate-500 mt-0.5">Keluar dari Portal Kader untuk menjaga keamanan data Posyandu.</p>
                         </div>
                     </div>
                     <form action="{{ route('logout') }}" method="POST" class="w-full sm:w-auto" onsubmit="if(window.NutriAlert && typeof window.NutriAlert.confirm === 'function'){ event.preventDefault(); const form = this; window.NutriAlert.confirm('Keluar dari Akun?', 'Apakah Anda yakin ingin keluar dari Portal Kader?', 'Keluar', 'Batal').then((r) => { if(r.isConfirmed) form.submit(); }); return false; } return confirm('Keluar dari Portal Kader?');">
