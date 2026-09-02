@@ -12,4 +12,4 @@
     };
 @endphp
 
-<i class="{{ $weightPrefix }} ph-{{ $name }} {{ $class }}" aria-hidden="true"></i>
+<i {{ $attributes->except(['class']) }} class="{{ $weightPrefix }} ph-{{ $name }} {{ $class }}" aria-hidden="true"></i>

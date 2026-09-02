@@ -18,6 +18,7 @@
         ::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none; background: transparent; }
         body { scrollbar-width: none; -ms-overflow-style: none; }
         *::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none; }
+        [x-cloak] { display: none !important; }
     </style>
 
     <!-- Font: Plus Jakarta Sans (Design System v2) -->
