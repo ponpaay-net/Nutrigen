@@ -129,7 +129,7 @@
                         </div>
                         <span class="w-11 h-11 shrink-0 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="file-xls" weight="fill" class="text-[20px]" /></span>
                     </div>
-                    <a href="{{ route('laporan.export.excel', ['periode' => $periodeValue]) }}" class="mt-auto pt-4 w-full h-11 rounded-xl border border-teal-200 bg-teal-50 hover:bg-teal-100 text-teal-700 text-[14px] font-semibold inline-flex items-center justify-center gap-2 transition-colors"><x-icon name="download" weight="bold" class="text-[16px]" /> Export ke Excel (.xls)</a>
+                    <a href="{{ route('laporan.export.excel', ['periode' => $periodeValue]) }}" class="mt-auto pt-4 w-full h-11 rounded-xl border border-transparent shadow-sm bg-[#217346] hover:bg-[#1a5c38] active:bg-[#157033] text-white text-[14px] font-semibold inline-flex items-center justify-center gap-2.5 leading-none transition-colors"><x-icon name="download-simple" weight="bold" class="text-[16px] shrink-0" /> Export ke Excel (.xls)</a>
                 </div>
             </div>
         </section>
