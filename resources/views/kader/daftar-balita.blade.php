@@ -109,7 +109,7 @@
     <div class="flex flex-wrap items-center gap-2 text-[12px] text-slate-500">
         @php $activeFilterKey = request('filter'); @endphp
         <span class="inline-flex items-center gap-1.5 font-medium">
-            <x-icon name="filter" weight="bold" class="text-[13px] text-slate-400" />
+            <x-icon name="funnel" weight="bold" class="text-[13px] text-slate-400" />
             Menampilkan:
         </span>
         @if($activeFilterKey && isset($filters[$activeFilterKey]))
