@@ -90,27 +90,31 @@
 
     <!-- Footer Actions: Tentang + Keluar -->
     <div class="border-t border-slate-100 p-3 shrink-0 bg-slate-50/40">
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col gap-1.5">
             <button onclick="window.NutriAlert.success('Versi Sistem', 'NutriGen v1.0.0')"
-                    class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-white hover:text-teal-600 hover:shadow-sm font-semibold text-[13px] transition-all duration-200 text-left cursor-pointer">
-                <x-icon name="info" weight="bold" class="text-[19px] shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                <span class="truncate transition-all duration-200" :class="{ 'opacity-100': sidebarExpanded, 'lg:opacity-0 lg:w-0 lg:overflow-hidden': !sidebarExpanded }">Tentang Aplikasi</span>
+                    class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-white hover:text-teal-600 hover:shadow-sm font-semibold text-[13px] transition-all duration-200 text-left cursor-pointer active:scale-[0.98]">
+                <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 group-hover:bg-teal-50 group-hover:text-teal-600 flex items-center justify-center shrink-0 transition-all duration-200">
+                    <x-icon name="info" weight="bold" class="text-[17px]" />
+                </span>
+                <span class="truncate transition-all duration-200 group-hover:translate-x-0.5" :class="{ 'opacity-100': sidebarExpanded, 'lg:opacity-0 lg:w-0 lg:overflow-hidden': !sidebarExpanded }">Tentang Aplikasi</span>
             </button>
 
-            <form action="{{ route('logout') }}" method="POST">
+            <form action="{{ route('logout') }}" method="POST" onsubmit="if(window.NutriAlert && typeof window.NutriAlert.confirm === 'function'){ event.preventDefault(); const form = this; window.NutriAlert.confirm('Keluar dari Akun?', 'Apakah Anda yakin ingin keluar dari Portal Kader?', 'Keluar', 'Batal').then((r) => { if(r.isConfirmed) form.submit(); }); return false; } return confirm('Keluar dari Portal Kader?');">
                 @csrf
                 <button type="submit"
-                        class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-600 hover:bg-white hover:shadow-sm font-semibold text-[13px] transition-all duration-200 text-left cursor-pointer">
-                    <x-icon name="sign-out" weight="bold" class="text-[19px] shrink-0 transition-transform duration-200 group-hover:scale-110" />
-                    <span class="truncate transition-all duration-200" :class="{ 'opacity-100': sidebarExpanded, 'lg:opacity-0 lg:w-0 lg:overflow-hidden': !sidebarExpanded }">Keluar Aplikasi</span>
+                        class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-600 hover:bg-rose-50 hover:shadow-sm font-semibold text-[13px] transition-all duration-200 text-left cursor-pointer active:scale-[0.98]">
+                    <span class="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 group-hover:bg-rose-100 group-hover:text-rose-600 flex items-center justify-center shrink-0 transition-all duration-200">
+                        <x-icon name="sign-out" weight="bold" class="text-[17px]" />
+                    </span>
+                    <span class="truncate transition-all duration-200 group-hover:translate-x-0.5" :class="{ 'opacity-100': sidebarExpanded, 'lg:opacity-0 lg:w-0 lg:overflow-hidden': !sidebarExpanded }">Keluar Aplikasi</span>
                 </button>
             </form>
         </div>
 
         <!-- Collapse Toggle (Desktop, clear icon) -->
-        <div class="hidden lg:block mt-2 pt-2 border-t border-slate-100">
+        <div class="hidden lg:block mt-3 pt-3 border-t border-slate-100">
             <button @click="sidebarExpanded = !sidebarExpanded" aria-label="Perkecil / perbesar menu" title="Perkecil / perbesar menu"
-                    class="group flex items-center w-full justify-center h-10 rounded-xl bg-white hover:bg-teal-50 text-slate-500 hover:text-teal-600 border border-slate-200 hover:border-teal-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20">
+                    class="group flex items-center w-full justify-center h-11 rounded-xl bg-white hover:bg-teal-50 text-slate-500 hover:text-teal-600 border border-slate-200 hover:border-teal-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20">
                 <x-icon name="caret-double-left" weight="bold" class="text-[18px] transition-transform duration-300 group-hover:scale-110" x-bind:class="{ 'rotate-180': !sidebarExpanded }" />
             </button>
         </div>
