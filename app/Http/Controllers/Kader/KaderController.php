@@ -924,6 +924,24 @@ class KaderController extends Controller
         
         $dataKosong = $stats['total_balita'] === 0 || $stats['bulan_ini'] === 0;
 
+        // Donut: komposisi status gizi (approved) pada periode terpilih
+        $donut = [
+            'normal'   => $stats['normal'] ?? 0,
+            'risiko'   => $stats['risiko'] ?? 0,
+            'stunting' => $stats['stunting'] ?? 0,
+            'kurang'   => $stats['kurang'] ?? 0,
+        ];
+
+        // Tren kunjungan penimbangan: 6 bulan terakhir (berakhir di periode terpilih)
+        $tren = ['label' => [], 'pct' => [], 'count' => []];
+        for ($i = 5; $i >= 0; $i--) {
+            $m = Carbon::createFromDate($year, $month, 1)->subMonths($i);
+            $s = $this->statisticsService->getKaderDashboardStats($posyanduId, $m->month, $m->year);
+            $tren['label'][] = $m->translatedFormat('M y');
+            $tren['count'][] = $s['total_balita'] > 0 ? (int) $s['bulan_ini'] : 0;
+            $tren['pct'][]   = $s['total_balita'] > 0 ? round(($s['bulan_ini'] / $s['total_balita']) * 100, 1) : 0;
+        }
+
         $previewBalitas = Balita::where('posyandu_id', $posyanduId)
             ->whereHas('pengukurans', function ($q) use ($month, $year) {
                 $q->whereMonth('tanggal_ukur', $month)
@@ -948,6 +966,8 @@ class KaderController extends Controller
             'berisiko' => $berisiko,
             'persentase' => $persentase,
             'dataKosong' => $dataKosong,
+            'chartDonut' => $donut,
+            'chartTren' => $tren,
             'previewBalitas' => $previewBalitas
         ]); 
     }

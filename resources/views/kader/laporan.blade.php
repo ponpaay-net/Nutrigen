@@ -127,6 +127,86 @@
             </div>
         </section>
 
+        {{-- Grafik Analitik (Line + Donut) --}}
+        <section class="mb-8">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="w-1 h-6 bg-teal-600 rounded-full"></span>
+                <h2 class="text-base font-bold text-slate-900">Analitik & Visualisasi</h2>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5">
+                {{-- Line chart: tren kunjungan --}}
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+                    <div class="flex items-start justify-between gap-3 mb-4">
+                        <div class="min-w-0">
+                            <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Tren Kunjungan Penimbangan</h3>
+                            <p class="text-[12.5px] text-slate-500 mt-1 leading-relaxed">Persentase balita yang ditimbang per bulan (6 bulan terakhir; bulan kosong = belum ada data).</p>
+                        </div>
+                        <span class="w-10 h-10 shrink-0 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="chart-line" weight="fill" class="text-[19px]" /></span>
+                    </div>
+                    <div id="chart-tren" class="w-full"></div>
+                </div>
+                {{-- Donut chart: komposisi status gizi --}}
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+                    <div class="flex items-start justify-between gap-3 mb-4">
+                        <div class="min-w-0">
+                            <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Komposisi Status Gizi</h3>
+                            <p class="text-[12.5px] text-slate-500 mt-1 leading-relaxed">Distribusi status gizi balita terukur pada periode <span class="font-semibold text-slate-700">{{ $periode ?? '' }}</span>.</p>
+                        </div>
+                        <span class="w-10 h-10 shrink-0 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="chart-donut" weight="fill" class="text-[19px]" /></span>
+                    </div>
+                    <div id="chart-donut" class="w-full"></div>
+                </div>
+            </div>
+        </section>
+
+        <script>
+        @php
+            $tr = $chartTren ?? ['label'=>[], 'pct'=>[], 'count'=>[]];
+            $dn = $chartDonut ?? ['normal'=>0,'risiko'=>0,'stunting'=>0,'kurang'=>0];
+        @endphp
+        function initLaporanCharts() {
+            if (!window.ApexCharts) { setTimeout(initLaporanCharts, 300); return; }
+            var tren = @json($tr);
+            var donut = @json($dn);
+
+            var elT = document.getElementById('chart-tren');
+            if (elT && !elT._apex) {
+                elT._apex = new window.ApexCharts(elT, {
+                    chart: { type: 'area', height: 260, toolbar: { show: false }, fontFamily: 'Plus Jakarta Sans, sans-serif', foreColor: '#64748b' },
+                    series: [{ name: 'Terukur (%)', data: tren.pct }],
+                    stroke: { curve: 'straight', width: 3, colors: ['#0d9488'] },
+                    fill: { type: 'gradient', gradient: { opacityFrom: 0.25, opacityTo: 0.02, shadeIntensity: 1 } },
+                    colors: ['#0d9488'],
+                    dataLabels: { enabled: false },
+                    xaxis: { categories: tren.label, axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: { fontSize: '11px' } } },
+                    yaxis: { max: 100, labels: { formatter: function(v){ return v + '%'; }, style: { fontSize: '11px' } } },
+                    grid: { borderColor: '#e2e8f0', strokeDashArray: 4 },
+                    tooltip: { y: { formatter: function(val, opts){ return val + '% (' + (tren.count[opts.dataPointIndex] || 0) + ' balita)'; } } },
+                    markers: { size: 4, colors: ['#0d9488'], strokeColors: '#fff', strokeWidth: 2 }
+                });
+                elT._apex.render();
+            }
+
+            var elD = document.getElementById('chart-donut');
+            if (elD && !elD._apex) {
+                var categories = ['Normal', 'Risiko', 'Stunting', 'Kurang'];
+                var series = [donut.normal, donut.risiko, donut.stunting, donut.kurang];
+                elD._apex = new window.ApexCharts(elD, {
+                    chart: { type: 'donut', height: 260, fontFamily: 'Plus Jakarta Sans, sans-serif', foreColor: '#64748b' },
+                    labels: categories,
+                    series: series,
+                    colors: ['#0d9488', '#f59e0b', '#e11d48', '#0ea5e9'],
+                    legend: { position: 'bottom', fontSize: '12px' },
+                    dataLabels: { enabled: true, formatter: function(v){ return Math.round(v) + '%'; }, style: { fontSize: '11px', fontWeight: '600' } },
+                    plotOptions: { pie: { donut: { size: '68%', labels: { show: true, name: { fontSize: '11px' }, value: { fontSize: '20px', fontWeight: '800', color: '#0f172a' }, total: { show: true, label: 'Terukur', fontSize: '11px', color: '#64748b' } } } } },
+                    tooltip: { y: { formatter: function(v){ return v + ' balita'; } } }
+                });
+                elD._apex.render();
+            }
+        }
+        document.addEventListener('DOMContentLoaded', initLaporanCharts);
+        </script>
+
         {{-- Pratinjau Data Penimbangan --}}
         <section>
             <div class="flex items-center justify-between gap-3 mb-4">

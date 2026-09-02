@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "@phosphor-icons/web": "^2.1.2",
+        "apexcharts": "^7.1.0",
         "framer-motion": "^13.1.0",
         "svg-path-bbox": "^2.1.0",
         "svg-path-bounds": "^1.0.2",

@@ -2,8 +2,10 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import Swal from 'sweetalert2';
+import ApexCharts from 'apexcharts';
 import { animate, stagger, inView, hover } from 'framer-motion/dom';
 
+window.ApexCharts = ApexCharts;
 window.Motion = { animate, stagger, inView, hover };
 window.Alpine = Alpine;
 Alpine.start();
