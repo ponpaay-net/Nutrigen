@@ -80,28 +80,31 @@
                             <label for="no_hp" class="text-[12.5px] font-semibold text-slate-700">Nomor Telepon / WhatsApp <span class="text-rose-500">*</span></label>
                             <input type="tel" id="no_hp" name="no_hp" value="{{ old('no_hp', $phone ?? '') }}" required placeholder="Contoh: 081234567890"
                                 class="w-full bg-slate-50 border border-slate-200 hover:border-teal-300 text-slate-900 text-[14px] font-medium rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all placeholder:text-slate-400">
-                            <p class="text-[11.5px] text-slate-400 font-medium">Dipakai untuk notifikasi jadwal posyandu dan koordinasi dengan ibu balita.</p>
+                            <p class="text-[11.5px] text-slate-400 font-medium mt-1.5">Dipakai untuk notifikasi jadwal posyandu dan koordinasi dengan ibu balita.</p>
                             @error('no_hp') <p class="text-xs text-rose-500 font-semibold">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="flex flex-col gap-2 mt-5">
                             <label class="text-[12.5px] font-semibold text-slate-700">Alamat Email Akun</label>
-                            <input type="email" value="{{ $email ?? '' }}" readonly disabled
-                                class="w-full bg-slate-100/80 border border-slate-200 text-slate-500 text-[14px] font-medium rounded-xl px-4 py-3 cursor-not-allowed select-none outline-none">
-                            <p class="text-[11.5px] text-slate-400 font-medium flex items-center gap-1.5"><x-icon name="lock" weight="bold" class="text-[12px]" />Alamat email login dikelola resmi oleh admin Puskesmas demi keamanan data.</p>
+                            <div class="relative">
+                                <input type="email" value="{{ $email ?? '' }}" readonly disabled
+                                    class="w-full bg-slate-100/80 border border-slate-200 text-slate-500 text-[14px] font-medium rounded-xl px-4 py-3 pr-11 cursor-not-allowed select-none outline-none">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"><x-icon name="lock" weight="bold" class="text-[15px]" /></span>
+                            </div>
+                            <p class="text-[11.5px] text-slate-400 font-medium">Tidak dapat diubah: dikelola resmi oleh admin Puskesmas demi keamanan data.</p>
                         </div>
                     </div>
 
                     {{-- Actions (Batal = teks, Simpan = teal primary) --}}
                     <div class="px-6 sm:px-8 py-5 border-t border-slate-100 bg-slate-50/40 flex items-center gap-3">
-                        <a href="{{ route('kader.profil') }}" class="inline-flex items-center justify-center h-11 px-4 text-[13.5px] font-semibold text-slate-500 hover:text-slate-700 transition-colors">Batal</a>
+                        <a href="{{ route('kader.profil') }}" class="inline-flex items-center justify-center h-11 px-5 rounded-xl bg-white border border-slate-400 hover:bg-slate-50 text-slate-700 text-[13.5px] font-semibold transition-colors">Batal</a>
                         <button type="submit" class="flex-1 sm:flex-none ml-auto inline-flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-teal-600 hover:bg-teal-500 active:bg-teal-700 text-white text-[13.5px] font-bold shadow-sm shadow-teal-600/25 transition-all active:scale-[0.98]"><x-icon name="check-circle" weight="bold" class="text-[16px]" />Simpan Perubahan</button>
                     </div>
                 </form>
             </div>
 
-            {{-- RIGHT RAIL (ringkas: penugasan + bantuan) --}}
-            <div class="flex flex-col gap-5">
+            {{-- RIGHT RAIL (satu kartu self-explanatory, sticky) --}}
+            <div class="flex flex-col gap-5 lg:sticky lg:top-24">
                 <div class="bg-white ring-1 ring-slate-200/70 rounded-2xl shadow-sm shadow-slate-200/50 p-5 sm:p-6">
                     <h2 class="text-[13px] font-bold text-slate-800 flex items-center gap-2 mb-4"><span class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center"><x-icon name="map-pin" weight="bold" class="text-[16px]" /></span>Area Penugasan</h2>
                     <div class="flex flex-col gap-3">
@@ -120,11 +123,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex items-start gap-2.5">
+                        <span class="w-6 h-6 rounded-md bg-teal-100 text-teal-700 flex items-center justify-center shrink-0"><x-icon name="info" weight="bold" class="text-[13px]" /></span>
+                        <p class="text-[11.5px] text-teal-800/80 leading-relaxed">Wilayah posyandu tugas dan alamat email induk hanya bisa diubah oleh koordinator Bidan Pembina di Puskesmas.</p>
+                    </div>
                 </div>
 
-                <div class="bg-teal-50 border border-teal-100 rounded-2xl p-5 sm:p-6">
-                    <h2 class="text-[13px] font-bold text-teal-800 flex items-center gap-2 mb-2.5"><span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center"><x-icon name="info" weight="bold" class="text-[16px]" /></span>Perubahan Data</h2>
-                    <p class="text-[12.5px] text-teal-900/80 leading-relaxed">Perubahan wilayah posyandu tugas dan alamat email induk hanya melalui koordinator Bidan Pembina di Puskesmas.</p>
+                {{-- Keamanan Akun (isi whitespace rail + aksi alami) --}}
+                <div class="bg-white ring-1 ring-slate-200/70 rounded-2xl shadow-sm shadow-slate-200/50 p-5 sm:p-6">
+                    <h2 class="text-[13px] font-bold text-slate-800 flex items-center gap-2 mb-3"><span class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center"><x-icon name="shield-check" weight="bold" class="text-[16px]" /></span>Keamanan Akun</h2>
+                    <p class="text-[12px] text-slate-500 leading-relaxed mb-3">Atur kata sandi dan lindungi akses login Anda.</p>
+                    <a href="{{ route('kader.keamanan') }}" class="inline-flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-white border border-slate-300 hover:border-teal-300 hover:text-teal-700 text-slate-700 text-[13px] font-semibold transition-colors"><x-icon name="lock" weight="bold" class="text-[15px]" />Kelola Keamanan</a>
                 </div>
             </div>
         </div>
