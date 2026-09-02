@@ -7,7 +7,7 @@
     $ini = strtoupper(collect(explode(' ', $name ?? 'Kader'))->map(fn($w) => mb_substr($w, 0, 1))->take(2)->implode(''));
 @endphp
 
-<div class="w-full pb-28 sm:pb-12">
+<div class="w-full px-4 sm:px-6 lg:px-8 pt-5 sm:pt-8 pb-28 sm:pb-12">
     <div class="max-w-4xl mx-auto">
 
         {{-- Page header: back button (chip) + title, tight & aligned --}}
