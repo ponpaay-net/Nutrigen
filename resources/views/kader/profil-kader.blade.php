@@ -57,21 +57,21 @@
                 </div>
 
                 {{-- statistik (divider solid + tile slate-50 + icon teal) --}}
-                <div class="border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 p-6 sm:px-8 sm:py-6 bg-slate-50/40">
+                <div class="border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 p-6 sm:px-8 sm:py-6 bg-slate-50">
                     @php
                         $stats = [
-                            ['label' => 'Bergabung', 'value' => $joinedAt ?? '-', 'icon' => 'calendar'],
+                            ['label' => 'Bergabung', 'value' => $joinedAt ?? '-', 'icon' => 'user-plus'],
                             ['label' => 'Balita Aktif', 'value' => (int)($balitaCount ?? 0), 'icon' => 'baby'],
                             ['label' => 'Pengukuran', 'value' => (int)($pengukuranCount ?? 0), 'icon' => 'ruler'],
                             ['label' => 'Jadwal', 'value' => (int)($jadwalCount ?? 0), 'icon' => 'calendar-blank'],
                         ];
                     @endphp
                     @foreach($stats as $s)
-                        <div class="flex items-center gap-3 rounded-xl bg-white border border-slate-100 p-3.5">
-                            <span class="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0"><x-icon name="{{ $s['icon'] }}" weight="bold" class="text-[18px]" /></span>
+                        <div class="flex items-center gap-3 rounded-xl bg-white border border-slate-200 shadow-sm p-3.5">
+                            <span class="w-10 h-10 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center shrink-0"><x-icon name="{{ $s['icon'] }}" weight="bold" class="text-[18px]" /></span>
                             <div class="min-w-0">
                                 <p class="text-lg font-bold text-slate-900 leading-none">{{ $s['value'] }}</p>
-                                <p class="text-[11px] font-medium text-slate-400 mt-1 truncate">{{ $s['label'] }}</p>
+                                <p class="text-[11px] font-medium text-slate-500 mt-1 truncate">{{ $s['label'] }}</p>
                             </div>
                         </div>
                     @endforeach
