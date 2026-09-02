@@ -42,7 +42,7 @@
                 </div>
                 <p class="mt-3 text-sm text-teal-50/90">Progres pengukuran bulan ini di posyandu Anda.</p>
             </div>
-            <div class="rounded-2xl bg-white/10 border border-white/15 backdrop-blur p-5">
+            <div class="rounded-2xl bg-white/15 border border-white/20 p-5">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold uppercase tracking-wide text-teal-100">Progres Sesi</span>
                     <span class="text-lg font-bold tabular-nums">{{ $percent }}%</span>
@@ -88,17 +88,12 @@
         @foreach($kpis as $kpi)
         <div class="group relative rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-4 sm:p-5 flex flex-col overflow-hidden">
             <span class="absolute top-0 inset-x-0 h-1 bg-{{ $kpi['color'] }}-500"></span>
-            <div class="flex items-center justify-between">
-                <span class="w-10 h-10 rounded-xl bg-{{ $kpi['color'] }}-50 text-{{ $kpi['color'] }}-600 flex items-center justify-center ring-1 ring-{{ $kpi['color'] }}-100">
-                    <x-icon name="{{ $kpi['icon'] }}" weight="fill" class="text-lg" />
-                </span>
-                <span class="w-7 h-7 rounded-full bg-slate-50 text-slate-300 group-hover:bg-{{ $kpi['color'] }}-50 group-hover:text-{{ $kpi['color'] }}-600 flex items-center justify-center transition-colors">
-                    <x-icon name="arrow-up-right" weight="bold" class="text-sm" />
-                </span>
-            </div>
+            <span class="w-10 h-10 rounded-xl bg-{{ $kpi['color'] }}-50 text-{{ $kpi['color'] }}-600 flex items-center justify-center ring-1 ring-{{ $kpi['color'] }}-100">
+                <x-icon name="{{ $kpi['icon'] }}" weight="fill" class="text-lg" />
+            </span>
             <p class="mt-3 text-2xl sm:text-3xl font-bold tabular-nums text-slate-900 leading-none">{{ $kpi['value'] }}</p>
             <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500 truncate">{{ $kpi['label'] }}</p>
-            <p class="mt-1.5 text-xs text-slate-400 truncate">{{ $kpi['sub'] }}</p>
+            <p class="mt-1.5 text-xs text-slate-500 truncate">{{ $kpi['sub'] }}</p>
         </div>
         @endforeach
     </section>
@@ -136,7 +131,7 @@
                                             <x-icon name="{{ $isBoy ? 'gender-male' : 'gender-female' }}" weight="fill" class="text-[13px]" />
                                         </span>
                                     </div>
-                                    <div class="mt-0.5 text-[13px] text-slate-500 flex items-center gap-1.5 truncate">
+                                    <div class="mt-0.5 text-[13px] text-slate-500 flex items-center gap-1.5 truncate leading-snug">
                                         <span class="truncate">Ibu {{ $child->mother ?? '-' }}</span>
                                         <span class="text-slate-300">•</span>
                                         <span class="shrink-0 tabular-nums">{{ $child->age }}</span>
