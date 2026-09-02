@@ -10,13 +10,12 @@
 <div class="w-full pb-28 sm:pb-12">
     <div class="max-w-4xl mx-auto">
 
-        {{-- Page header --}}
-        <div class="mb-5 flex items-center justify-between">
-            <a href="{{ route('kader.profil') }}" class="inline-flex items-center gap-1.5 text-[13px] font-semibold text-slate-500 hover:text-teal-700 transition-colors"><x-icon name="arrow-left" weight="bold" class="text-[15px]" />Kembali ke Profil</a>
-        </div>
-
+        {{-- Page header: back button (chip) + title, tight & aligned --}}
         <div class="mb-6">
-            <div class="flex items-center gap-3">
+            <a href="{{ route('kader.profil') }}" class="inline-flex items-center gap-2 h-11 px-4 rounded-xl bg-white border border-slate-300 hover:border-teal-400 hover:text-teal-700 text-slate-700 text-[13px] font-semibold shadow-sm transition-colors">
+                <x-icon name="arrow-left" weight="bold" class="text-[16px]" />Kembali ke Profil
+            </a>
+            <div class="flex items-center gap-3 mt-4">
                 <span class="w-1 h-6 bg-amber-400 rounded-full"></span>
                 <h1 class="text-lg font-bold text-slate-900">Edit Profil Kader</h1>
             </div>
