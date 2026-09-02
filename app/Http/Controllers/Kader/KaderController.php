@@ -1189,7 +1189,7 @@ class KaderController extends Controller
     public function profilKader()
     {
         $kader = Auth::user()->kader;
-        
+
         $alamatRaw = $kader->posyandu->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
@@ -1199,7 +1199,7 @@ class KaderController extends Controller
             $desa = $kader->posyandu->desa ?? '-';
             $kecamatan = '-';
         }
-        
+
         return view('kader.profil-kader', [
             'kaderName' => $kader->nama ?? Auth::user()->name,
             'role' => 'Kader Posyandu',
@@ -1209,7 +1209,12 @@ class KaderController extends Controller
             'desa' => $desa,
             'kecamatan' => $kecamatan,
             'puskesmas' => $kader->posyandu->puskesmas->nama ?? '-',
-            'status' => 'Aktif'
+            'status' => 'Aktif',
+            'joinedAt' => optional(Auth::user()->created_at)->translatedFormat('M Y') ?? '-',
+            'balitaCount' => $kader->posyandu?->balitas()->count() ?? 0,
+            'pengukuranCount' => $kader->posyandu?->pengukurans()->count() ?? 0,
+            'jadwalCount' => $kader->posyandu?->jadwals()->count() ?? 0,
+            'avatarUrl' => null,
         ]);
     }
 
