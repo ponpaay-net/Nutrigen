@@ -59,21 +59,32 @@
             <div class="md:col-span-2 grid grid-cols-2 gap-4">
                 @php
                     $kpis = [
-                        ['label' => 'Terukur', 'count' => $sudahDiukur ?? 0, 'icon' => 'check-circle', 'tone' => 'teal', 'note' => 'balita diukur'],
-                        ['label' => 'Belum Hadir', 'count' => $belumDiukur ?? 0, 'icon' => 'user-minus', 'tone' => 'amber', 'note' => 'belum timbang'],
-                        ['label' => 'Pantauan Gizi', 'count' => $perluPerhatian ?? 0, 'icon' => 'chart-line', 'tone' => 'slate', 'note' => 'perlu perhatian'],
-                        ['label' => 'Perlu Konfirmasi', 'count' => $berisiko ?? 0, 'icon' => 'warning', 'tone' => 'rose', 'note' => 'perlu validasi'],
+                        ['label' => 'Terukur', 'count' => $sudahDiukur ?? 0, 'icon' => 'check-circle', 'tone' => 'teal', 'note' => 'balita diukur', 'spark' => 'count'],
+                        ['label' => 'Belum Hadir', 'count' => $belumDiukur ?? 0, 'icon' => 'user-minus', 'tone' => 'amber', 'note' => 'belum timbang', 'spark' => 'belum'],
+                        ['label' => 'Pantauan Gizi', 'count' => $perluPerhatian ?? 0, 'icon' => 'chart-line', 'tone' => 'slate', 'note' => 'perlu perhatian', 'spark' => 'pantauan'],
+                        ['label' => 'Perlu Konfirmasi', 'count' => $berisiko ?? 0, 'icon' => 'warning', 'tone' => 'rose', 'note' => 'perlu validasi', 'spark' => 'konfirmasi'],
+                    ];
+                    $toneStyles = [
+                        'teal' => ['bg' => 'bg-gradient-to-br from-teal-600 to-teal-700', 'icon' => 'bg-teal-50 text-teal-600', 'bar' => 'from-teal-500 to-teal-600', 'txt' => 'text-teal-600', 'spark' => '#0d9488'],
+                        'amber' => ['bg' => 'bg-gradient-to-br from-amber-500 to-amber-600', 'icon' => 'bg-amber-50 text-amber-600', 'bar' => 'from-amber-400 to-amber-500', 'txt' => 'text-amber-600', 'spark' => '#f59e0b'],
+                        'slate' => ['bg' => 'bg-gradient-to-br from-slate-500 to-slate-600', 'icon' => 'bg-slate-100 text-slate-500', 'bar' => 'from-slate-300 to-slate-400', 'txt' => 'text-slate-500', 'spark' => '#94a3b8'],
+                        'rose' => ['bg' => 'bg-gradient-to-br from-rose-500 to-rose-600', 'icon' => 'bg-rose-50 text-rose-600', 'bar' => 'from-rose-400 to-rose-500', 'txt' => 'text-rose-600', 'spark' => '#e11d48'],
                     ];
                 @endphp
                 @foreach($kpis as $k)
-                    <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between shadow-sm">
+                    @php $ts = $toneStyles[$k['tone']]; @endphp
+                    <div class="relative overflow-hidden bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex flex-col">
+                        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r {{ $ts['bar'] }}"></div>
                         <div class="flex items-center justify-between">
-                            <span class="w-9 h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="{{ $k['icon'] }}" weight="bold" class="text-[17px]" /></span>
+                            <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl {{ $ts['icon'] }} flex items-center justify-center shadow-sm"><x-icon name="{{ $k['icon'] }}" weight="fill" class="text-[17px] sm:text-[19px]" /></span>
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $k['label'] }}</span>
                         </div>
-                        <div class="mt-4">
-                            <span class="text-[36px] font-black text-slate-900 leading-none tracking-tight">{{ $k['count'] }}</span>
-                            <p class="text-[12px] font-medium {{ $k['tone'] === 'rose' ? 'text-rose-500' : ($k['tone'] === 'amber' ? 'text-amber-600' : 'text-slate-500') }} mt-1">{{ $k['note'] }}</p>
+                        <div class="mt-3 flex items-end justify-between gap-2">
+                            <div class="min-w-0">
+                                <span class="text-[30px] sm:text-[34px] font-black text-slate-900 leading-none tracking-tight">{{ $k['count'] }}</span>
+                                <p class="text-[11.5px] font-medium {{ $ts['txt'] }} mt-1">{{ $k['note'] }}</p>
+                            </div>
+                            <div id="kpi-spark-{{ $loop->index }}" data-spark="{{ $k['spark'] }}" data-color="{{ $ts['spark'] }}" class="kpi-spark shrink-0 w-[72px] h-9"></div>
                         </div>
                     </div>
                 @endforeach
@@ -203,6 +214,30 @@
                 });
                 elD._apex.render();
             }
+
+            // Mini sparklines pada 4 kartu KPI
+            document.querySelectorAll('.kpi-spark').forEach(function (el) {
+                if (el._apex) return;
+                var key = el.getAttribute('data-spark');
+                var color = el.getAttribute('data-color') || '#0d9488';
+                var series;
+                if (key === 'count') series = tren.count;
+                else if (key === 'belum') series = tren.total.map(function(t, i){ return Math.max(0, t - tren.count[i]); });
+                else if (key === 'pantauan') series = tren.risiko.map(function(x, i){ return x + (tren.stunting[i] || 0) + (tren.kurang[i] || 0); });
+                else series = tren.stunting;
+                // interpolasi bila data terlalu kecil (kurang 2 titik) agar tidak membingungkan
+                if (!series || series.length === 0) series = [0, 0];
+                el._apex = new window.ApexCharts(el, {
+                    chart: { type: 'area', height: 36, sparkline: { enabled: true }, fontFamily: 'Plus Jakarta Sans, sans-serif' },
+                    series: [{ name: key, data: series }],
+                    stroke: { curve: 'smooth', width: 2.5, colors: [color] },
+                    fill: { type: 'gradient', gradient: { opacityFrom: 0.3, opacityTo: 0.02 } },
+                    colors: [color],
+                    tooltip: { enabled: false },
+                    xaxis: { labels: { show: false } }
+                });
+                el._apex.render();
+            });
         }
         document.addEventListener('DOMContentLoaded', initLaporanCharts);
         </script>

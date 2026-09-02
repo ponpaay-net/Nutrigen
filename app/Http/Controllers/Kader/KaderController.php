@@ -932,14 +932,19 @@ class KaderController extends Controller
             'kurang'   => $stats['kurang'] ?? 0,
         ];
 
-        // Tren kunjungan penimbangan: 6 bulan terakhir (berakhir di periode terpilih)
-        $tren = ['label' => [], 'pct' => [], 'count' => []];
+        // Tren kunjungan penimbangan + komposisi status: 6 bulan terakhir (berakhir di periode terpilih)
+        $tren = ['label' => [], 'pct' => [], 'count' => [], 'total' => [], 'normal' => [], 'risiko' => [], 'stunting' => [], 'kurang' => []];
         for ($i = 5; $i >= 0; $i--) {
             $m = Carbon::createFromDate($year, $month, 1)->subMonths($i);
             $s = $this->statisticsService->getKaderDashboardStats($posyanduId, $m->month, $m->year);
-            $tren['label'][] = $m->translatedFormat('M y');
-            $tren['count'][] = $s['total_balita'] > 0 ? (int) $s['bulan_ini'] : 0;
-            $tren['pct'][]   = $s['total_balita'] > 0 ? round(($s['bulan_ini'] / $s['total_balita']) * 100, 1) : 0;
+            $tren['label'][]   = $m->translatedFormat('M y');
+            $tren['total'][]   = (int) $s['total_balita'];
+            $tren['count'][]   = $s['total_balita'] > 0 ? (int) $s['bulan_ini'] : 0;
+            $tren['pct'][]     = $s['total_balita'] > 0 ? round(($s['bulan_ini'] / $s['total_balita']) * 100, 1) : 0;
+            $tren['normal'][]  = (int) ($s['normal'] ?? 0);
+            $tren['risiko'][]  = (int) ($s['risiko'] ?? 0);
+            $tren['stunting'][]= (int) ($s['stunting'] ?? 0);
+            $tren['kurang'][]  = (int) ($s['kurang'] ?? 0);
         }
 
         $previewBalitas = Balita::where('posyandu_id', $posyanduId)
