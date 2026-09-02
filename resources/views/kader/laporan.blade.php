@@ -40,15 +40,15 @@
         {{-- Rekap + KPI --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 mb-8">
             {{-- Rekapitulasi (teal gradient) --}}
-            <div class="md:col-span-1 rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 text-white p-6 flex flex-col justify-between shadow-md shadow-teal-600/10">
+            <div class="md:col-span-1 bg-white border border-slate-200 rounded-2xl p-6 flex flex-col shadow-sm">
                 <div>
-                    <p class="text-[10.5px] font-bold uppercase tracking-widest text-teal-100">Rekapitulasi Penimbangan</p>
-                    <p class="text-[12px] text-teal-50 mt-0.5">{{ $periode ?? '' }}</p>
+                    <p class="text-[10.5px] font-bold uppercase tracking-widest text-slate-400">Rekapitulasi Penimbangan</p>
+                    <p class="text-[13px] text-slate-800 font-semibold mt-0.5">{{ $periode ?? '' }}</p>
                 </div>
                 <div class="flex justify-center my-4">
-                    <div id="rekap-gauge" data-pct="{{ round($persentase ?? 0) }}" data-total="{{ $sudahDiukur ?? 0 }}/{{ $totalBalita ?? 0 }}" class="w-40 h-40"></div>
+                    <div id="rekap-gauge" data-pct="{{ round($persentase ?? 0) }}" class="w-44 h-44"></div>
                 </div>
-                <p class="text-center text-[12px] text-teal-50 font-medium">{{ $sudahDiukur ?? 0 }}/{{ $totalBalita ?? 0 }} balita terukur · <span class="font-semibold">Sesuai target kunjungan</span></p>
+                <p class="text-center text-[12.5px] text-slate-500 font-medium">{{ $sudahDiukur ?? 0 }}/{{ $totalBalita ?? 0 }} balita terukur · <span class="font-semibold text-teal-600">Sesuai target</span></p>
             </div>
 
             {{-- 4 KPI --}}
@@ -194,26 +194,31 @@
                 elT._apex.render();
             }
 
-            // Rekap radial gauge (kartu hijau)
+            // Rekap donut chart (kartu putih)
             var elR = document.getElementById('rekap-gauge');
             if (elR && !elR._apex) {
-                var pct = Math.min(100, Math.max(0, parseFloat(elR.getAttribute('data-pct')) || 0));
-                var total = elR.getAttribute('data-total') || '';
+                var rpct = Math.min(100, Math.max(0, parseFloat(elR.getAttribute('data-pct')) || 0));
                 elR._apex = new window.ApexCharts(elR, {
-                    chart: { type: 'radialBar', height: 160, toolbar: { show: false }, fontFamily: 'Plus Jakarta Sans, sans-serif' },
-                    series: [pct],
-                    colors: ['#ffffff'],
-                    stroke: { lineCap: 'round' },
+                    chart: { type: 'donut', height: 176, fontFamily: 'Plus Jakarta Sans, sans-serif' },
+                    labels: ['Terukur', 'Belum'],
+                    series: [rpct, Math.max(0, 100 - rpct)],
+                    colors: ['#0d9488', '#e2e8f0'],
+                    stroke: { width: 0 },
+                    dataLabels: { enabled: false },
                     plotOptions: {
-                        radialBar: {
-                            hollow: { size: '58%' },
-                            track: { background: 'rgba(255,255,255,0.22)', strokeWidth: '100%' },
-                            dataLabels: {
-                                name: { show: false },
-                                value: { show: true, fontSize: '32px', fontWeight: '800', color: '#ffffff', offsetY: 0, formatter: function(v){ return Math.round(v) + '%'; } }
+                        pie: {
+                            donut: {
+                                size: '72%',
+                                labels: {
+                                    show: true,
+                                    name: { show: false },
+                                    value: { show: true, fontSize: '30px', fontWeight: '800', color: '#0f172a', offsetY: -4 },
+                                    total: { show: true, label: 'terukur', fontSize: '12px', color: '#94a3b8', formatter: function(){ return Math.round(rpct) + '%'; } }
+                                }
                             }
                         }
                     },
+                    legend: { show: false },
                     tooltip: { enabled: false }
                 });
                 elR._apex.render();
