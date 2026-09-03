@@ -88,8 +88,8 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 shrink-0 flex-wrap" x-data="{ confirmDelete: false }">
-                <a href="{{ route('balita.index') }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors"><x-icon name="arrow-left" weight="bold" class="text-[15px]" /> Kembali</a>
-                <a href="{{ route('balita.edit', $balitaId) }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> Edit</a>
+                <a href="{{ route('balita.index') }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-[13px] font-semibold transition-colors"><x-icon name="arrow-left" weight="bold" class="text-[15px]" /> Kembali</a>
+                <a href="{{ route('balita.edit', $balitaId) }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 border border-amber-400 text-[13px] font-semibold transition-colors shadow-sm shadow-amber-400/20"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> Edit</a>
                 <form id="delete-balita-{{ $balitaId }}" action="{{ route('balita.destroy', $balitaId) }}" method="POST" class="hidden">@csrf @method('DELETE')</form>
                 <button type="button" @click="confirmDelete = true" class="inline-flex items-center justify-center gap-1.5 h-10 px-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 text-[13px] font-semibold transition-colors"><x-icon name="trash" weight="bold" class="text-[15px]" /> Hapus</button>
                 <a href="{{ route('balita.ukur', $balitaId) }}" class="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-semibold shadow-sm transition-colors"><x-icon name="scales" weight="bold" class="text-[15px]" /> Ukur Sekarang</a>
@@ -126,7 +126,7 @@
             </div>
             <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <span class="w-9 h-9 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center"><x-icon name="user-circle" weight="bold" class="text-[16px]" /></span>
-                <div class="min-w-0"><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">L. Kepala</p><p class="text-[16px] font-bold text-slate-900 tabular-nums leading-tight">{{ $latestMeasure['head_circ'] ? number_format($latestMeasure['head_circ'],1,',','.') . ' cm' : '—' }} <span class="text-[11px] font-semibold text-slate-400">{{ $latestMeasure['date'] ?? '' }}</span></p></div>
+                <div class="min-w-0"><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">L. Kepala</p><p class="text-[16px] font-bold text-slate-900 tabular-nums leading-tight">{{ $latestMeasure['head_circ'] ? number_format($latestMeasure['head_circ'],1,',','.') . ' cm' : '—' }}</p></div>
             </div>
         </div>
     </section>

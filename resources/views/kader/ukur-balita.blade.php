@@ -58,7 +58,7 @@
         @endif
 
         {{-- Card 2: Form --}}
-        <form id="measurementForm" action="{{ route('pengukuran.store') }}" method="POST" class="bg-white rounded-2xl border border-slate-200 shadow-[0_1px_3px_rgba(15,23,42,0.06),0_16px_40px_-24px_rgba(15,23,42,0.18)] overflow-hidden">
+        <form id="measurementForm" action="{{ route('pengukuran.store') }}" method="POST" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             @csrf
             <input type="hidden" name="balita_id" value="{{ $balitaId }}">
 
@@ -155,7 +155,7 @@
 
             {{-- Action row --}}
             <div class="border-t border-slate-100 px-5 sm:px-6 py-4 flex items-center justify-end gap-2.5 sm:gap-3">
-                <a href="{{ route('balita.show', $balitaId) }}" class="h-11 sm:h-12 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] sm:text-[14px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
+                <a href="{{ route('balita.show', $balitaId) }}" class="h-11 sm:h-12 px-5 rounded-xl border border-slate-300 bg-white text-slate-700 text-[13.5px] sm:text-[14px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
                 <button type="submit" id="btn-submit"
                     class="flex-1 sm:flex-none h-11 sm:h-12 px-7 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] sm:text-[14px] font-bold transition-colors inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20">
                     <x-icon name="check" weight="bold" class="text-[15px] sm:text-[16px]" /> Simpan Pengukuran
