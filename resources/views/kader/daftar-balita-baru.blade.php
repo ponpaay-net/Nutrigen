@@ -278,9 +278,10 @@
                             </ul>
                         </div>
 
-                        {{-- Simpan --}}
-                        <button type="submit" class="w-full h-12 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[14px] font-semibold transition-colors inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20">
-                            <x-icon name="check" weight="bold" class="text-[16px]" /> Simpan Data
+                        {{-- Simpan Desktop --}}
+                        <button type="submit" id="btn-submit-desktop" class="w-full h-12 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-[14px] font-semibold transition-all inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 active:scale-[0.99]">
+                            <span class="btn-icon"><x-icon name="check" weight="bold" class="text-[16px]" /></span>
+                            <span class="btn-text">Simpan Data</span>
                         </button>
                     </div>
                 </aside>
@@ -290,9 +291,10 @@
             <div class="lg:hidden mt-6 bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between gap-3">
                 <a href="{{ $isEdit ? route('balita.show', $balitaId ?? '') : route('balita.index') }}"
                    class="flex-1 h-11 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
-                <button type="submit"
-                   class="flex-1 h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20">
-                   <x-icon name="check" weight="bold" class="text-[15px]" /> Simpan Data
+                <button type="submit" id="btn-submit-mobile"
+                   class="flex-1 h-11 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white text-[13.5px] font-semibold transition-all inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 active:scale-[0.99]">
+                   <span class="btn-icon"><x-icon name="check" weight="bold" class="text-[15px]" /></span>
+                   <span class="btn-text">Simpan Data</span>
                 </button>
             </div>
         </form>
@@ -346,16 +348,32 @@ function titleCase(s) {
 
 // Auto titik desimal untuk pengukuran (berat/panjang/lingkar)
 function decimalMask(s) {
-    let v = String(s || '').replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1');
+    let v = String(s || '').replace(/,/g, '.').replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1');
     if (v.includes('.')) {
         let p = v.split('.');
         let i = p[0].replace(/^0+(?=\d)/, '');
-        return (i === '' ? '0' : i) + '.' + p[1].slice(0, 1);
+        return (i === '' ? '0' : i) + '.' + p[1].slice(0, 2);
     }
     let d = v.replace(/^0+(?=\d)/, '');
     if (!d) return '';
     if (d.length <= 2) return d;
     return d.slice(0, -1) + '.' + d.slice(-1);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('balitaForm');
+    const btns = [document.getElementById('btn-submit-desktop'), document.getElementById('btn-submit-mobile')].filter(Boolean);
+    if (form && btns.length) {
+        form.addEventListener('submit', () => {
+            btns.forEach(btn => {
+                btn.disabled = true;
+                const txt = btn.querySelector('.btn-text');
+                const ico = btn.querySelector('.btn-icon');
+                if (txt) txt.textContent = 'Menyimpan...';
+                if (ico) ico.innerHTML = `<svg class="animate-spin h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+            });
+        });
+    }
+});
 </script>
 @endsection

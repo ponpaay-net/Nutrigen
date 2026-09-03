@@ -154,11 +154,12 @@
             </div>
 
             {{-- Action row --}}
-            <div class="border-t border-slate-100 px-5 sm:px-6 py-4 flex items-center justify-end gap-2.5 sm:gap-3">
+            <div class="border-t border-slate-100 px-5 sm:px-6 py-4 flex items-center justify-end gap-2.5 sm:gap-3 bg-slate-50/50">
                 <a href="{{ route('balita.show', $balitaId) }}" class="h-11 sm:h-12 px-5 rounded-xl border border-slate-300 bg-white text-slate-700 text-[13.5px] sm:text-[14px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
                 <button type="submit" id="btn-submit"
-                    class="flex-1 sm:flex-none h-11 sm:h-12 px-7 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] sm:text-[14px] font-bold transition-colors inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20">
-                    <x-icon name="check" weight="bold" class="text-[15px] sm:text-[16px]" /> Simpan Pengukuran
+                    class="flex-1 sm:flex-none h-11 sm:h-12 px-7 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-[13.5px] sm:text-[14px] font-bold transition-all inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 active:scale-[0.99]">
+                    <span id="btn-submit-icon" class="inline-flex items-center"><x-icon name="check" weight="bold" class="text-[15px] sm:text-[16px]" /></span>
+                    <span id="btn-submit-text">Simpan Pengukuran</span>
                 </button>
             </div>
         </form>
@@ -168,24 +169,53 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const previousWeight = {{ $lastWeight ?? 0 }};
+    const form = document.getElementById('measurementForm');
+    const submitBtn = document.getElementById('btn-submit');
+    const submitText = document.getElementById('btn-submit-text');
+    const submitIcon = document.getElementById('btn-submit-icon');
+
     function decimalMask(s) {
-        let v = String(s || '').replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1');
-        if (v.includes('.')) { let p = v.split('.'); let i = p[0].replace(/^0+(?=\d)/, ''); return (i === '' ? '0' : i) + '.' + p[1].slice(0, 1); }
+        // Ganti koma ke titik otomatis agar ramah keyboard HP Indonesia
+        let v = String(s || '').replace(/,/g, '.').replace(/[^\d.]/g, '').replace(/(\..*)\./g, '$1');
+        if (v.includes('.')) { 
+            let p = v.split('.'); 
+            let i = p[0].replace(/^0+(?=\d)/, ''); 
+            return (i === '' ? '0' : i) + '.' + p[1].slice(0, 2); 
+        }
         let d = v.replace(/^0+(?=\d)/, '');
         if (!d) return '';
         if (d.length <= 2) return d;
         return d.slice(0, -1) + '.' + d.slice(-1);
     }
+
     function validateWeight(v) {
         const wa = document.getElementById('weight-warning');
         if (!wa) return;
-        if (previousWeight && v && (parseFloat(previousWeight) - parseFloat(v) > 0.5)) wa.classList.remove('hidden');
-        else wa.classList.add('hidden');
+        if (previousWeight && v && (parseFloat(previousWeight) - parseFloat(v) > 0.5)) {
+            wa.classList.remove('hidden');
+        } else {
+            wa.classList.add('hidden');
+        }
     }
+
     ['berat', 'tinggi', 'lingkar'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('input', () => { el.value = decimalMask(el.value); if (id === 'berat') validateWeight(el.value); });
+        if (el) {
+            el.addEventListener('input', () => { 
+                el.value = decimalMask(el.value); 
+                if (id === 'berat') validateWeight(el.value); 
+            });
+        }
     });
+
+    if (form && submitBtn) {
+        form.addEventListener('submit', () => {
+            // Mencegah double submit (Slow/Feedback gak jelas)
+            submitBtn.disabled = true;
+            submitText.textContent = 'Menyimpan...';
+            submitIcon.innerHTML = `<svg class="animate-spin -ml-1 mr-1 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+        });
+    }
 });
 </script>
 @endsection

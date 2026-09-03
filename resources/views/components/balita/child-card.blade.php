@@ -12,81 +12,76 @@
     $statusType = $child['statusType'] ?? 'success';
 
     $theme = match($statusType) {
-        'danger'  => ['bar' => 'bg-rose-500',    'avatar' => 'bg-rose-50 text-rose-500',    'dot' => 'bg-rose-500',    'badge' => 'bg-rose-50 text-rose-700 border-rose-200/70',    'text' => 'text-rose-600'],
-        'warning' => ['bar' => 'bg-amber-400',   'avatar' => 'bg-amber-50 text-amber-500',  'dot' => 'bg-amber-400',   'badge' => 'bg-amber-50 text-amber-700 border-amber-200/70',  'text' => 'text-amber-600'],
-        default   => ['bar' => 'bg-emerald-500', 'avatar' => 'bg-[#E6F8FB] text-[#00A9C0]', 'dot' => 'bg-emerald-400', 'badge' => 'bg-emerald-50 text-emerald-700 border-emerald-200/70', 'text' => 'text-emerald-600'],
+        'danger'  => ['avatar' => 'bg-rose-50 text-rose-600',    'dot' => 'bg-rose-500',    'badge' => 'bg-rose-50 text-rose-700 border-rose-200/70'],
+        'warning' => ['avatar' => 'bg-amber-50 text-amber-600',  'dot' => 'bg-amber-500',   'badge' => 'bg-amber-50 text-amber-700 border-amber-200/70'],
+        default   => ['avatar' => 'bg-teal-50 text-teal-600', 'dot' => 'bg-teal-500', 'badge' => 'bg-teal-50 text-teal-700 border-teal-200/70'],
     };
 
     $isGirl    = in_array(strtolower($child['jenis_kelamin'] ?? ''), ['p', 'perempuan', 'female']);
     $latest    = count($child['pengukurans'] ?? []) > 0 ? $child['pengukurans'][0] : null;
     $initials  = collect(explode(' ', $child['nama']))->map(fn($n) => substr($n, 0, 1))->take(2)->join('');
+    
+    // Auto-detect route based on segment to support both Puskesmas and Kader
+    $showRoute = request()->segment(1) === 'puskesmas' ? route('puskesmas.balita.show', $child['id']) : route('balita.show', $child['id']);
 @endphp
 
-<a href="{{ route('puskesmas.balita.show', $child['id']) }}"
+<a href="{{ $showRoute }}"
     data-name="{{ strtolower($child['nama']) }}"
     data-nik="{{ strtolower($child['nik'] ?? '') }}"
-    class="child-card-wrapper group w-full text-left relative flex flex-col bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 hover:border-slate-300 transition-all duration-200 focus:outline-none">
+    class="group w-full text-left flex flex-col bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-teal-600/30 transition-all duration-200 focus:outline-none">
 
-    {{-- Left status accent bar --}}
-    <div class="absolute left-0 top-0 bottom-0 w-[3.5px] {{ $theme['bar'] }}"></div>
-
-    <div class="p-4 pl-5 flex flex-col gap-3 h-full">
+    <div class="p-5 flex flex-col gap-4 h-full">
 
         {{-- HEADER: Avatar + Name + Meta --}}
-        <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-full {{ $theme['avatar'] }} flex items-center justify-center shrink-0 font-black text-sm ring-4 ring-current/10 mt-0.5">
+        <div class="flex items-start gap-3.5">
+            <div class="w-11 h-11 rounded-full {{ $theme['avatar'] }} flex items-center justify-center shrink-0 font-black text-[13px] ring-1 ring-slate-100 shadow-sm mt-0.5">
                 {{ strtoupper($initials) }}
             </div>
             <div class="flex-1 min-w-0">
-                <h4 class="font-bold text-[13.5px] text-slate-900 leading-snug truncate group-hover:text-[#00A9C0] transition-colors">
+                <h4 class="font-bold text-[14px] text-slate-900 leading-snug truncate group-hover:text-teal-700 transition-colors">
                     {{ $child['nama'] }}
                 </h4>
-                <p class="text-[11px] text-slate-500 font-medium mt-0.5 flex items-center gap-1.5 truncate">
+                <p class="text-[11.5px] text-slate-500 font-medium mt-1 flex items-center gap-1.5 truncate">
                     <span>{{ $isGirl ? 'Perempuan' : 'Laki-laki' }}</span>
                     @if(!empty($child['nik']))
                         <span class="text-slate-300">·</span>
-                        <span class="font-mono tracking-wider truncate">{{ $child['nik'] }}</span>
+                        <span class="font-mono tracking-wider truncate text-slate-400">{{ $child['nik'] }}</span>
                     @endif
                 </p>
             </div>
         </div>
 
         {{-- STATUS GIZI badge --}}
-        <div class="flex items-center gap-1.5">
+        <div class="inline-flex items-center gap-1.5 mr-auto px-2.5 py-1 rounded-md {{ $theme['badge'] }} border">
             <span class="w-1.5 h-1.5 rounded-full {{ $theme['dot'] }} shrink-0"></span>
-            <span class="text-[11px] font-bold {{ $theme['text'] }}">{{ $child['statusLabel'] ?? 'Normal' }}</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider">{{ $child['statusLabel'] ?? 'Normal' }}</span>
         </div>
 
         {{-- MEASUREMENT ROW --}}
-        <div class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50/50 border border-slate-100/60 mt-1">
             @if($latest)
                 <div class="flex-1 min-w-0">
-                    <span class="text-[9.5px] font-semibold text-slate-400 block">Pengukuran Terakhir</span>
-                    <p class="text-[11.5px] font-bold text-slate-800 truncate">{{ date('d M Y', strtotime($latest['created_at'])) }}</p>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Terakhir</span>
+                    <p class="text-[12px] font-semibold text-slate-800 truncate">{{ date('d M Y', strtotime($latest['created_at'])) }}</p>
                 </div>
-                <div class="w-px h-6 bg-slate-200 shrink-0"></div>
-                <div class="flex-1 min-w-0 pl-1">
-                    <span class="text-[9.5px] font-semibold text-slate-400 block">BB / TB</span>
-                    <p class="text-[11.5px] font-bold text-slate-800 truncate">{{ $latest['berat_badan'] }} kg / {{ $latest['tinggi_badan'] }} cm</p>
+                <div class="w-px h-7 bg-slate-200/80 shrink-0"></div>
+                <div class="flex-1 min-w-0">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">BB / TB</span>
+                    <p class="text-[12px] font-semibold text-slate-800 truncate">{{ $latest['berat_badan'] }} <span class="text-[10.5px] text-slate-500">kg</span> <span class="text-slate-300 mx-0.5">/</span> {{ $latest['tinggi_badan'] }} <span class="text-[10.5px] text-slate-500">cm</span></p>
                 </div>
             @else
-                <p class="text-[11px] text-slate-400 italic">Belum ada pengukuran</p>
+                <p class="text-[12px] font-medium text-slate-500 w-full text-center py-1">Belum ada data pengukuran</p>
             @endif
         </div>
 
         {{-- FOOTER: Posyandu + ibu --}}
-        <div class="flex items-center justify-between gap-2 mt-auto pt-0.5">
-            <div class="flex items-center gap-1.5 text-[10.5px] text-slate-500 min-w-0">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3 text-slate-400 shrink-0">
-                    <path fill-rule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.145 16.085 16.085 0 001.308-.935c1.137-.92 2.575-2.351 3.602-4.135.283-.498.53-1.02.747-1.553A10.955 10.955 0 0017 10c0-3.866-3.134-7-7-7S3 6.134 3 10c0 1.42.382 2.75 1.049 3.888.248.432.524.848.822 1.244a14.73 14.73 0 002.822 2.701 16.1 16.1 0 001.308.935 5.741 5.741 0 00.281.145l.018.008.006.003zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-                </svg>
+        <div class="flex items-center justify-between gap-2 mt-auto pt-2 border-t border-slate-100">
+            <div class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 min-w-0">
+                <x-icon name="map-pin" weight="fill" class="text-[13px] text-slate-400 shrink-0" />
                 <span class="truncate">{{ $child['posyandu']['nama'] ?? '-' }}</span>
             </div>
-            <span class="shrink-0 text-[10px] font-bold text-slate-400 flex items-center gap-1">
-                Lihat detail
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 group-hover:translate-x-0.5 transition-transform">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                </svg>
+            <span class="shrink-0 w-6 h-6 rounded-full bg-slate-50 text-slate-400 group-hover:bg-teal-50 group-hover:text-teal-600 flex items-center justify-center transition-colors">
+                <x-icon name="caret-right" weight="bold" class="text-[12px]" />
             </span>
         </div>
 

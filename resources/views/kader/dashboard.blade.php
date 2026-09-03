@@ -16,16 +16,16 @@
     {{-- PAGE HEADER (section) --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <h2 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900">Aktivitas Posyandu</h2>
-            <p class="text-sm text-slate-500 mt-0.5">Catat pengukuran &amp; pantau status gizi balita.</p>
+            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Aktivitas Posyandu</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Catat hasil penimbangan &amp; pantau status gizi balita hari ini.</p>
         </div>
         <div class="flex items-center gap-2.5">
             <a href="{{ route('balita.create') }}"
-               class="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/40">
-                <x-icon name="user-plus" weight="bold" class="text-base" /> Balita Baru
+               class="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-semibold shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-slate-300">
+                <x-icon name="user-plus" weight="bold" class="text-base text-slate-500" /> Balita Baru
             </a>
             <a href="{{ route('balita.index') }}"
-               class="inline-flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-white hover:bg-teal-50 text-teal-700 border border-teal-200 text-sm font-semibold shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+               class="inline-flex items-center justify-center gap-2 px-5 h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold shadow-md shadow-teal-600/20 transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-teal-500/40">
                 <x-icon name="scales" weight="bold" class="text-base" /> Mulai Timbang
             </a>
         </div>

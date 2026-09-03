@@ -42,68 +42,78 @@
         </a>
     </div>
 
-    {{-- SUMMARY: DONUT CHART + STATS --}}
-    <section class="bg-white border border-slate-200 rounded-2xl shadow-[0_1px_3px_rgba(15,23,42,0.06),0_12px_32px_-16px_rgba(15,23,42,0.14)] p-5 sm:p-6">
-        {{-- Header row --}}
-        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-5">Ringkasan Pengukuran</p>
-
-        {{-- Body: donut + stats, vertically centered --}}
-        <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-6 items-center">
-            <div class="relative w-28 h-28 shrink-0 rounded-full bg-teal-50 flex items-center justify-center mx-auto sm:mx-0">
-                <svg viewBox="0 0 36 36" class="w-28 h-28">
-                    <defs>
-                        <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#2dd4bf" />
-                            <stop offset="100%" stop-color="#0f766e" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ccfbf1" stroke-width="3.6"></circle>
-                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="url(#donutGrad)" stroke-width="3.6" stroke-linecap="{{ $percentage > 0 ? 'round' : 'butt' }}"
-                            stroke-dasharray="{{ $percentage }} {{ max(0, 100 - $percentage) }}" pathLength="100"></circle>
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="text-2xl font-bold text-slate-900 tabular-nums leading-none">{{ $percentage }}%</span>
-                    <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mt-1">Terukur</span>
-                </div>
+    {{-- TOOLBAR: search + filter dropdown (Naik ke paling atas untuk kecepatan akses lapangan) --}}
+    <div class="flex flex-col gap-3">
+        <form action="{{ route('balita.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3 sm:items-center">
+            <div class="relative w-full sm:flex-1">
+                <x-icon name="magnifying-glass" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none" />
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Ketik nama anak atau NIK balita…" aria-label="Cari balita berdasarkan nama atau NIK"
+                       class="w-full h-12 pl-11 pr-4 rounded-xl bg-white border border-slate-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/15 text-[14.5px] text-slate-800 placeholder:text-slate-400 shadow-sm transition-all focus:outline-none">
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="relative w-full sm:w-auto">
+                <x-icon name="funnel" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-lg pointer-events-none transition-colors {{ request('filter') ? 'text-teal-600' : 'text-slate-400' }}" />
+                <select name="filter" onchange="this.form.submit()" aria-label="Filter balita"
+                        class="w-full sm:w-[240px] h-12 pl-11 pr-12 rounded-xl bg-white border border-slate-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/15 text-sm font-semibold text-slate-700 appearance-none cursor-pointer shadow-sm transition-all focus:outline-none">
+                    <option value="">Semua Kategori ({{ $total }})</option>
+                    @foreach($filters as $key => $f)
+                        <option value="{{ $key }}" @if(request('filter') === $key) selected @endif>{{ $f['label'] }} ({{ $f['count'] }})</option>
+                    @endforeach
+                </select>
+                <x-icon name="caret-down" weight="bold" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
+            </div>
+        </form>
+
+        {{-- Quick Tap Filter Pills (Memudahkan jempol HP kader tanpa harus buka select dropdown) --}}
+        <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar py-0.5 -mx-1 px-1">
+            <a href="{{ route('balita.index') }}" 
+               class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[12.5px] font-semibold border transition-all shrink-0 {{ !request('filter') ? 'bg-teal-600 border-teal-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+                Semua ({{ $total }})
+            </a>
+            @foreach($filters as $key => $f)
+                @php $isActive = request('filter') === $key; @endphp
+                <a href="{{ route('balita.index', ['filter' => $key, 'q' => request('q')]) }}" 
+                   class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-[12.5px] font-semibold border transition-all shrink-0 {{ $isActive ? 'bg-teal-600 border-teal-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50' }}">
+                    <span class="w-2 h-2 rounded-full {{ $isActive ? 'bg-white' : $f['dot'] }} shrink-0"></span>
+                    <span>{{ $f['label'] }}</span>
+                    <span class="text-[11px] px-1.5 py-0.2 rounded-full {{ $isActive ? 'bg-teal-700 text-teal-100' : 'bg-slate-100 text-slate-600' }}">{{ $f['count'] }}</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- SUMMARY: RINGKASAN PROGRESS BULAN INI --}}
+    <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="relative w-16 h-16 shrink-0 rounded-full bg-teal-50 flex items-center justify-center">
+                    <svg viewBox="0 0 36 36" class="w-16 h-16">
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#ccfbf1" stroke-width="3.6"></circle>
+                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0d9488" stroke-width="3.6" stroke-linecap="{{ $percentage > 0 ? 'round' : 'butt' }}"
+                                stroke-dasharray="{{ $percentage }} {{ max(0, 100 - $percentage) }}" pathLength="100"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span class="text-xs font-bold text-slate-900 tabular-nums leading-none">{{ $percentage }}%</span>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Progres Penimbangan Bulan Ini</h3>
+                    <p class="text-[12.5px] text-slate-500 mt-0.5"><span class="font-semibold text-teal-700">{{ $sudah }}</span> dari {{ $total }} balita telah terukur (<span class="font-semibold text-amber-600">{{ $belum }}</span> balita masih antre).</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
                 @foreach($stats as $stat)
-                    <div class="relative rounded-xl bg-white border border-slate-200 p-3 flex items-center gap-2.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
-                        <span class="absolute top-0 inset-x-0 h-0.5 bg-{{ $stat['color'] }}-500"></span>
-                        <span class="w-9 h-9 shrink-0 rounded-lg bg-{{ $stat['color'] }}-50 text-{{ $stat['color'] }}-600 flex items-center justify-center">
-                            <x-icon name="{{ $stat['icon'] }}" weight="fill" class="text-[17px]" />
-                        </span>
-                        <div class="min-w-0">
-                            <p class="text-xl font-bold tabular-nums leading-none text-slate-900">{{ $stat['value'] }}</p>
-                            <p class="text-[10.5px] font-semibold text-slate-500 mt-0.5 truncate">{{ $stat['label'] }}</p>
+                    <div class="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2">
+                        <x-icon name="{{ $stat['icon'] }}" weight="fill" class="text-sm text-{{ $stat['color'] }}-600" />
+                        <div>
+                            <p class="text-xs font-bold text-slate-800 leading-none tabular-nums">{{ $stat['value'] }}</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5 truncate">{{ $stat['label'] }}</p>
                         </div>
                     </div>
                 @endforeach
             </div>
         </div>
     </section>
-
-    {{-- TOOLBAR: search + filter dropdown --}}
-    <form action="{{ route('balita.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3 sm:items-center">
-        <div class="relative w-full sm:flex-1">
-            <x-icon name="magnifying-glass" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none" />
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama atau NIK balita…" aria-label="Cari balita berdasarkan nama atau NIK"
-                   class="w-full h-11 pl-11 pr-4 rounded-xl bg-white border border-slate-200 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/10 text-sm text-slate-700 placeholder:text-slate-400 transition-all focus:outline-none">
-        </div>
-
-        <div class="relative w-full sm:w-auto">
-            <x-icon name="funnel" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-lg pointer-events-none transition-colors {{ request('filter') ? 'text-teal-600' : 'text-slate-400' }}" />
-            <select name="filter" onchange="this.form.submit()" aria-label="Filter balita"
-                    class="w-full sm:w-[240px] h-11 pl-11 pr-12 rounded-xl bg-slate-50 border border-slate-200 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/10 focus:bg-white text-sm font-medium text-slate-700 appearance-none cursor-pointer transition-all focus:outline-none">
-                <option value="">Semua Balita ({{ $total }})</option>
-                @foreach($filters as $key => $f)
-                    <option value="{{ $key }}" @if(request('filter') === $key) selected @endif>{{ $f['label'] }} ({{ $f['count'] }})</option>
-                @endforeach
-            </select>
-            <x-icon name="caret-down" weight="bold" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" />
-        </div>
-    </form>
 
     @if(request('filter') || request('q'))
     <div class="flex flex-wrap items-center gap-2 text-[12px] text-slate-500">
@@ -126,13 +136,17 @@
 
     @if(request('q') && $priorityBalitas->isEmpty() && $displayBalitas->isEmpty())
         {{-- EMPTY STATE (search) --}}
-        <div class="flex flex-col items-center justify-center text-center py-16 px-6 gap-2 bg-white border border-slate-200 rounded-2xl shadow-sm">
-            <div class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mb-1">
-                <x-icon name="magnifying-glass" weight="bold" class="text-xl text-slate-300" />
+        <div class="flex flex-col items-center justify-center text-center py-20 px-6 gap-3 bg-slate-50/50 border border-slate-200/60 rounded-3xl shadow-sm border-dashed">
+            <div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center mb-1">
+                <x-icon name="magnifying-glass" weight="bold" class="text-2xl text-slate-400" />
             </div>
-            <h3 class="text-[15px] font-semibold text-slate-800">Tidak ditemukan</h3>
-            <p class="text-[13px] text-slate-400 max-w-xs">Tidak ada balita dengan nama atau NIK "<span class="text-slate-600 font-medium">{{ request('q') }}</span>".</p>
-            <a href="{{ route('balita.index') }}" class="mt-1 text-[13px] font-semibold text-teal-600 hover:text-teal-700 transition-colors">Tampilkan semua</a>
+            <div>
+                <h3 class="text-[16px] font-bold text-slate-800">Tidak ditemukan</h3>
+                <p class="text-[13px] text-slate-500 max-w-xs mt-1">Tidak ada balita dengan nama atau NIK "<span class="text-slate-700 font-semibold">{{ request('q') }}</span>".</p>
+            </div>
+            <a href="{{ route('balita.index') }}" class="mt-2 text-[13px] font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-xl transition-colors inline-flex items-center gap-2">
+                <x-icon name="arrow-left" weight="bold" class="text-[12px]" /> Kembali ke Semua Data
+            </a>
         </div>
     @else
 
@@ -194,14 +208,18 @@
                             default => 'Tidak ada balita yang sesuai dengan filter atau pencarian saat ini.'
                         };
                     @endphp
-                    <div class="col-span-full flex flex-col items-center justify-center text-center py-16 px-6 gap-2.5 bg-white border border-slate-200 rounded-2xl shadow-sm">
-                        <div class="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-1 text-teal-600">
-                            <x-icon name="check-circle" weight="fill" class="text-2xl" />
+                    <div class="col-span-full flex flex-col items-center justify-center text-center py-20 px-6 gap-3 bg-slate-50/50 border border-slate-200/60 rounded-3xl shadow-sm border-dashed">
+                        <div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center mb-1 text-teal-600">
+                            <x-icon name="check-circle" weight="fill" class="text-3xl" />
                         </div>
-                        <p class="text-sm font-bold text-slate-800">{{ $emptyTitle }}</p>
-                        <p class="text-xs font-medium text-slate-400 max-w-sm leading-relaxed">{{ $emptySub }}</p>
+                        <div>
+                            <p class="text-[16px] font-bold text-slate-800">{{ $emptyTitle }}</p>
+                            <p class="text-[13px] font-medium text-slate-500 max-w-sm leading-relaxed mt-1">{{ $emptySub }}</p>
+                        </div>
                         @if($activeFilter)
-                            <a href="{{ route('balita.index') }}" class="mt-1 text-xs font-bold text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-xl transition-colors">Tampilkan Semua Balita</a>
+                            <a href="{{ route('balita.index') }}" class="mt-2 text-[13px] font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 px-4 py-2 rounded-xl transition-colors inline-flex items-center gap-2">
+                                <x-icon name="arrow-left" weight="bold" class="text-[12px]" /> Hapus Filter
+                            </a>
                         @endif
                     </div>
                 @endforelse
