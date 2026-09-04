@@ -8,6 +8,7 @@ use App\Services\DashboardService;
 use App\Services\GrowthCalculationService;
 use App\Services\RecommendationService;
 use App\Services\StatisticsService;
+use App\Services\WhatsAppService;
 use App\Models\Balita;
 use App\Models\Pengukuran;
 use App\Models\Posyandu;
@@ -28,7 +29,8 @@ class KaderController extends Controller
         protected DashboardService $dashboardService,
         protected GrowthCalculationService $growthService,
         protected RecommendationService $recommendationService,
-        protected StatisticsService $statisticsService
+        protected StatisticsService $statisticsService,
+        protected WhatsAppService $whatsAppService
     ) {}
 
     private function getKaderPosyanduId(): int
@@ -178,6 +180,54 @@ class KaderController extends Controller
         return view('kader.dashboard', $data);
     }
 
+    private function formatBalita($b): array
+    {
+        $latest = $b->latestPengukuran;
+        $age = Carbon::parse($b->tanggal_lahir)->diff(Carbon::now());
+        $status = $latest ? $latest->status_gizi : 'Belum Ada';
+        $statusType = match (strtolower($status)) {
+            'stunting' => 'danger',
+            'risiko', 'kurang' => 'warning',
+            'normal' => 'success',
+            default => 'warning'
+        };
+        $rejectedMeasurement = $b->pengukurans->where('status_validasi', 'rejected')->first();
+        $status_validasi = $rejectedMeasurement ? 'rejected' : ($latest ? $latest->status_validasi : 'pending');
+        if ($rejectedMeasurement) {
+            $statusType = 'danger';
+        }
+        $isGirl = in_array(strtolower($b->jenis_kelamin ?? ''), ['p', 'perempuan', 'female']);
+        $genderLabel = $isGirl ? 'Perempuan' : 'Laki-laki';
+        $maskedNik = $b->nik;
+        if ($b->nik && strlen($b->nik) >= 12) {
+            $maskedNik = substr($b->nik, 0, 6) . '*********' . substr($b->nik, -4);
+        }
+        $bbTbText = '-';
+        if ($latest && $latest->berat_badan > 0 && $latest->tinggi_badan > 0) {
+            $bbTbText = number_format($latest->berat_badan, 1, ',', '.') . ' kg / ' . number_format($latest->tinggi_badan, 1, ',', '.') . ' cm';
+        } elseif ($latest && $latest->berat_badan > 0) {
+            $bbTbText = number_format($latest->berat_badan, 1, ',', '.') . ' kg';
+        } elseif ($b->berat_lahir > 0) {
+            $bbTbText = number_format($b->berat_lahir, 1, ',', '.') . ' kg';
+        }
+        return [
+            'id' => $b->id,
+            'name' => $b->nama,
+            'age' => $age->y > 0 ? $age->y . ' Thn ' . $age->m . ' Bln' : $age->m . ' Bln',
+            'gender' => $b->jenis_kelamin,
+            'gender_label' => $genderLabel,
+            'nik' => $b->nik,
+            'masked_nik' => $maskedNik,
+            'mother' => $b->orangTua->nama_ibu ?? '-',
+            'last_measure' => $latest ? Carbon::parse($latest->tanggal_ukur)->translatedFormat('d M Y') : 'Belum Ada',
+            'bb_tb' => $bbTbText,
+            'status' => $this->formatDisplayStatus($status, $status_validasi),
+            'status_type' => $statusType,
+            'status_validasi' => $status_validasi,
+            'rejection_note' => $rejectedMeasurement?->catatan_validator,
+        ];
+    }
+
     public function daftarBalita(Request $request)
     {
         $posyanduId = $this->getKaderPosyanduId();
@@ -263,66 +313,35 @@ class KaderController extends Controller
             })->count(),
         ];
 
-        $balitas = $query->with(['orangTua', 'pengukurans'])->get();
+        $allFormatted = $query->with(['orangTua', 'pengukurans'])->get()
+            ->map(fn($b) => $this->formatBalita($b))
+            ->values();
 
-        $formattedBalitas = $balitas->map(function($b) {
-            $latest = $b->latestPengukuran;
-            $age = Carbon::parse($b->tanggal_lahir)->diff(Carbon::now());
-            
-            $status = $latest ? $latest->status_gizi : 'Belum Ada';
-            $statusType = match(strtolower($status)) {
-                'stunting' => 'danger',
-                'risiko', 'kurang' => 'warning',
-                'normal' => 'success',
-                default => 'warning'
-            };
+        $isFiltered = (bool) ($filter || request('q'));
+        if (!$isFiltered) {
+            $priority = $allFormatted->filter(fn($a) => in_array($a['status_type'] ?? '', ['danger', 'warning']))->values();
+            $daftar   = $allFormatted->reject(fn($a) => in_array($a['status_type'] ?? '', ['danger', 'warning']))->values();
+        } else {
+            $priority = collect([]);
+            $daftar   = $allFormatted;
+        }
 
-            $rejectedMeasurement = $b->pengukurans->where('status_validasi', 'rejected')->first();
-            $status_validasi = $rejectedMeasurement ? 'rejected' : ($latest ? $latest->status_validasi : 'pending');
-
-            if ($rejectedMeasurement) {
-                $statusType = 'danger';
-            }
-
-            $isGirl = in_array(strtolower($b->jenis_kelamin ?? ''), ['p', 'perempuan', 'female']);
-            $genderLabel = $isGirl ? 'Perempuan' : 'Laki-laki';
-
-            $maskedNik = $b->nik;
-            if ($b->nik && strlen($b->nik) >= 12) {
-                $maskedNik = substr($b->nik, 0, 6) . '*********' . substr($b->nik, -4);
-            }
-
-            $bbTbText = '-';
-            if ($latest && $latest->berat_badan > 0 && $latest->tinggi_badan > 0) {
-                $bbTbText = number_format($latest->berat_badan, 1, ',', '.') . ' kg / ' . number_format($latest->tinggi_badan, 1, ',', '.') . ' cm';
-            } elseif ($latest && $latest->berat_badan > 0) {
-                $bbTbText = number_format($latest->berat_badan, 1, ',', '.') . ' kg';
-            } elseif ($b->berat_lahir > 0) {
-                $bbTbText = number_format($b->berat_lahir, 1, ',', '.') . ' kg';
-            }
-
-            return [
-                'id' => $b->id,
-                'name' => $b->nama,
-                'age' => $age->y > 0 ? $age->y . ' Thn ' . $age->m . ' Bln' : $age->m . ' Bln',
-                'gender' => $b->jenis_kelamin,
-                'gender_label' => $genderLabel,
-                'nik' => $b->nik,
-                'masked_nik' => $maskedNik,
-                'mother' => $b->orangTua->nama_ibu ?? '-',
-                'last_measure' => $latest ? Carbon::parse($latest->tanggal_ukur)->translatedFormat('d M Y') : 'Belum Ada',
-                'bb_tb' => $bbTbText,
-                'status' => $this->formatDisplayStatus($status, $status_validasi),
-                'status_type' => $statusType,
-                'status_validasi' => $status_validasi,
-                'rejection_note' => $rejectedMeasurement?->catatan_validator,
-            ];
-        });
+        // Paginasi manual (logika status di PHP, bukan query) — tampilkan 12 per halaman
+        $perPage = 12;
+        $page = max(1, (int) request()->get('page', 1));
+        $balitas = new \Illuminate\Pagination\LengthAwarePaginator(
+            $daftar->forPage($page, $perPage)->values(),
+            $daftar->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         $ds = $this->statisticsService->getKaderDashboardStats($posyanduId);
 
         return view('kader.daftar-balita', [
-            'balitas' => $formattedBalitas,
+            'balitas' => $balitas,
+            'priorityBalitas' => $priority,
             'filters' => $request->all(),
             'filterCounts' => $filterCounts,
             'statSelesai' => $ds['bulan_ini'],
@@ -587,6 +606,7 @@ class KaderController extends Controller
             'gender'         => $b->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
             'age'            => $ageStr,
             'birthDate'      => \Carbon\Carbon::parse($b->tanggal_lahir)->translatedFormat('d F Y'),
+            'birthDateRaw'   => \Carbon\Carbon::parse($b->tanggal_lahir)->format('Y-m-d'),
             'nik'            => $b->nik,
             'noBpjs'         => $b->no_bpjs,
             'birthWeight'    => $b->berat_lahir,
@@ -610,6 +630,36 @@ class KaderController extends Controller
         ];
 
         return view('kader.profil-balita', $data);
+    }
+
+    /**
+     * Menyiapkan halaman pengukuran (Ukur Sekarang) untuk satu balita.
+     * Kader mengisi data pertumbuhan saat hari posyandu.
+     */
+    public function ukurBalita($id)
+    {
+        $posyanduId = $this->getKaderPosyanduId();
+        $b = Balita::with('orangTua')->where('posyandu_id', $posyanduId)->findOrFail($id);
+
+        $last = $b->pengukurans()->orderBy('tanggal_ukur', 'desc')->orderBy('id', 'desc')->first();
+
+        $ageDiff = Carbon::parse($b->tanggal_lahir)->diff(Carbon::now());
+        $age = $ageDiff->y > 0
+            ? $ageDiff->y . ' Thn ' . $ageDiff->m . ' Bln'
+            : ($ageDiff->m > 0 ? $ageDiff->m . ' Bln' : $ageDiff->d . ' Hari');
+
+        return view('kader.ukur-balita', [
+            'balitaId'      => $b->id,
+            'childName'     => $b->nama,
+            'gender'        => $b->jenis_kelamin,
+            'age'           => $age,
+            'birthDate'     => Carbon::parse($b->tanggal_lahir)->translatedFormat('d M Y'),
+            'lastWeight'    => $last?->berat_badan,
+            'lastHeight'    => $last?->tinggi_badan,
+            'lastHeadCirc'  => $last?->lingkar_kepala,
+            'lastDate'      => $last?->tanggal_ukur ? Carbon::parse($last->tanggal_ukur)->translatedFormat('d M Y') : null,
+            'lastStatus'    => $last ? $this->formatDisplayStatus($last->status_gizi, $last->status_validasi) : null,
+        ]);
     }
 
     public function pengukuran()
@@ -740,20 +790,6 @@ class KaderController extends Controller
         ]); 
     }
 
-    public function tambahJadwal() 
-    { 
-        $posyanduId = $this->getKaderPosyanduId();
-        $posyandu = Posyandu::find($posyanduId);
-        $posyanduName = $posyandu?->nama ?? 'Posyandu Kader';
-
-        return view('kader.tambah-jadwal', [
-            'posyanduId' => $posyanduId,
-            'posyanduName' => $posyanduName,
-            'isEdit' => false,
-            'jadwal' => null
-        ]); 
-    }
-
     public function simpanJadwal(StoreJadwalRequest $request)
     {
         $posyanduId = $this->getKaderPosyanduId();
@@ -775,55 +811,6 @@ class KaderController extends Controller
 
         return redirect()->route('jadwal.index')
             ->with('success', 'Jadwal Posyandu berhasil dibuat dan otomatis terbit di Portal Ibu.');
-    }
-
-    public function detailJadwal($id)
-    {
-        Carbon::setLocale('id');
-        $posyanduId = $this->getKaderPosyanduId();
-        $jadwal = Jadwal::where('posyandu_id', $posyanduId)->findOrFail($id);
-
-        $tgl = Carbon::parse($jadwal->tanggal);
-        $isPast = $tgl->isPast() && !$tgl->isToday();
-        $isToday = $tgl->isToday();
-
-        $statusText = $isToday ? 'Hari Ini' : ($isPast ? 'Selesai' : 'Akan Datang');
-        $statusType = $isToday ? 'today' : ($isPast ? 'past' : 'upcoming');
-
-        $data = [
-            'id' => $jadwal->id,
-            'judul' => $jadwal->judul,
-            'lokasi' => $jadwal->lokasi,
-            'tanggal' => $tgl->translatedFormat('d F Y'),
-            'hari' => $tgl->translatedFormat('l'),
-            'waktu' => substr($jadwal->waktu_mulai, 0, 5) . ' - ' . substr($jadwal->waktu_selesai, 0, 5) . ' WIB',
-            'waktu_mulai' => substr($jadwal->waktu_mulai, 0, 5),
-            'waktu_selesai' => substr($jadwal->waktu_selesai, 0, 5),
-            'catatan' => $jadwal->catatan,
-            'status' => $statusText,
-            'status_type' => $statusType,
-            'posyandu_nama' => $jadwal->posyandu?->nama ?? 'Posyandu Kader',
-            'desa' => $jadwal->posyandu?->desa_kelurahan ?? '-',
-            'alamat_posyandu' => $jadwal->posyandu?->alamat ?? '-',
-            'kader_nama' => $jadwal->kader?->user?->name ?? 'Kader Posyandu'
-        ];
-
-        return view('kader.detail-jadwal', ['jadwal' => $data]);
-    }
-
-    public function editJadwal($id)
-    {
-        $posyanduId = $this->getKaderPosyanduId();
-        $jadwal = Jadwal::where('posyandu_id', $posyanduId)->findOrFail($id);
-        $posyandu = Posyandu::find($posyanduId);
-        $posyanduName = $posyandu?->nama ?? 'Posyandu Kader';
-
-        return view('kader.tambah-jadwal', [
-            'posyanduId' => $posyanduId,
-            'posyanduName' => $posyanduName,
-            'isEdit' => true,
-            'jadwal' => $jadwal
-        ]);
     }
 
     public function updateJadwal(Request $request, $id)
@@ -868,6 +855,51 @@ class KaderController extends Controller
         return redirect()->route('jadwal.index')
             ->with('success', 'Jadwal Posyandu berhasil dihapus.');
     }
+
+    /**
+     * Kirim pengingat WhatsApp ke seluruh Ibu (orang tua) balita di posyandu ini
+     * tentang sebuah jadwal posyandu.
+     */
+    public function kirimNotifikasiJadwal($id)
+    {
+        $posyanduId = $this->getKaderPosyanduId();
+        $jadwal = Jadwal::where('posyandu_id', $posyanduId)->findOrFail($id);
+
+        // Jangan kirim pengingat untuk jadwal yang sudah lewat.
+        if (Carbon::parse($jadwal->tanggal)->isPast()) {
+            return back()->with('success', 'Jadwal sudah selesai dilaksanakan — pengingat tidak dikirim.');
+        }
+
+        // Semua ibu (orang tua) yang punya balita terdaftar di posyandu ini
+        $orangs = OrangTua::whereHas('balitas', fn ($q) => $q->where('posyandu_id', $posyanduId))
+            ->whereNotNull('no_hp_whatsapp')
+            ->get();
+
+        if ($orangs->isEmpty()) {
+            return back()->with('success', 'Tidak ada Ibu balita dengan nomor WhatsApp di posyandu ini.');
+        }
+
+        $tgl = Carbon::parse($jadwal->tanggal);
+        $pesan = "📢 *PENGUMUMAN JADWAL POSYANDU*\n\n"
+            . "*{$jadwal->judul}*\n"
+            . "📅 {$tgl->translatedFormat('l, d F Y')}\n"
+            . "⏰ " . substr($jadwal->waktu_mulai, 0, 5) . " - " . substr($jadwal->waktu_selesai, 0, 5) . " WIB\n"
+            . "📍 {$jadwal->lokasi}"
+            . ($jadwal->catatan ? "\n\n📝 {$jadwal->catatan}" : '')
+            . "\n\nMohon hadir tepat waktu & bawa Buku KIA. Terima kasih 🙏";
+
+        $sent = 0; $failed = 0;
+        foreach ($orangs as $ortu) {
+            $r = $this->whatsAppService->send($ortu->id, null, $ortu->no_hp_whatsapp, $pesan, 'whatsapp');
+            if ($r['status'] === 'sent') { $sent++; } else { $failed++; }
+        }
+
+        $kata = $failed > 0
+            ? "Pengingat terkirim ke {$sent} ibu ({$failed} gagal)."
+            : "Pengingat WhatsApp terkirim ke {$sent} ibu di posyandu ini.";
+
+        return back()->with('success', $kata);
+    }
     public function laporan(Request $request) 
     { 
         $posyanduId = $this->getKaderPosyanduId();
@@ -891,6 +923,29 @@ class KaderController extends Controller
         $persentase = $stats['total_balita'] > 0 ? round(($stats['bulan_ini'] / $stats['total_balita']) * 100) : 0;
         
         $dataKosong = $stats['total_balita'] === 0 || $stats['bulan_ini'] === 0;
+
+        // Donut: komposisi status gizi (approved) pada periode terpilih
+        $donut = [
+            'normal'   => $stats['normal'] ?? 0,
+            'risiko'   => $stats['risiko'] ?? 0,
+            'stunting' => $stats['stunting'] ?? 0,
+            'kurang'   => $stats['kurang'] ?? 0,
+        ];
+
+        // Tren kunjungan penimbangan + komposisi status: 6 bulan terakhir (berakhir di periode terpilih)
+        $tren = ['label' => [], 'pct' => [], 'count' => [], 'total' => [], 'normal' => [], 'risiko' => [], 'stunting' => [], 'kurang' => []];
+        for ($i = 5; $i >= 0; $i--) {
+            $m = Carbon::createFromDate($year, $month, 1)->subMonths($i);
+            $s = $this->statisticsService->getKaderDashboardStats($posyanduId, $m->month, $m->year);
+            $tren['label'][]   = $m->translatedFormat('M y');
+            $tren['total'][]   = (int) $s['total_balita'];
+            $tren['count'][]   = $s['total_balita'] > 0 ? (int) $s['bulan_ini'] : 0;
+            $tren['pct'][]     = $s['total_balita'] > 0 ? round(($s['bulan_ini'] / $s['total_balita']) * 100, 1) : 0;
+            $tren['normal'][]  = (int) ($s['normal'] ?? 0);
+            $tren['risiko'][]  = (int) ($s['risiko'] ?? 0);
+            $tren['stunting'][]= (int) ($s['stunting'] ?? 0);
+            $tren['kurang'][]  = (int) ($s['kurang'] ?? 0);
+        }
 
         $previewBalitas = Balita::where('posyandu_id', $posyanduId)
             ->whereHas('pengukurans', function ($q) use ($month, $year) {
@@ -916,6 +971,8 @@ class KaderController extends Controller
             'berisiko' => $berisiko,
             'persentase' => $persentase,
             'dataKosong' => $dataKosong,
+            'chartDonut' => $donut,
+            'chartTren' => $tren,
             'previewBalitas' => $previewBalitas
         ]); 
     }
@@ -1132,27 +1189,33 @@ class KaderController extends Controller
     public function profilKader()
     {
         $kader = Auth::user()->kader;
-        
-        $alamatRaw = $kader->posyandu->alamat ?? '';
+        $posyandu = $kader?->posyandu;
+
+        $alamatRaw = $posyandu?->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
-            $desa = $alamatData['desa'] ?? $kader->posyandu->desa ?? '-';
+            $desa = $alamatData['desa'] ?? $posyandu?->desa ?? '-';
             $kecamatan = $alamatData['kecamatan'] ?? '-';
         } else {
-            $desa = $kader->posyandu->desa ?? '-';
+            $desa = $posyandu?->desa ?? '-';
             $kecamatan = '-';
         }
-        
+
         return view('kader.profil-kader', [
-            'kaderName' => $kader->nama ?? Auth::user()->name,
+            'kaderName' => $kader?->nama ?? Auth::user()->name,
             'role' => 'Kader Posyandu',
             'email' => Auth::user()->email,
-            'phone' => $kader->no_hp ?? '-',
-            'posyanduName' => $kader->posyandu->nama ?? '-',
+            'phone' => $kader?->no_hp ?? '-',
+            'posyanduName' => $posyandu?->nama ?? '-',
             'desa' => $desa,
             'kecamatan' => $kecamatan,
-            'puskesmas' => $kader->posyandu->puskesmas->nama ?? '-',
-            'status' => 'Aktif'
+            'puskesmas' => $posyandu?->puskesmas?->nama ?? '-',
+            'status' => 'Aktif',
+            'joinedAt' => optional(Auth::user()->created_at)->translatedFormat('M Y') ?? '-',
+            'balitaCount' => $posyandu?->balitas()->count() ?? 0,
+            'pengukuranCount' => $posyandu?->pengukurans()->count() ?? 0,
+            'jadwalCount' => $posyandu?->jadwals()->count() ?? 0,
+            'avatarUrl' => null,
         ]);
     }
 
@@ -1160,9 +1223,11 @@ class KaderController extends Controller
     {
         $kader = Auth::user()->kader;
         return view('kader.edit-profil-kader', [
-            'name' => $kader->nama ?? Auth::user()->name,
+            'name' => $kader?->nama ?? Auth::user()->name,
             'email' => Auth::user()->email,
-            'phone' => $kader->no_hp ?? ''
+            'phone' => $kader?->no_hp ?? '',
+            'posyanduName' => $kader?->posyandu?->nama ?? '-',
+            'puskesmasName' => $kader?->posyandu?->puskesmas?->nama ?? '-',
         ]);
     }
 
