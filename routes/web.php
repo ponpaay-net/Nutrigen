@@ -98,10 +98,18 @@ require __DIR__.'/auth.php';
 use App\Http\Controllers\Puskesmas\PuskesmasController;
 
 Route::prefix('puskesmas')->name('puskesmas.')->middleware(['web', 'auth', 'prevent-back-history', 'role:puskesmas'])->group(function () {
+    Route::get('/', function() {
+        return redirect()->route('puskesmas.dashboard');
+    });
+
+    // Dashboard & Metrics
     Route::get('/dashboard', [PuskesmasController::class, 'dashboard'])->name('dashboard');
     Route::get('/balita',    [PuskesmasController::class, 'balita'])->name('balita');
     Route::get('/balita/{id}', [PuskesmasController::class, 'showBalita'])->name('balita.show');
     Route::get('/laporan',   [PuskesmasController::class, 'laporan'])->name('laporan');
+    Route::get('/laporan/export-excel', [PuskesmasController::class, 'exportExcel'])->name('laporan.export.excel');
+    Route::get('/laporan/cetak-pdf', [PuskesmasController::class, 'cetakPdf'])->name('laporan.cetak.pdf');
+    Route::get('/api/validasi-count', [PuskesmasController::class, 'apiValidasiCount'])->name('api.validasi-count');
 
     // Legacy mapping (to prevent UI breaking)
     Route::get('/validasi', [PuskesmasController::class, 'validasi'])->name('validasi');

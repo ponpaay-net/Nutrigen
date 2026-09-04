@@ -43,13 +43,13 @@ class StatisticsService
             ->where('status_gizi', 'Stunting')
             ->count();
 
-        // Approved (approved) measurements for the current month
+        // Approved (approved) measurements for the current month (based on when it was validated)
         $now = Carbon::now();
         $approvedThisMonth = Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
             $q->where('puskesmas_id', $puskesmasId);
         })->where('status_validasi', 'approved')
-            ->whereYear('tanggal_ukur', $now->year)
-            ->whereMonth('tanggal_ukur', $now->month)
+            ->whereYear('validated_at', $now->year)
+            ->whereMonth('validated_at', $now->month)
             ->count();
 
         // Total measurements taken this month (regardless of status)
@@ -121,12 +121,24 @@ class StatisticsService
         $normal = $baseQuery()
             ->whereRaw('LOWER(status_gizi) = ?', ['normal'])
             ->count();
+            
+        $now = Carbon::now();
+        $validThisMonth = Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId, $posyanduNama) {
+            $q->where('puskesmas_id', $puskesmasId);
+            if ($posyanduNama) {
+                $q->where('nama', $posyanduNama);
+            }
+        })->where('status_validasi', 'approved')
+            ->whereYear('validated_at', $now->year)
+            ->whereMonth('validated_at', $now->month)
+            ->count();
 
         return [
             'pending' => $pending,
             'anomali' => $anomali,
             'berisiko' => $berisiko,
             'normal' => $normal,
+            'valid' => $validThisMonth,
         ];
     }
 

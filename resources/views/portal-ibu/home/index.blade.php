@@ -112,6 +112,19 @@
                         <p class="text-[11.5px] font-medium text-slate-500 leading-relaxed line-clamp-3">
                             {{ $summary['message'] ?? 'Berdasarkan standar penilaian WHO, berat dan tinggi badan anak berada pada kurva pertumbuhan yang ideal.' }}
                         </p>
+
+                        <!-- TINGGI-02: Menampilkan Catatan/Instruksi dari Ahli Gizi Puskesmas -->
+                        @if(!empty($summary['catatan_validator']))
+                            <div class="mt-2.5 p-2.5 bg-teal-50/70 border border-teal-100 rounded-lg">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <svg class="w-3.5 h-3.5 text-teal-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                                    <span class="text-[10px] font-black text-teal-800 uppercase tracking-wide">Pesan Ahli Gizi Puskesmas</span>
+                                </div>
+                                <p class="text-[11px] font-medium text-teal-900 leading-snug italic">
+                                    "{{ $summary['catatan_validator'] }}"
+                                </p>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

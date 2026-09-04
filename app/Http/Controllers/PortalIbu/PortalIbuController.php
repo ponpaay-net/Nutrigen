@@ -142,7 +142,8 @@ class PortalIbuController extends Controller
                 'status' => $recommendation['status'] ?? 'Belum Ada Data',
                 'title' => $recommendation['title'] ?? 'Tumbuh Kembang Si Kecil',
                 'message' => $recommendation['education'] ?? 'Silakan lakukan penimbangan rutin di Posyandu.',
-                'action' => $recommendation['follow_up_action'] ?? 'Tunggu jadwal Posyandu berikutnya.'
+                'action' => $recommendation['follow_up_action'] ?? 'Tunggu jadwal Posyandu berikutnya.',
+                'catatan_validator' => $latest->catatan_validator ?? null
             ],
             'measurement' => $latest ? [
                 'date' => Carbon::parse($latest->tanggal_ukur)->format('d M Y'),

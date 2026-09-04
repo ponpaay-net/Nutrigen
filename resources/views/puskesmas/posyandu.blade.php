@@ -3,278 +3,379 @@
 @section('page-mode', 'app')
 @section('content')
 
-    {{-- Backend Contract:
-    Controller: PuskesmasPosyanduController@index
-    Expected Variables: $posyandus, $filters, $selectedPosyandu
---}}
-    @php
-        $filters = [
-            'q' => request('q', ''),
-        ];
+@php
+    $filters = ['q' => request('q', '')];
+    $requestedId = request('id');
+    $selectedPosyandu = null;
 
-        // Server-side selection logic
-        $requestedId = request('id');
-        $selectedPosyandu = null;
+    if ($requestedId) {
+        $selectedPosyandu = collect($posyandus)->firstWhere('id', (int) $requestedId);
+    }
+    if (!$selectedPosyandu && count($posyandus) > 0) {
+        $selectedPosyandu = $posyandus[0];
+    }
+@endphp
 
-        if ($requestedId) {
-            $selectedPosyandu = collect($posyandus)->firstWhere('id', (int) $requestedId);
-        }
+<div id="toastContainer" class="fixed top-10 right-5 z-50 flex flex-col gap-2"></div>
 
-        // Default to first posyandu if none selected or invalid ID
-        if (!$selectedPosyandu && count($posyandus) > 0) {
-            $selectedPosyandu = $posyandus[0];
-        }
-    @endphp
-
-    <!-- Toast Notification Container -->
-    <div id="toastContainer" class="fixed top-10 right-5 z-50 flex flex-col gap-2"></div>
-
-    <!-- Full-viewport Main Container -->
-    <div class="flex-1 overflow-y-auto bg-white hide-scrollbar relative">
-
-        <!-- Main Content Wrapper -->
-        <div class="p-5 lg:p-8 max-w-[1300px] mx-auto w-full pt-4 lg:pt-5">
-
-            <!-- CSS Grid Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-                <!-- LEFT PANEL: Direktori Posyandu -->
-                <div
-                    class="lg:col-span-4 {{ $selectedPosyandu ? 'hidden lg:flex' : 'flex' }} flex-col sticky top-0 lg:top-4 h-[calc(100vh-2rem)] lg:h-[calc(100vh-4rem)]">
-
-                    <!-- Panel Header -->
-                    <div class="shrink-0 pb-4">
-                        <p class="text-[10px] font-bold text-[#06667A] uppercase tracking-widest mb-1">Regional Monitoring</p>
-                        <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-2">Direktori Posyandu</h2>
-                        <p class="text-[13px] text-slate-500 mb-6">Kelola data posyandu, kader, dan pantau aktivitas pengukuran balita di wilayah kerja Anda.</p>
-
-                        <!-- Search Bar -->
-                        <form action="{{ route('puskesmas.posyandu') }}" method="GET" class="mt-2">
-                            <div class="relative">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="2" stroke="currentColor"
-                                    class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                                </svg>
-                                <input type="text" name="q" value="{{ $filters['q'] ?? '' }}"
-                                    placeholder="Cari posyandu..."
-                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-[12px] text-[13px] focus:outline-none focus:ring-2 focus:ring-[#06667A]/20 focus:border-[#06667A] font-medium text-slate-700 transition-all placeholder:text-slate-400">
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- List Posyandu (Scrollable) -->
-                    <div class="flex-1 overflow-y-auto flex flex-col gap-3.5 hide-scrollbar pb-10 px-1 -mx-1">
-                        @forelse($posyandus as $posyandu)
-                            <x-posyandu.list-card :posyandu="$posyandu" :isActive="$selectedPosyandu && $selectedPosyandu['id'] === $posyandu['id']" />
-                        @empty
-                            <div class="flex flex-col items-center justify-center h-32 text-slate-400 gap-3">
-                                <span class="text-sm font-medium">Posyandu tidak ditemukan.</span>
-                            </div>
-                        @endforelse
-
-                        <!-- Tambah Button -->
-                        <div class="mt-2 shrink-0">
-                            <button type="button" data-open-modal="posyanduModal"
-                                class="w-full py-3.5 rounded-[1rem] bg-emerald-50/80 text-emerald-600 font-bold text-sm hover:bg-emerald-100 transition-colors flex items-center justify-center gap-2 border border-emerald-100/50 shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                </svg>
-                                Tambah Posyandu Baru
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- RIGHT PANEL: Regional Monitoring Workspace -->
-                <div class="lg:col-span-8 flex flex-col gap-6 lg:gap-8 {{ $selectedPosyandu ? 'flex' : 'hidden lg:flex' }}">
-
-                    @if ($selectedPosyandu)
-                        <!-- Mobile Back Button (To Queue) -->
-                        <div
-                            class="lg:hidden sticky top-4 z-30 flex items-center justify-between shrink-0 mb-[-0.5rem] px-1">
-                            <a href="{{ route('puskesmas.posyandu') }}"
-                                class="flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-slate-900 bg-white/95 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-slate-200 shadow-sm transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                                </svg>
-                                Kembali ke Direktori
-                            </a>
-                        </div>
-
-                        <!-- Header Component (Floating Island) -->
-                        <x-posyandu.workspace-header :posyandu="$selectedPosyandu" />
-
-                        <!-- Flow: Statistik Operasional -->
-                        <div class="flex flex-col gap-4">
-                            <div class="flex items-center gap-2">
-                                <h3 class="text-[15px] font-extrabold text-slate-800">Statistik Operasional (Bulan Ini)</h3>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                    stroke="currentColor" class="w-4 h-4 text-slate-400">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                                </svg>
-                            </div>
-                            <x-posyandu.kpi-summary :posyandu="$selectedPosyandu" />
-                        </div>
-
-                        <!-- Flow: Manajemen Operasional -->
-                        <div class="flex flex-col gap-4 mt-2">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-[15px] font-extrabold text-slate-800">Manajemen Operasional</h3>
-                            </div>
-                            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
-                                <!-- Kaders Section -->
-                                <x-posyandu.kader-list :kaders="$selectedPosyandu['kaders'] ?? []" :posyandu-id="$selectedPosyandu['id']" />
-
-                                <!-- Jadwals Section -->
-                                <x-posyandu.jadwal-list :jadwals="$selectedPosyandu['jadwals'] ?? []" />
-                            </div>
-                        </div>
-
-                        <!-- Footer Last Updated -->
-                        <div class="pt-4 pb-24 lg:pb-12 flex items-center gap-2 text-[11px] font-semibold text-slate-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor" class="w-4 h-4">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Data terakhir diperbarui: {{ now()->format('d M Y H:i') }} WIB
-                        </div>
-                    @else
-                        <!-- Empty State / No Selection -->
-                        <div
-                            class="flex-1 flex flex-col items-center justify-center bg-white rounded-[2rem] border border-slate-100 min-h-[400px]">
-                            <div
-                                class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-slate-800 font-bold tracking-tight mb-1">Pilih Posyandu</h3>
-                            <p class="text-slate-500 text-sm">Pilih posyandu di panel kiri untuk melihat detailnya.</p>
-                        </div>
-                    @endif
-                </div>
-
-            </div>
+<div class="flex flex-col h-full bg-white">
+    <!-- Header -->
+    <div class="shrink-0 px-6 py-6 border-b border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-10 relative">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Manajemen Posyandu</h1>
+            <p class="text-[13px] text-slate-500 mt-1 font-medium">Kelola data posyandu, kader, dan jadwal kegiatan operasional.</p>
         </div>
+        <button type="button" data-open-modal="posyanduModal" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-bold rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 flex items-center gap-2">
+            <i class="ph-bold ph-plus"></i> Tambah Posyandu
+        </button>
     </div>
 
-    <!-- Add Posyandu Modal -->
-    <div id="posyanduModal"
-        class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-5 backdrop-blur-sm">
-        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-            <div class="flex items-start justify-between gap-4">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Tambah Posyandu Baru</h2>
-                    <p class="mt-1 text-xs text-slate-500">Lengkapi informasi Posyandu yang akan dikelola.</p>
-                </div>
-                <button type="button" data-close-modal="posyanduModal"
-                    class="text-2xl leading-none text-slate-400 hover:text-slate-700" aria-label="Tutup">&times;</button>
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- LEFT PANEL: Direktori List -->
+        <div class="w-full lg:w-[320px] xl:w-[360px] flex-shrink-0 border-r border-slate-200 bg-slate-50 flex flex-col {{ $selectedPosyandu ? 'hidden lg:flex' : 'flex' }}">
+            <!-- Search -->
+            <div class="p-4 border-b border-slate-200 bg-white shrink-0">
+                <form action="{{ route('puskesmas.posyandu') }}" method="GET">
+                    <div class="relative">
+                        <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" name="q" value="{{ $filters['q'] ?? '' }}"
+                            placeholder="Cari posyandu..."
+                            class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-[13px] focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 font-medium text-slate-700 transition-colors placeholder:text-slate-400 shadow-sm">
+                    </div>
+                </form>
             </div>
-            <form action="{{ route('puskesmas.posyandu.store') }}" method="POST" class="mt-5 flex flex-col gap-4">
+
+            <!-- List -->
+            <div class="flex-1 overflow-y-auto divide-y divide-slate-200">
+                @forelse($posyandus as $posyandu)
+                    @php
+                        $isActive = $selectedPosyandu && $selectedPosyandu['id'] === $posyandu['id'];
+                    @endphp
+                    <a href="{{ route('puskesmas.posyandu', ['id' => $posyandu['id']]) }}" 
+                        class="block p-4 transition-colors relative {{ $isActive ? 'bg-teal-50/50' : 'bg-white hover:bg-slate-50' }}">
+                        
+                        @if($isActive)
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-teal-600"></div>
+                        @endif
+
+                        <div class="flex items-start justify-between mb-1">
+                            <h3 class="text-[14px] font-bold {{ $isActive ? 'text-teal-800' : 'text-slate-800' }} truncate pr-2">
+                                {{ $posyandu['nama'] }}
+                            </h3>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest shrink-0">
+                                POS-{{ str_pad($posyandu['id'], 3, '0', STR_PAD_LEFT) }}
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center gap-1.5 text-[12px] text-slate-500 font-medium mb-3">
+                            <i class="ph-bold ph-map-pin text-slate-400"></i>
+                            <span class="truncate">Desa {{ $posyandu['desa'] }}</span>
+                        </div>
+
+                        <div class="flex items-center gap-4 text-[11px] font-semibold">
+                            <div class="flex items-center gap-1.5 text-slate-600">
+                                <i class="ph-bold ph-users text-slate-400"></i>
+                                {{ $posyandu['kader_count'] ?? count($posyandu['kaders'] ?? []) }} Kader
+                            </div>
+                            <div class="flex items-center gap-1.5 text-slate-600">
+                                <i class="ph-bold ph-baby text-slate-400"></i>
+                                {{ $posyandu['balita_count'] }} Balita
+                            </div>
+                        </div>
+                    </a>
+                @empty
+                    <div class="p-8 text-center text-slate-500 text-[13px] font-medium">
+                        Tidak ada posyandu ditemukan.
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Detail -->
+        <div class="flex-1 flex flex-col bg-white overflow-hidden {{ $selectedPosyandu ? 'flex' : 'hidden lg:flex' }}">
+            @if ($selectedPosyandu)
+                <!-- Mobile Back -->
+                <div class="lg:hidden shrink-0 border-b border-slate-200 bg-slate-50 p-2">
+                    <a href="{{ route('puskesmas.posyandu') }}" class="inline-flex items-center gap-2 text-[12px] font-bold text-slate-600 px-3 py-1.5 bg-white border border-slate-300 rounded hover:bg-slate-50">
+                        <i class="ph-bold ph-arrow-left"></i> Kembali ke Direktori
+                    </a>
+                </div>
+
+                <div class="flex-1 overflow-y-auto">
+                    <div class="p-6 lg:p-8 max-w-6xl mx-auto flex flex-col gap-8">
+                        
+                        <!-- Title & Stats -->
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <h2 class="text-2xl font-black text-slate-900">{{ $selectedPosyandu['nama'] }}</h2>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-emerald-100 text-emerald-700 border border-emerald-200">Aktif</span>
+                            </div>
+                            <p class="text-[13px] text-slate-500 font-medium mb-6">
+                                Berlokasi di Desa {{ $selectedPosyandu['desa'] }} @if($selectedPosyandu['alamat']), {{ $selectedPosyandu['alamat'] }} @endif
+                            </p>
+
+                            <!-- Metric Row -->
+                            @php
+                                $total_balita = $selectedPosyandu['stats']['total_balita'] ?? 0;
+                                $diukur = $selectedPosyandu['stats']['diukur_bulan_ini'] ?? 0;
+                                $rasio = $total_balita > 0 ? round(($diukur / $total_balita) * 100) : 0;
+                            @endphp
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+                                    <div class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Balita</div>
+                                    <div class="text-2xl font-black text-slate-800">{{ $total_balita }}</div>
+                                </div>
+                                <div class="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+                                    <div class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Pengukuran Bulan Ini</div>
+                                    <div class="text-2xl font-black text-slate-800">{{ $diukur }}</div>
+                                </div>
+                                <div class="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+                                    <div class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Rasio Pengukuran</div>
+                                    <div class="text-2xl font-black {{ $rasio >= 80 ? 'text-emerald-600' : ($rasio < 50 ? 'text-rose-600' : 'text-amber-600') }}">{{ $rasio }}%</div>
+                                </div>
+                                <div class="bg-white border border-slate-200 p-4 rounded-lg shadow-sm">
+                                    <div class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Kader</div>
+                                    <div class="text-2xl font-black text-slate-800">{{ count($selectedPosyandu['kaders'] ?? []) }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Tables -->
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
+                            
+                            <!-- KADER TABLE -->
+                            <div class="bg-white border border-slate-200 rounded-lg shadow-sm flex flex-col">
+                                <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                                    <h3 class="text-[14px] font-bold text-slate-800">Daftar Kader</h3>
+                                    <button type="button" data-open-modal="kaderModal" class="text-[12px] font-bold text-teal-600 hover:text-teal-700 flex items-center gap-1">
+                                        <i class="ph-bold ph-plus"></i> Tambah
+                                    </button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead class="bg-slate-50 border-b border-slate-200">
+                                            <tr>
+                                                <th class="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">Nama</th>
+                                                <th class="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Kontak</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            @forelse($selectedPosyandu['kaders'] ?? [] as $kader)
+                                                <tr class="hover:bg-slate-50 transition-colors">
+                                                    <td class="px-4 py-3">
+                                                        <div class="text-[13px] font-bold text-slate-800">{{ $kader['nama'] }}</div>
+                                                        <div class="text-[11px] text-slate-500 font-medium mt-0.5">Aktif • {{ $kader['aktivitas_bulan_ini'] ?? 0 }} Pengukuran</div>
+                                                    </td>
+                                                    <td class="px-4 py-3 text-right">
+                                                        @if(!empty($kader['no_hp']))
+                                                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $kader['no_hp']) }}" target="_blank" class="inline-flex items-center justify-center w-7 h-7 rounded bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors" title="WhatsApp">
+                                                                <i class="ph-bold ph-whatsapp-logo"></i>
+                                                            </a>
+                                                        @else
+                                                            <span class="text-[11px] text-slate-400 italic">No HP</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="2" class="px-4 py-8 text-center text-[12px] text-slate-500 font-medium">
+                                                        Belum ada kader terdaftar.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- JADWAL TABLE -->
+                            <div class="bg-white border border-slate-200 rounded-lg shadow-sm flex flex-col">
+                                <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                                    <h3 class="text-[14px] font-bold text-slate-800">Jadwal Operasional</h3>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead class="bg-slate-50 border-b border-slate-200">
+                                            <tr>
+                                                <th class="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">Agenda</th>
+                                                <th class="px-4 py-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">Waktu & Lokasi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            @forelse($selectedPosyandu['jadwals'] ?? [] as $jadwal)
+                                                <tr class="hover:bg-slate-50 transition-colors">
+                                                    <td class="px-4 py-3">
+                                                        <div class="text-[13px] font-bold text-slate-800">{{ $jadwal['judul'] }}</div>
+                                                        <div class="text-[11px] text-slate-500 font-medium mt-0.5">
+                                                            {{ \Carbon\Carbon::parse($jadwal['tanggal'])->translatedFormat('d M Y') }}
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        <div class="text-[12px] font-semibold text-slate-700">{{ substr($jadwal['waktu_mulai'], 0, 5) }} WIB</div>
+                                                        @if(!empty($jadwal['lokasi']))
+                                                            <div class="text-[11px] text-slate-500 mt-0.5 truncate max-w-[150px]" title="{{ $jadwal['lokasi'] }}">{{ $jadwal['lokasi'] }}</div>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="2" class="px-4 py-8 text-center text-[12px] text-slate-500 font-medium">
+                                                        Belum ada jadwal operasional.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                    </div>
+                </div>
+            @else
+                <div class="flex-1 flex flex-col items-center justify-center p-8 bg-slate-50/50">
+                    <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-300 mb-4 border border-slate-200">
+                        <i class="ph-bold ph-buildings text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">Pilih Posyandu</h3>
+                    <p class="text-[13px] text-slate-500">Pilih posyandu dari daftar di sebelah kiri untuk melihat detail.</p>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- Add Posyandu Modal -->
+<div id="posyanduModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+        <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <h2 class="text-[15px] font-bold text-slate-800">Tambah Posyandu</h2>
+            <button type="button" data-close-modal="posyanduModal" class="text-slate-400 hover:text-slate-600 focus:outline-none">
+                <i class="ph-bold ph-x text-lg"></i>
+            </button>
+        </div>
+        <div class="p-5 overflow-y-auto">
+            <form action="{{ route('puskesmas.posyandu.store') }}" method="POST" class="flex flex-col gap-4">
                 @csrf
                 <input type="hidden" name="form_type" value="posyandu">
                 @if ($errors->any() && old('form_type') === 'posyandu')
-                    <div class="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600">{{ $errors->first() }}
+                    <div class="p-3 bg-rose-50 border border-rose-200 rounded-md text-[12px] font-medium text-rose-700">
+                        {{ $errors->first() }}
                     </div>
                 @endif
-                <label class="text-xs font-bold text-slate-600">Nama Posyandu<input name="nama"
-                        value="{{ old('form_type') === 'posyandu' ? old('nama') : '' }}" required
-                        class="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm"
-                        placeholder="Contoh: Posyandu Melati"></label>
-                <label class="text-xs font-bold text-slate-600">Desa/Kelurahan<input name="desa_kelurahan"
-                        value="{{ old('form_type') === 'posyandu' ? old('desa_kelurahan') : '' }}" required
-                        class="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm"
-                        placeholder="Nama desa atau kelurahan"></label>
-                <label class="text-xs font-bold text-slate-600">Alamat
-                    <textarea name="alamat" rows="3" class="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm"
-                        placeholder="Alamat lengkap (opsional)">{{ old('form_type') === 'posyandu' ? old('alamat') : '' }}</textarea>
-                </label>
-                <div class="flex justify-end gap-2 pt-2"><button type="button" data-close-modal="posyanduModal"
-                        class="rounded-lg px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-50">Batal</button><button
-                        class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700">Simpan
-                        Posyandu</button></div>
+                <div>
+                    <label class="block text-[12px] font-bold text-slate-700 mb-1.5">Nama Posyandu</label>
+                    <input type="text" name="nama" value="{{ old('form_type') === 'posyandu' ? old('nama') : '' }}" required
+                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-[13px] focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm"
+                        placeholder="Contoh: Posyandu Melati">
+                </div>
+                <div>
+                    <label class="block text-[12px] font-bold text-slate-700 mb-1.5">Desa/Kelurahan</label>
+                    <input type="text" name="desa_kelurahan" value="{{ old('form_type') === 'posyandu' ? old('desa_kelurahan') : '' }}" required
+                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-[13px] focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm"
+                        placeholder="Nama desa atau kelurahan">
+                </div>
+                <div>
+                    <label class="block text-[12px] font-bold text-slate-700 mb-1.5">Alamat Lengkap</label>
+                    <textarea name="alamat" rows="3" 
+                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-[13px] focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm"
+                        placeholder="Opsional">{{ old('form_type') === 'posyandu' ? old('alamat') : '' }}</textarea>
+                </div>
+                <div class="mt-2 flex justify-end gap-2">
+                    <button type="button" data-close-modal="posyanduModal" class="px-4 py-2 text-[12px] font-bold text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-slate-200">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-[12px] font-bold text-white bg-teal-600 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-teal-500 shadow-sm">
+                        Simpan
+                    </button>
+                </div>
             </form>
         </div>
     </div>
+</div>
 
-    <!-- Add Kader Modal -->
-    <div id="kaderModal"
-        class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-5 backdrop-blur-sm">
-        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-            <div class="flex items-start justify-between gap-4">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800">Tambah Kader Baru</h2>
-                    <p class="mt-1 text-xs text-slate-500">Kader akan dibuatkan akun untuk masuk ke portal.</p>
-                </div>
-                <button type="button" data-close-modal="kaderModal"
-                    class="text-2xl leading-none text-slate-400 hover:text-slate-700" aria-label="Tutup">&times;</button>
-            </div>
+<!-- Add Kader Modal -->
+<div id="kaderModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+        <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <h2 class="text-[15px] font-bold text-slate-800">Tambah Kader Baru</h2>
+            <button type="button" data-close-modal="kaderModal" class="text-slate-400 hover:text-slate-600 focus:outline-none">
+                <i class="ph-bold ph-x text-lg"></i>
+            </button>
+        </div>
+        <div class="p-5 overflow-y-auto">
             @if ($selectedPosyandu)
-                <form action="{{ route('puskesmas.posyandu.kader.store', $selectedPosyandu['id']) }}" method="POST"
-                    class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <form action="{{ route('puskesmas.posyandu.kader.store', $selectedPosyandu['id']) }}" method="POST" class="flex flex-col gap-4">
                     @csrf
                     <input type="hidden" name="form_type" value="kader">
                     @if ($errors->any() && old('form_type') === 'kader')
-                        <div class="rounded-lg bg-rose-50 px-3 py-2 text-xs font-medium text-rose-600 sm:col-span-2">
-                            {{ $errors->first() }}</div>
+                        <div class="p-3 bg-rose-50 border border-rose-200 rounded-md text-[12px] font-medium text-rose-700">
+                            {{ $errors->first() }}
+                        </div>
                     @endif
-                    <label class="text-xs font-bold text-slate-600 sm:col-span-2">Nama Lengkap<input name="nama"
-                            value="{{ old('form_type') === 'kader' ? old('nama') : '' }}" required
-                            class="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm"></label>
-                    <label class="text-xs font-bold text-slate-600">No. HP<input name="no_hp"
-                            value="{{ old('form_type') === 'kader' ? old('no_hp') : '' }}"
-                            class="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm"></label>
-                    <label class="text-xs font-bold text-slate-600">Email<input type="email" name="email"
-                            value="{{ old('form_type') === 'kader' ? old('email') : '' }}" required
-                            class="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm"></label>
-                    <label class="text-xs font-bold text-slate-600 sm:col-span-2">Password Awal<input type="password"
-                            name="password" required minlength="8"
-                            class="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm"><span
-                            class="mt-1 block text-[10px] font-normal text-slate-400">Minimal 8 karakter.</span></label>
-                    <div class="flex justify-end gap-2 pt-2 sm:col-span-2"><button type="button"
-                            data-close-modal="kaderModal"
-                            class="rounded-lg px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-50">Batal</button><button
-                            class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700">Simpan
-                            Kader</button></div>
+                    <div>
+                        <label class="block text-[12px] font-bold text-slate-700 mb-1.5">Nama Lengkap</label>
+                        <input type="text" name="nama" value="{{ old('form_type') === 'kader' ? old('nama') : '' }}" required
+                            class="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-[13px] focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[12px] font-bold text-slate-700 mb-1.5">Email (Username Login)</label>
+                        <input type="email" name="email" value="{{ old('form_type') === 'kader' ? old('email') : '' }}" required
+                            class="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-[13px] focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[12px] font-bold text-slate-700 mb-1.5">No HP / WhatsApp</label>
+                        <input type="text" name="no_hp" value="{{ old('form_type') === 'kader' ? old('no_hp') : '' }}"
+                            class="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-[13px] focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[12px] font-bold text-slate-700 mb-1.5">Password Awal</label>
+                        <input type="password" name="password" required minlength="8"
+                            class="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-[13px] focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm">
+                        <span class="block text-[10px] text-slate-500 mt-1">Minimal 8 karakter.</span>
+                    </div>
+                    <div class="mt-2 flex justify-end gap-2">
+                        <button type="button" data-close-modal="kaderModal" class="px-4 py-2 text-[12px] font-bold text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-slate-200">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 text-[12px] font-bold text-white bg-teal-600 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-teal-500 shadow-sm">
+                            Simpan Kader
+                        </button>
+                    </div>
                 </form>
             @endif
         </div>
     </div>
+</div>
 
-    @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                document.querySelectorAll('[data-open-modal]').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        const modal = document.getElementById(button.dataset.openModal);
-                        if (modal) modal.classList.replace('hidden', 'flex');
-                    });
-                });
-                document.querySelectorAll('[data-close-modal]').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        const modal = document.getElementById(button.dataset.closeModal);
-                        if (modal) modal.classList.replace('flex', 'hidden');
-                    });
-                });
-                document.querySelectorAll('[id$="Modal"]').forEach(function(modal) {
-                    modal.addEventListener('click', function(event) {
-                        if (event.target === modal) modal.classList.replace('flex', 'hidden');
-                    });
-                });
-                @if ($errors->any() && old('form_type'))
-                    const errorModal = document.getElementById('{{ old('form_type') }}Modal');
-                    if (errorModal) errorModal.classList.replace('hidden', 'flex');
-                @endif
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[data-open-modal]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const modal = document.getElementById(button.dataset.openModal);
+                if (modal) modal.classList.replace('hidden', 'flex');
             });
-        </script>
-    @endpush
+        });
+        document.querySelectorAll('[data-close-modal]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const modal = document.getElementById(button.dataset.closeModal);
+                if (modal) modal.classList.replace('flex', 'hidden');
+            });
+        });
+        document.querySelectorAll('[id$="Modal"]').forEach(function(modal) {
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) modal.classList.replace('flex', 'hidden');
+            });
+        });
+        @if ($errors->any() && old('form_type'))
+            const errorModal = document.getElementById('{{ old('form_type') }}Modal');
+            if (errorModal) errorModal.classList.replace('hidden', 'flex');
+        @endif
+    });
+</script>
+@endpush
 @endsection

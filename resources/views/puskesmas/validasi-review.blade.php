@@ -1,372 +1,740 @@
 @extends('layouts.puskesmas')
-@section('page-title', 'Tinjau Validasi')
-@section('page-mode', 'default')
+@section('page-title', 'Tinjau Validasi - ' . $child['name'])
 @section('content')
 
-<div class="min-h-screen bg-slate-50/50 w-full pb-20 relative">
+@php
+    $isDanger  = ($child['statusType'] === 'danger');
+    $isWarning = ($child['statusType'] === 'warning');
+    $isBoy     = ($child['gender'] === 'Laki-laki');
 
-    {{-- ══════════════════════════════════════════
-         TOP HEADER (BREADCRUMB & BACK)
-    ══════════════════════════════════════════ --}}
-    <div class="bg-white border-b border-slate-200/80 px-4 py-3 lg:px-8 lg:py-4 sticky top-0 z-30 shadow-sm">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('puskesmas.validasi') }}" class="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors border border-slate-200/60">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
-                </a>
+    $avatarClass = $isBoy 
+        ? 'bg-sky-50 text-sky-700 border-sky-200/80' 
+        : 'bg-rose-50 text-rose-700 border-rose-200/80';
+
+    // Calculate growth delta vs last measurement if history exists
+    $lastHist = !empty($child['history']) ? $child['history'][0] : null;
+    $deltaBb = null;
+    $deltaTb = null;
+    if ($lastHist) {
+        $currBb = (float) $child['bb'];
+        $prevBb = (float) $lastHist['bb'];
+        $diffBb = $currBb - $prevBb;
+        $deltaBb = ($diffBb >= 0 ? '+' : '') . number_format($diffBb, 1) . ' kg';
+
+        $currTb = (float) $child['tb'];
+        $prevTb = (float) $lastHist['tb'];
+        $diffTb = $currTb - $prevTb;
+        $deltaTb = ($diffTb >= 0 ? '+' : '') . number_format($diffTb, 1) . ' cm';
+    }
+@endphp
+
+<div class="space-y-6 pb-16">
+
+    <!-- Top Navigation & Breadcrumb -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <a href="{{ route('puskesmas.validasi') }}" 
+           class="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-teal-700 transition-colors w-fit">
+            <i class="ph-bold ph-arrow-left text-base"></i>
+            <span>Kembali ke Antrean Validasi</span>
+        </a>
+
+        <!-- Status Queue Pill -->
+        <div class="flex items-center gap-2">
+            @if($child['status_validasi'] === 'pending')
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200/80">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>Menunggu Validasi Ahli Gizi</span>
+                </span>
+            @elseif($child['status_validasi'] === 'approved')
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                    <i class="ph-bold ph-check-circle text-emerald-600"></i>
+                    <span>Telah Divalidasi</span>
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200/80">
+                    <i class="ph-bold ph-x-circle text-rose-600"></i>
+                    <span>Ditolak / Perlu Revisi</span>
+                </span>
+            @endif
+        </div>
+    </div>
+
+    <!-- Patient Header Card (Clinical Dossier Banner) -->
+    <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-sm relative overflow-hidden">
+        <!-- Subtle Top Brand Accent Line -->
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-teal-600 to-slate-200"></div>
+
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <!-- Left: Identity & Core Metadata -->
+            <div class="flex items-start sm:items-center gap-4 sm:gap-5">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl {{ $avatarClass }} border flex items-center justify-center font-extrabold text-xl sm:text-2xl shrink-0 shadow-sm">
+                    {{ substr($child['name'], 0, 1) }}
+                </div>
                 <div>
-                    <h1 class="text-[16px] font-bold text-slate-800 leading-tight">Tinjau Data Pengukuran</h1>
-                    <p class="text-[12px] text-slate-500 font-medium">Validasi antrean untuk {{ $child['name'] }}</p>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                            {{ $child['name'] }}
+                        </h1>
+                        <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-md border {{ $isBoy ? 'bg-sky-50 text-sky-700 border-sky-200/70' : 'bg-rose-50 text-rose-700 border-rose-200/70' }}">
+                            {{ $isBoy ? 'Laki-laki' : 'Perempuan' }} &bull; {{ $child['age'] }}
+                        </span>
+                    </div>
+
+                    <!-- Meta Tags -->
+                    <div class="flex items-center gap-3 text-xs text-slate-500 mt-2 flex-wrap">
+                        <span class="inline-flex items-center gap-1.5 text-slate-600">
+                            <i class="ph-bold ph-identification-card text-slate-400 text-sm"></i>
+                            NIK: <span class="text-slate-800 font-semibold">{{ $child['nik'] ?: '-' }}</span>
+                        </span>
+                        <span class="text-slate-300 hidden sm:inline">&bull;</span>
+                        <span class="inline-flex items-center gap-1.5 text-slate-600">
+                            <i class="ph-bold ph-user text-slate-400 text-sm"></i>
+                            Ibu: <span class="text-slate-800 font-semibold">{{ $child['parent'] ?: '-' }}</span>
+                        </span>
+                        <span class="text-slate-300 hidden sm:inline">&bull;</span>
+                        <span class="inline-flex items-center gap-1.5 text-slate-600">
+                            <i class="ph-bold ph-map-pin text-teal-600 text-sm"></i>
+                            <span class="font-semibold">{{ $child['posyandu'] }}</span>
+                        </span>
+                    </div>
                 </div>
             </div>
-            
-            <div class="hidden sm:flex items-center gap-3">
-                @if($child['status_validasi'] === 'pending')
-                    <div class="flex items-center gap-1.5 text-amber-700 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200 shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clip-rule="evenodd"/></svg>
-                        <span class="text-[11px] font-bold font-mono uppercase tracking-wider">Menunggu Validasi</span>
-                    </div>
-                @endif
+
+            <!-- Right: Clinical Diagnosis Tag -->
+            <div class="flex items-center gap-3 lg:border-l lg:border-slate-100 lg:pl-6 shrink-0 mt-2 lg:mt-0">
+                <div class="text-left lg:text-right">
+                    <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Kesimpulan Status Gizi</span>
+                    <span class="text-xl sm:text-2xl font-extrabold tracking-tight {{ $isDanger ? 'text-rose-600' : ($isWarning ? 'text-amber-600' : 'text-emerald-600') }}">
+                        {{ $child['statusLabel'] }}
+                    </span>
+                    <span class="block text-[11px] text-slate-400 font-medium mt-1">Berdasarkan Standar Kemenkes RI</span>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════
-         MAIN CONTENT AREA
-    ══════════════════════════════════════════ --}}
-    <div class="max-w-7xl mx-auto px-4 lg:px-8 mt-6 pb-24">
-        
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {{-- COLUMN 1: IDENTITAS & HISTORI --}}
-            <div class="flex flex-col gap-6 lg:col-span-1">
+    <!-- Main Workspace Grid (Two Column Desk) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Left Column: Clinical Evaluation Desk (Col 7 / Col 8) -->
+        <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+
+            <!-- Anthropometry & WHO Growth Indices Card -->
+            <div class="bg-white border border-slate-200/90 rounded-2xl shadow-sm p-5 sm:p-6">
                 
-                {{-- Card: Identitas Diri --}}
-                <div class="bg-white rounded-[24px] border border-slate-200/80 shadow-sm p-6 relative overflow-hidden">
-                    <div class="absolute left-0 top-6 bottom-6 w-1 bg-cyan-400 rounded-r-lg"></div>
-
-                    <div class="flex items-center gap-3 mb-6 ml-2">
-                        <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" /></svg>
-                        </div>
-                        <h3 class="text-[16px] font-bold text-slate-900">Data Balita & Kader</h3>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Hasil Pengukuran Fisik & Z-Score WHO</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Diperiksa pada {{ $child['date'] }} jam {{ $child['time'] }} WIB</p>
                     </div>
-
-                    <div class="flex flex-col gap-5 ml-2">
-                        <div>
-                            <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Nama Balita</span>
-                            <span class="text-[14px] font-bold text-slate-800">{{ $child['name'] }}</span>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="inline-flex items-center text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{{ $child['age'] }}</span>
-                                <span class="inline-flex items-center text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{{ $child['gender'] }}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="h-px w-full bg-slate-100 my-1"></div>
-                        
-                        <div>
-                            <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Diukur Oleh Kader</span>
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-[#E6F8FB] text-[#00A9C0] flex items-center justify-center text-[10px] font-bold">
-                                    {{ substr($child['kader'], 0, 1) }}
-                                </div>
-                                <span class="text-[13px] font-semibold text-slate-800">{{ $child['kader'] }}</span>
-                            </div>
-                            <span class="text-[12px] text-slate-500 mt-1 block">{{ $child['posyandu'] }}</span>
-                        </div>
-                    </div>
+                    <span class="text-xs font-semibold text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200/80">
+                        Umur: <strong class="text-slate-900">{{ $child['age'] }}</strong>
+                    </span>
                 </div>
 
-                {{-- Card: Riwayat Sebelumnya --}}
-                <div class="bg-white rounded-[24px] border border-slate-200/80 shadow-sm p-6">
-                    <h3 class="text-[14px] font-bold text-slate-900 mb-4">Riwayat Pengukuran Sebelumnya</h3>
-                    
-                    @if(empty($child['history']))
-                        <div class="text-center py-6 px-4 bg-slate-50 rounded-xl border border-slate-100 border-dashed">
-                            <span class="text-[13px] text-slate-500 font-medium">Belum ada riwayat sebelumnya.</span>
-                        </div>
-                    @else
-                        <div class="flex flex-col gap-4">
-                            @foreach($child['history'] as $hist)
-                                <div class="flex items-start gap-4">
-                                    <div class="flex flex-col items-center mt-1">
-                                        <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
-                                        @if(!$loop->last)
-                                            <div class="w-px h-12 bg-slate-200 my-1"></div>
-                                        @endif
-                                    </div>
-                                    <div class="flex-1 pb-1">
-                                        <span class="text-[12px] font-bold text-slate-800 block">{{ $hist['date'] }}</span>
-                                        <div class="flex flex-wrap gap-2 mt-1.5">
-                                            <span class="text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">BB: {{ $hist['bb'] }}kg</span>
-                                            <span class="text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">TB: {{ $hist['tb'] }}cm</span>
-                                        </div>
-                                    </div>
+                <!-- Primary Physical Measurements (BB & TB with Delta) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <!-- Berat Badan -->
+                    <div class="p-4 rounded-xl bg-slate-50/80 border border-slate-200/80 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center shrink-0">
+                                <i class="ph-bold ph-scales text-lg"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block leading-none">Berat Badan</span>
+                                <div class="flex items-baseline gap-1 mt-1">
+                                    <span class="text-2xl sm:text-3xl font-black text-slate-900">{{ $child['bb'] }}</span>
+                                    <span class="text-xs font-semibold text-slate-500">kg</span>
                                 </div>
-                            @endforeach
+                            </div>
                         </div>
-                    @endif
-                </div>
-
-            </div>
-
-            {{-- COLUMN 2: DATA & TINDAKAN VALIDASI --}}
-            <div class="flex flex-col gap-6 lg:col-span-2">
-                
-                {{-- Z-SCORE & STATUS GIZI --}}
-                <div class="bg-white rounded-[24px] border border-slate-200/80 shadow-sm p-6 lg:p-8">
-                    
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
-                        <div>
-                            <h2 class="text-[18px] font-bold text-slate-900 tracking-tight">Hasil Pengukuran</h2>
-                            <p class="text-[13px] text-slate-500 font-medium mt-1">{{ $child['date'] }} &bull; {{ $child['time'] }}</p>
-                        </div>
-                        
-                        <div class="px-4 py-2 rounded-xl border
-                            @if($child['statusType'] === 'success') bg-emerald-50 border-emerald-100 text-emerald-700
-                            @elseif($child['statusType'] === 'warning') bg-amber-50 border-amber-100 text-amber-700
-                            @else bg-rose-50 border-rose-100 text-rose-700 @endif
-                        ">
-                            <span class="text-[10px] font-bold uppercase tracking-wider block opacity-80 mb-0.5">Status Gizi</span>
-                            <span class="text-[15px] font-black">{{ $child['statusLabel'] }}</span>
-                        </div>
-                    </div>
-
-                    {{-- Metric Grid --}}
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        @foreach($child['zscores'] as $label => $data)
-                            <div class="bg-slate-50 border border-slate-100 rounded-[16px] p-4 flex flex-col items-center justify-center text-center">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $label }}</span>
-                                <span class="text-[22px] font-black text-slate-800 my-1">{{ $data['val'] }}</span>
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-white border border-slate-200 {{ $data['color'] === 'rose' ? 'text-rose-600' : 'text-slate-600' }}">
-                                    {{ $data['status'] }}
+                        @if($deltaBb)
+                            <div class="text-right">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">vs Lalu</span>
+                                <span class="inline-flex items-center gap-0.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/70 mt-0.5">
+                                    <i class="ph-bold ph-trend-up text-[11px]"></i>
+                                    <span>{{ $deltaBb }}</span>
                                 </span>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Tinggi Badan -->
+                    <div class="p-4 rounded-xl bg-slate-50/80 border border-slate-200/80 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200/70 text-teal-700 flex items-center justify-center shrink-0">
+                                <i class="ph-bold ph-ruler text-lg"></i>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block leading-none">Tinggi / Panjang</span>
+                                <div class="flex items-baseline gap-1 mt-1">
+                                    <span class="text-2xl sm:text-3xl font-black text-slate-900">{{ $child['tb'] }}</span>
+                                    <span class="text-xs font-semibold text-slate-500">cm</span>
+                                </div>
+                            </div>
+                        </div>
+                        @if($deltaTb)
+                            <div class="text-right">
+                                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">vs Lalu</span>
+                                <span class="inline-flex items-center gap-0.5 text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200/70 mt-0.5">
+                                    <i class="ph-bold ph-trend-up text-[11px]"></i>
+                                    <span>{{ $deltaTb }}</span>
+                                </span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- WHO 4 Growth Indices Grid (High-Density Clinical Matrix) -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Matriks 4 Indikator Standar WHO (Kemenkes)</h3>
+                        <span class="text-[11px] text-slate-400 font-medium">Batas deviasi: -2.0 SD s/d +2.0 SD</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        @php
+                            $indices = [
+                                'TB/U' => [
+                                    'title' => 'Tinggi / Umur',
+                                    'sub' => 'Stunting',
+                                    'data' => $child['zscores']['TB/U'] ?? ['val' => '-', 'status' => 'Normal', 'color' => 'slate']
+                                ],
+                                'BB/U' => [
+                                    'title' => 'Berat / Umur',
+                                    'sub' => 'Underweight',
+                                    'data' => $child['zscores']['BB/U'] ?? ['val' => '-', 'status' => 'Normal', 'color' => 'slate']
+                                ],
+                                'BB/TB' => [
+                                    'title' => 'Berat / Tinggi',
+                                    'sub' => 'Wasting',
+                                    'data' => $child['zscores']['BB/TB'] ?? ['val' => '-', 'status' => 'Normal', 'color' => 'slate']
+                                ],
+                                'IMT/U' => [
+                                    'title' => 'IMT / Umur',
+                                    'sub' => 'Body Mass',
+                                    'data' => $child['zscores']['IMT/U'] ?? ['val' => '-', 'status' => 'Normal', 'color' => 'slate']
+                                ],
+                            ];
+                        @endphp
+
+                        @foreach($indices as $code => $idx)
+                            @php
+                                $val = $idx['data']['val'];
+                                $stat = $idx['data']['status'];
+                                $color = $idx['data']['color'];
+
+                                $cardBg = 'bg-white border-slate-200';
+                                if ($color === 'rose' || in_array($stat, ['Pendek', 'Sangat Pendek', 'Kurus', 'Sangat Kurus', 'Kurang'])) {
+                                    $tagBg = 'text-rose-700 bg-rose-50 border-rose-200/80';
+                                    $cardBg = 'bg-rose-50/50 border-rose-300';
+                                } elseif ($color === 'amber' || in_array($stat, ['Risiko Lebih', 'Lebih'])) {
+                                    $tagBg = 'text-amber-700 bg-amber-50 border-amber-200/80';
+                                } else {
+                                    $tagBg = 'text-emerald-700 bg-emerald-50 border-emerald-200/80';
+                                }
+                            @endphp
+                            <div class="p-3.5 border {{ $cardBg }} rounded-xl flex flex-col justify-between hover:border-slate-300 transition-colors">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-slate-900">{{ $code }}</span>
+                                        <span class="text-[10px] text-slate-400 font-medium">{{ $idx['sub'] }}</span>
+                                    </div>
+                                    <div class="text-lg font-black text-slate-900 mt-1">
+                                        {{ $val }} <span class="text-[10px] text-slate-400 font-normal">SD</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                                    <span class="inline-block px-2 py-0.5 rounded-md text-[11px] font-bold border {{ $tagBg }}">
+                                        {{ $stat }}
+                                    </span>
+                                </div>
                             </div>
                         @endforeach
                     </div>
-
-                    {{-- KMS Chart --}}
-                    <div class="mt-8 border-t border-slate-100 pt-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-[15px] font-bold text-slate-800">Grafik KMS (Visualisasi Tren)</h3>
-                            <select id="chartMetricSelector" onchange="updateChartMetric()" class="bg-white border border-slate-200 text-slate-600 text-[12px] rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-cyan-300/40 outline-none">
-                                <option value="bb">Berat Badan (kg)</option>
-                                <option value="tb">Tinggi Badan (cm)</option>
-                                <option value="bbu">Z-Score BB/U</option>
-                                <option value="tbu">Z-Score TB/U</option>
-                            </select>
-                        </div>
-                        <div class="w-full h-64 bg-slate-50/50 rounded-xl border border-slate-100 p-4">
-                            <canvas id="growthChart"></canvas>
-                        </div>
-                    </div>
-
                 </div>
 
-                {{-- CATATAN & FORM VALIDASI --}}
-                <div class="bg-white rounded-[24px] border border-slate-200/80 shadow-sm p-6 lg:p-8">
-                    
-                    @if (!empty($child['catatan_kader']))
-                        <div class="flex items-start gap-3 p-4 mb-6 bg-[#f0fdfa] border border-[#ccfbf1] rounded-2xl relative overflow-hidden">
-                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-teal-400"></div>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-teal-600 shrink-0 mt-0.5">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />
-                            </svg>
-                            <div>
-                                <span class="text-[12px] font-bold text-teal-800 uppercase tracking-wider block mb-1">Catatan dari Kader ({{ $child['kader'] }})</span>
-                                <p class="text-[14px] text-teal-900 leading-relaxed font-medium">{{ $child['catatan_kader'] }}</p>
-                            </div>
+            </div>
+
+            <!-- Interactive Growth Trajectory Curve (Chart with WHO Reference Line) -->
+            <div class="bg-white border border-slate-200/90 rounded-2xl shadow-sm p-5 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <i class="ph-bold ph-chart-line-up text-teal-700 text-base"></i>
+                            <h2 class="text-base font-bold text-slate-900">Kurva Riwayat Pertumbuhan Anak</h2>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Grafik perkembangan dari Posyandu dengan garis ambang batas WHO</p>
+                    </div>
+
+                    <!-- Metric Switcher Dropdown (Replaces Pills) -->
+                    <div x-data="{ 
+                            open: false, 
+                            active: 'tbu',
+                            labels: {
+                                'tbu': 'TB/U (Stunting)',
+                                'bbu': 'BB/U',
+                                'tb': 'TB (cm)',
+                                'bb': 'BB (kg)'
+                            },
+                            selectMetric(key) {
+                                this.active = key;
+                                this.open = false;
+                                setChartMetric(key);
+                            }
+                         }" 
+                         class="relative z-20">
+                         
+                        <button @click="open = !open" 
+                                @click.away="open = false"
+                                type="button" 
+                                class="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 rounded-xl shadow-sm text-xs font-bold text-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/20">
+                            <span x-text="labels[active]">TB/U (Stunting)</span>
+                            <i class="ph-bold ph-caret-down text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+                        </button>
+
+                        <div x-show="open" 
+                             x-transition.opacity.duration.200ms
+                             style="display: none;"
+                             class="absolute right-0 sm:right-0 mt-2 w-44 bg-white border border-slate-200/90 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] py-1.5 overflow-hidden">
+                            <template x-for="(label, key) in labels" :key="key">
+                                <button @click="selectMetric(key)"
+                                        type="button"
+                                        class="w-full text-left px-4 py-2.5 text-xs font-bold transition-colors flex items-center justify-between"
+                                        :class="active === key ? 'bg-teal-50 text-teal-800' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'">
+                                    <span x-text="label"></span>
+                                    <i x-show="active === key" class="ph-bold ph-check text-teal-600 text-sm"></i>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas Chart Wrapper -->
+                <div class="w-full h-64 sm:h-72 bg-slate-50/40 rounded-xl border border-slate-100 p-3 relative">
+                    <canvas id="growthChart"></canvas>
+                </div>
+
+                <!-- Chart Legend Bar -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-500 mt-3 pt-3 border-t border-slate-100 px-1">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-1 rounded-full bg-teal-700"></span>
+                            <span class="font-medium text-slate-700">Pengukuran Aktual</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-0.5 border-t border-dashed border-rose-500"></span>
+                            <span class="font-medium text-rose-600">Ambang Batas WHO (-2.0 SD)</span>
+                        </div>
+                    </div>
+                    <span class="text-slate-400">Standar Antropometri Anak 0-59 Bulan</span>
+                </div>
+            </div>
+
+            <!-- Historical Posyandu Measurements Table -->
+            <div class="bg-white border border-slate-200/90 rounded-2xl shadow-sm overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="ph-bold ph-clock-counter-clockwise text-slate-400 text-sm"></i>
+                        <h3 class="text-sm font-bold text-slate-900">Riwayat Pengukuran Posyandu Sebelumnya</h3>
+                    </div>
+                    <span class="text-xs text-slate-500 font-medium">{{ count($child['history']) }} data tersimpan</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    @if(!empty($child['history']))
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50/70 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                    <th class="py-3 px-5">Tanggal Ukur</th>
+                                    <th class="py-3 px-3">Usia</th>
+                                    <th class="py-3 px-3 text-center">BB (kg)</th>
+                                    <th class="py-3 px-3 text-center">TB (cm)</th>
+                                    <th class="py-3 px-3 text-center">TB/U</th>
+                                    <th class="py-3 px-5 text-right">Status Gizi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700">
+                                @foreach($child['history'] as $hist)
+                                    @php
+                                        $histDanger = str_contains(strtolower($hist['status']), 'stunting');
+                                    @endphp
+                                    <tr class="hover:bg-slate-50/60 transition-colors">
+                                        <td class="py-3.5 px-5 font-semibold text-slate-900">{{ $hist['date'] }}</td>
+                                        <td class="py-3.5 px-3 text-slate-500">{{ $hist['age'] }}</td>
+                                        <td class="py-3.5 px-3 text-center font-bold text-slate-800">{{ $hist['bb'] }}</td>
+                                        <td class="py-3.5 px-3 text-center font-bold text-slate-800">{{ $hist['tb'] }}</td>
+                                        <td class="py-3.5 px-3 text-center font-mono font-medium text-slate-600">{{ $hist['tbu'] ?? '-' }}</td>
+                                        <td class="py-3.5 px-5 text-right">
+                                            <span class="font-black text-xs {{ $histDanger ? 'text-rose-600' : 'text-emerald-600' }}">
+                                                {{ ucfirst($hist['status']) }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <div class="py-10 text-center text-slate-400 text-xs">
+                            Belum ada riwayat pengukuran sebelumnya dari Posyandu.
                         </div>
                     @endif
+                </div>
+            </div>
 
-                    <h3 class="text-[15px] font-bold text-slate-800 mb-3">Catatan Ahli Gizi / Validator (Opsional)</h3>
-                    <textarea id="catatanValidatorInput" rows="3" placeholder="Berikan catatan, diagnosa, atau instruksi intervensi untuk balita ini..." class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-[13px] rounded-xl px-4 py-3 focus:bg-white focus:ring-2 focus:ring-[#00A9C0]/40 focus:border-[#00A9C0] transition-all resize-none outline-none leading-relaxed"></textarea>
-                    <p class="text-[11px] text-slate-400 mt-2">Catatan ini akan muncul di riwayat balita dan dapat dibaca oleh ibu/orang tua di Portal Ibu.</p>
+        </div>
 
+        <!-- Right Column: Decision & Validation Desk (Col 5 / Col 4) -->
+        <div class="lg:col-span-5 xl:col-span-4 bg-slate-50/50 rounded-3xl border border-slate-200/60 shadow-inner p-5 sm:p-6 space-y-6">
+
+            <!-- Posyandu Origin & Examiner Info -->
+            <div>
+                <div class="flex items-center gap-2 mb-3 pb-2 border-b border-slate-200/80">
+                    <i class="ph-bold ph-buildings text-teal-700 text-sm"></i>
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Asal Data Posyandu</h3>
                 </div>
 
-            </div>
-        </div>
-    </div>
-
-    {{-- ══════════════════════════════════════════
-         BOTTOM STICKY ACTION BAR
-    ══════════════════════════════════════════ --}}
-    <div class="fixed bottom-0 left-0 right-0 lg:left-64 bg-white/90 backdrop-blur-md border-t border-slate-200/80 p-4 lg:px-8 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="hidden sm:block">
-                <span class="text-[13px] font-medium text-slate-500">Tindakan Validasi untuk <strong class="text-slate-800">{{ $child['name'] }}</strong></span>
-            </div>
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <button type="button" onclick="openRejectModal()" class="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-white border border-rose-200 text-rose-600 text-[14px] font-bold hover:bg-rose-50 hover:border-rose-300 transition-colors">
-                    Tolak Data
-                </button>
-                <button type="button" onclick="openApproveModal()" class="flex-[2] sm:flex-none px-8 py-3 rounded-xl bg-gradient-to-r from-[#0097B0] to-[#00C4E0] text-white text-[14px] font-bold shadow-md shadow-cyan-200/60 hover:from-[#0086A0] hover:to-[#00B0CC] transition-all">
-                    Setujui & Validasi
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    {{-- MODALS --}}
-    
-    {{-- Approve Modal --}}
-    <div id="approveModal" class="fixed inset-0 z-[60] hidden">
-        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeApproveModal()"></div>
-        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-            <div class="flex min-h-full items-end justify-center p-4 sm:items-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[24px] bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-sm">
-                    <div class="p-6">
-                        <div class="mx-auto w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-4">
-                            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        </div>
-                        <h3 class="text-center text-lg font-bold text-slate-900 mb-2">Konfirmasi Persetujuan</h3>
-                        <p class="text-center text-[13px] text-slate-500 mb-6 leading-relaxed">
-                            Apakah Anda yakin ingin menyetujui data pengukuran ini? Data akan diverifikasi secara permanen.
-                        </p>
-                        
-                        <div class="flex flex-col gap-3">
-                            <button type="button" onclick="submitApprove()" class="w-full py-3 rounded-xl bg-[#00A9C0] text-white text-[14px] font-bold shadow-md shadow-cyan-200/50 hover:bg-[#0092a6] transition-colors">
-                                Ya, Setujui Data
-                            </button>
-                            <button type="button" onclick="closeApproveModal()" class="w-full py-3 rounded-xl bg-slate-100 text-slate-600 text-[14px] font-bold hover:bg-slate-200 transition-colors">
-                                Batal
-                            </button>
-                        </div>
+                <div class="space-y-2 text-xs">
+                    <div class="flex items-center justify-between py-1 border-b border-slate-200/40">
+                        <span class="text-slate-500">Posyandu:</span>
+                        <span class="font-bold text-slate-900">{{ $child['posyandu'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-1 border-b border-slate-200/40">
+                        <span class="text-slate-500">Kader Pengukur:</span>
+                        <span class="font-bold text-slate-900">{{ $child['kader'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-1 border-b border-slate-200/40">
+                        <span class="text-slate-500">Waktu Ukur:</span>
+                        <span class="font-medium text-slate-700">{{ $child['date'] }} &bull; {{ $child['time'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-1">
+                        <span class="text-slate-500">Nama Ibu:</span>
+                        <span class="font-bold text-slate-900">{{ $child['parent'] }}</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    {{-- Reject Modal --}}
-    <div id="rejectModal" class="fixed inset-0 z-[60] hidden">
-        <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeRejectModal()"></div>
-        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-            <div class="flex min-h-full items-end justify-center p-4 sm:items-center sm:p-0">
-                <div class="relative transform overflow-hidden rounded-[24px] bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-sm">
-                    <div class="p-6">
-                        <div class="mx-auto w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-4">
-                            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+
+            <!-- Field Notes from Posyandu Kader (if any) -->
+            @if(!empty($child['catatan_kader']))
+                <div class="bg-amber-100/40 border border-amber-200/60 rounded-2xl p-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-200/50 border border-amber-300/50 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="ph-bold ph-chat-centered-text text-base"></i>
                         </div>
-                        <h3 class="text-center text-lg font-bold text-slate-900 mb-2">Tolak Pengukuran</h3>
-                        <p class="text-center text-[13px] text-slate-500 mb-4 leading-relaxed">
-                            Data akan ditolak dan dikembalikan ke kader Posyandu untuk diperbaiki.
-                        </p>
-                        
-                        <div class="mb-6">
-                            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2">Alasan Penolakan</label>
-                            <textarea id="alasanTolakInput" rows="3" placeholder="Masukkan alasan..." class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-rose-400 focus:ring-2 focus:ring-rose-200/40 outline-none transition-colors resize-none"></textarea>
-                        </div>
-                        
-                        <div class="flex flex-col gap-3">
-                            <button type="button" onclick="submitReject()" class="w-full py-3 rounded-xl bg-rose-500 text-white text-[14px] font-bold shadow-md shadow-rose-200/50 hover:bg-rose-600 transition-colors">
-                                Tolak Data
-                            </button>
-                            <button type="button" onclick="closeRejectModal()" class="w-full py-3 rounded-xl bg-slate-100 text-slate-600 text-[14px] font-bold hover:bg-slate-200 transition-colors">
-                                Batal
-                            </button>
+                        <div class="min-w-0 flex-1">
+                            <span class="block text-[11px] font-bold text-amber-900 uppercase tracking-wider">Catatan Observasi Kader Posyandu</span>
+                            <p class="text-xs sm:text-sm text-amber-900/90 font-medium mt-1 leading-relaxed italic">
+                                "{{ $child['catatan_kader'] }}"
+                            </p>
                         </div>
                     </div>
                 </div>
+            @endif
+
+            <!-- Clinical Decision & Validation Desk -->
+            <div x-data="{ 
+                    notes: '{{ addslashes($child['catatan_validator'] ?? '') }}',
+                    showApproveModal: false,
+                    showRejectModal: false,
+                    rejectReason: '',
+                    addNote(text) {
+                        if (this.notes.trim()) {
+                            this.notes += '; ' + text;
+                        } else {
+                            this.notes = text;
+                        }
+                    }
+                 }" 
+                 class="space-y-4 pt-4 border-t border-slate-200/80">
+                
+                <div class="pb-2">
+                    <div class="flex items-center gap-2">
+                        <i class="ph-bold ph-stethoscope text-teal-700 text-base"></i>
+                        <h3 class="text-sm font-bold text-slate-900">Diagnosis & Catatan Ahli Gizi</h3>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Rekomendasi otomatis diteruskan ke buku KIA digital orang tua.</p>
+                </div>
+
+                <!-- Quick Recommendation Chips -->
+                <div>
+                    <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Templat Rekomendasi Cepat</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" @click="addNote('Konseling gizi & PMT protein hewani (telur/ikan)')" 
+                                class="px-2.5 py-1 bg-white hover:bg-teal-50 hover:text-teal-800 hover:border-teal-200 rounded-lg border border-slate-200/80 text-[11px] font-medium text-slate-600 transition-colors shadow-sm">
+                            + PMT Protein Hewani
+                        </button>
+                        <button type="button" @click="addNote('Pertumbuhan normal, pertahankan pola makan seimbang')" 
+                                class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 rounded-lg border border-slate-200/80 text-[11px] font-medium text-slate-600 transition-colors shadow-sm">
+                            + Gizi Seimbang
+                        </button>
+                        <button type="button" @click="addNote('Pantau kenaikan berat badan posyandu bulan depan')" 
+                                class="px-2.5 py-1 bg-white hover:bg-teal-50 hover:text-teal-800 hover:border-teal-200 rounded-lg border border-slate-200/80 text-[11px] font-medium text-slate-600 transition-colors shadow-sm">
+                            + Pantau Bulan Depan
+                        </button>
+                        <button type="button" @click="addNote('Rujuk pemeriksaan dokter umum/spesialis Puskesmas')" 
+                                class="px-2.5 py-1 bg-white hover:bg-rose-50 hover:text-rose-800 hover:border-rose-200 rounded-lg border border-slate-200/80 text-[11px] font-medium text-slate-600 transition-colors shadow-sm">
+                            + Rujuk Dokter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Textarea for Validator Notes (Enlarged & Spacious) -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label for="validatorNotes" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">Instruksi & Pesan KIA</label>
+                    </div>
+                    <textarea id="validatorNotes" 
+                              x-model="notes" 
+                              rows="5" 
+                              placeholder="Ketik instruksi pola asuh, anjuran menu makanan bergizi, pemberian suplemen, atau catatan evaluasi untuk orang tua..." 
+                              class="w-full px-4 py-3 text-xs sm:text-sm bg-white border border-slate-200/80 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all leading-relaxed shadow-sm"></textarea>
+                </div>
+
+                <!-- Action Decisions (Modal Triggers) -->
+                <div class="pt-4 space-y-3">
+                    
+                    <button type="button" 
+                            @click="showApproveModal = true" 
+                            class="w-full py-3.5 px-4 bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                        <i class="ph-bold ph-check text-sm"></i>
+                        <span>Setujui & Terbitkan Tautan Buku KIA</span>
+                    </button>
+
+                    <button type="button" 
+                            @click="showRejectModal = true" 
+                            class="w-full py-3 px-4 bg-white hover:bg-rose-50 border border-slate-200/80 hover:border-rose-200 text-slate-600 hover:text-rose-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+                        <span>Tolak / Minta Pengukuran Ulang</span>
+                    </button>
+                    
+                </div>
+
+                <!-- Approve Modal -->
+                <div x-show="showApproveModal" 
+                     style="display: none;" 
+                     class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div x-show="showApproveModal" x-transition.opacity class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showApproveModal = false"></div>
+                    <div x-show="showApproveModal" 
+                         x-transition.scale.95 
+                         class="bg-white rounded-3xl shadow-xl w-full max-w-sm overflow-hidden z-10 p-6 relative">
+                        <div class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mb-4">
+                            <i class="ph-bold ph-check-circle text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Terbitkan Validasi?</h3>
+                        <p class="text-sm text-slate-500 mb-6">Data ini akan disahkan dan tautan Buku KIA digital akan dikirimkan kepada orang tua.</p>
+                        
+                        <form action="{{ route('puskesmas.validasi.approve', $child['id']) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="catatan_validator" :value="notes">
+                            <div class="flex gap-3">
+                                <button type="button" @click="showApproveModal = false" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors">Batal</button>
+                                <button type="submit" class="flex-1 px-4 py-3 rounded-xl bg-teal-700 text-white font-bold text-xs hover:bg-teal-800 transition-colors shadow-sm">Ya, Terbitkan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Reject Modal -->
+                <div x-show="showRejectModal" 
+                     style="display: none;" 
+                     class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div x-show="showRejectModal" x-transition.opacity class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showRejectModal = false"></div>
+                    <div x-show="showRejectModal" 
+                         x-transition.scale.95 
+                         class="bg-white rounded-3xl shadow-xl w-full max-w-sm overflow-hidden z-10 p-6 relative">
+                        <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+                            <i class="ph-bold ph-arrow-counter-clockwise text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Tolak & Kembalikan Data</h3>
+                        <p class="text-sm text-slate-500 mb-4">Data akan dikembalikan ke Kader Posyandu untuk dilakukan pengukuran ulang atau perbaikan.</p>
+                        
+                        <form action="{{ route('puskesmas.validasi.reject', $child['id']) }}" method="POST">
+                            @csrf
+                            <div class="mb-5">
+                                <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Alasan Penolakan</label>
+                                <textarea name="catatan_validator" 
+                                          x-model="rejectReason" 
+                                          required 
+                                          rows="3" 
+                                          placeholder="Jelaskan bagian mana yang perlu diperbaiki oleh kader..." 
+                                          class="w-full px-3 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:bg-white focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 resize-none transition-all"></textarea>
+                            </div>
+                            <div class="flex gap-3">
+                                <button type="button" @click="showRejectModal = false" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors">Batal</button>
+                                <button type="submit" class="flex-1 px-4 py-3 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700 transition-colors shadow-sm">Kirim Penolakan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
             </div>
+
         </div>
+
     </div>
 
 </div>
 
-<form id="actionForm" method="POST" class="hidden">
-    @csrf
-    <input type="hidden" name="catatan_validator" id="formCatatan">
-</form>
+@endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // ── CHARTS ──
-    const chartData = @json($child['chartData']);
+    // ── CHARTS CONFIGURATION WITH WHO THRESHOLD REFERENCE LINE ──
+    const chartRaw = @json($child['chartData']);
     const ctx = document.getElementById('growthChart');
     let growthChart;
-    
-    if (ctx) {
+
+    const metricConfig = {
+        tbu: {
+            label: 'Z-Score TB/U (Aktual)',
+            data: chartRaw.tbu || [],
+            color: '#0f766e', // Teal 700
+            bgColor: 'rgba(15, 118, 110, 0.08)',
+            unit: 'SD',
+            threshold: -2.0,
+            thresholdLabel: 'Batas Stunting (-2 SD)'
+        },
+        bbu: {
+            label: 'Z-Score BB/U (Aktual)',
+            data: chartRaw.bbu || [],
+            color: '#2563eb', // Blue 600
+            bgColor: 'rgba(37, 99, 235, 0.08)',
+            unit: 'SD',
+            threshold: -2.0,
+            thresholdLabel: 'Batas Berat Kurang (-2 SD)'
+        },
+        tb: {
+            label: 'Tinggi Badan (cm)',
+            data: chartRaw.tb || [],
+            color: '#d97706', // Amber 600
+            bgColor: 'rgba(217, 119, 6, 0.08)',
+            unit: 'cm',
+            threshold: null
+        },
+        bb: {
+            label: 'Berat Badan (kg)',
+            data: chartRaw.bb || [],
+            color: '#059669', // Emerald 600
+            bgColor: 'rgba(5, 150, 105, 0.08)',
+            unit: 'kg',
+            threshold: null
+        }
+    };
+
+    if (ctx && chartRaw.labels && chartRaw.labels.length > 0) {
+        const initial = metricConfig.tbu;
+        const count = chartRaw.labels.length;
+
+        // Build threshold dataset if available
+        const datasets = [];
+
+        if (initial.threshold !== null) {
+            datasets.push({
+                label: initial.thresholdLabel,
+                data: Array(count).fill(initial.threshold),
+                borderColor: '#f43f5e', // Rose 500
+                borderWidth: 1.5,
+                borderDash: [5, 5],
+                pointRadius: 0,
+                fill: false
+            });
+        }
+
+        datasets.push({
+            label: initial.label,
+            data: initial.data,
+            borderColor: initial.color,
+            backgroundColor: initial.bgColor,
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: initial.color,
+            pointBorderWidth: 2
+        });
+
         growthChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: 'Berat Badan (kg)',
-                    data: chartData.bb,
-                    borderColor: '#00A9C0',
-                    backgroundColor: 'rgba(0,169,192,0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#00A9C0',
-                    pointBorderWidth: 2
-                }]
+                labels: chartRaw.labels,
+                datasets: datasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { size: 12, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
                 scales: {
-                    y: { grid: { color: '#f1f5f9' }, border: { display: false } },
-                    x: { grid: { display: false }, border: { display: false } }
+                    y: {
+                        grid: { color: '#f1f5f9' },
+                        border: { display: false },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 11 }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: {
+                            color: '#64748b',
+                            font: { size: 11, weight: 'bold' }
+                        }
+                    }
                 }
             }
         });
     }
 
-    window.updateChartMetric = function() {
-        const metric = document.getElementById('chartMetricSelector').value;
-        if (!growthChart) return;
-        
-        const map = {
-            bb: { label: 'Berat Badan (kg)', data: chartData.bb, color: '#00A9C0' },
-            tb: { label: 'Tinggi Badan (cm)', data: chartData.tb, color: '#f59e0b' },
-            bbu: { label: 'Z-Score BB/U', data: chartData.bbu, color: '#10b981' },
-            tbu: { label: 'Z-Score TB/U', data: chartData.tbu, color: '#6366f1' },
-        };
-        const m = map[metric];
-        
-        growthChart.data.datasets[0].label = m.label;
-        growthChart.data.datasets[0].data = m.data;
-        growthChart.data.datasets[0].borderColor = m.color;
-        growthChart.data.datasets[0].pointBorderColor = m.color;
-        growthChart.data.datasets[0].backgroundColor = m.color + '1A'; // 10% opacity hex
-        growthChart.update();
-    };
+    window.setChartMetric = function(key) {
+        if (!growthChart || !metricConfig[key]) return;
+        const conf = metricConfig[key];
+        const count = chartRaw.labels.length;
 
-    // ── ACTIONS ──
-    const actionForm = document.getElementById('actionForm');
-    const formCatatan = document.getElementById('formCatatan');
-    const mainCatatanInput = document.getElementById('catatanValidatorInput');
-    const alasanTolakInput = document.getElementById('alasanTolakInput');
-    
-    window.openApproveModal = () => document.getElementById('approveModal').classList.remove('hidden');
-    window.closeApproveModal = () => document.getElementById('approveModal').classList.add('hidden');
-    
-    window.openRejectModal = () => document.getElementById('rejectModal').classList.remove('hidden');
-    window.closeRejectModal = () => document.getElementById('rejectModal').classList.add('hidden');
+        // Button active state is now managed reactively by Alpine.js in the dropdown.
 
-    window.submitApprove = () => {
-        formCatatan.value = mainCatatanInput.value;
-        actionForm.action = `/puskesmas/validasi/{{ $child['id'] }}/approve`;
-        actionForm.submit();
-    };
+        const newDatasets = [];
 
-    window.submitReject = () => {
-        if(!alasanTolakInput.value.trim()) {
-            alasanTolakInput.focus();
-            return;
+        if (conf.threshold !== null) {
+            newDatasets.push({
+                label: conf.thresholdLabel,
+                data: Array(count).fill(conf.threshold),
+                borderColor: '#f43f5e',
+                borderWidth: 1.5,
+                borderDash: [5, 5],
+                pointRadius: 0,
+                fill: false
+            });
         }
-        formCatatan.value = alasanTolakInput.value;
-        actionForm.action = `/puskesmas/validasi/{{ $child['id'] }}/reject`;
-        actionForm.submit();
+
+        newDatasets.push({
+            label: conf.label,
+            data: conf.data,
+            borderColor: conf.color,
+            backgroundColor: conf.bgColor,
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: conf.color,
+            pointBorderWidth: 2
+        });
+
+        growthChart.data.datasets = newDatasets;
+        growthChart.update();
     };
 </script>
 @endpush
-
-@endsection
