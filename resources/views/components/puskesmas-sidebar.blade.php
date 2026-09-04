@@ -26,8 +26,8 @@
                 N
             </div>
             <div class="flex flex-col min-w-0" x-show="!sidebarCollapsed" x-transition.opacity.duration.200ms>
-                <span class="text-sm font-extrabold tracking-tight text-slate-900 truncate">NutriGen</span>
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">Puskesmas</span>
+                <span class="text-[17px] font-extrabold tracking-tight text-slate-900 truncate leading-none">NutriGen</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate mt-0.5">Puskesmas</span>
             </div>
         </div>
         
@@ -41,12 +41,12 @@
     <div class="p-3 border-b border-slate-100 shrink-0 group">
         <div class="flex items-center gap-3 rounded-lg p-2 transition-colors"
              :class="{ 'hover:bg-slate-50 cursor-pointer': !sidebarCollapsed, 'justify-center': sidebarCollapsed }">
-            <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs shrink-0 group-hover:border-teal-300 transition-colors">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-50 to-emerald-100 border border-teal-200 text-teal-700 flex items-center justify-center font-bold text-sm shrink-0 group-hover:border-teal-400 transition-colors">
                 {{ strtoupper(substr(Auth::user()->name ?? 'D', 0, 1)) }}
             </div>
             <div class="flex-1 min-w-0" x-show="!sidebarCollapsed" x-transition.opacity.duration.200ms>
-                <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name ?? 'Dr. Gizi' }}</p>
-                <p class="text-[10px] text-slate-500 font-medium truncate">{{ Auth::user()->puskesmas->nama ?? 'Puskesmas Induk' }}</p>
+                <p class="text-[13px] font-extrabold text-slate-800 truncate leading-tight">{{ Auth::user()->name ?? 'Dr. Gizi' }}</p>
+                <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5">{{ Auth::user()->puskesmas->nama ?? 'Puskesmas Induk' }}</p>
             </div>
         </div>
     </div>
@@ -56,70 +56,87 @@
         
         @php
             $menus = [
-                [
-                    'route' => 'puskesmas.dashboard',
-                    'icon' => 'ph-squares-four',
-                    'label' => 'Dashboard',
-                    'pattern' => 'puskesmas/dashboard*'
+                'Operasional Harian' => [
+                    [
+                        'route' => 'puskesmas.dashboard',
+                        'icon' => 'ph-squares-four',
+                        'label' => 'Dashboard',
+                        'pattern' => 'puskesmas/dashboard*'
+                    ],
+                    [
+                        'route' => 'puskesmas.validasi',
+                        'icon' => 'ph-check-square-offset',
+                        'label' => 'Validasi Data',
+                        'pattern' => 'puskesmas/validasi*'
+                    ],
+                    [
+                        'route' => 'puskesmas.balita',
+                        'icon' => 'ph-baby',
+                        'label' => 'Direktori Balita',
+                        'pattern' => 'puskesmas/balita*'
+                    ],
                 ],
-                [
-                    'route' => 'puskesmas.validasi',
-                    'icon' => 'ph-check-square-offset',
-                    'label' => 'Validasi Data',
-                    'pattern' => 'puskesmas/validasi*'
-                ],
-                [
-                    'route' => 'puskesmas.balita',
-                    'icon' => 'ph-baby',
-                    'label' => 'Direktori Balita',
-                    'pattern' => 'puskesmas/balita*'
-                ],
-                [
-                    'route' => 'puskesmas.posyandu',
-                    'icon' => 'ph-buildings',
-                    'label' => 'Fasilitas & Kader',
-                    'pattern' => 'puskesmas/posyandu*'
-                ],
-                [
-                    'route' => 'puskesmas.laporan',
-                    'icon' => 'ph-chart-line-up',
-                    'label' => 'Laporan',
-                    'pattern' => 'puskesmas/laporan*'
-                ],
-                [
-                    'route' => 'puskesmas.pengaturan',
-                    'icon' => 'ph-gear',
-                    'label' => 'Pengaturan',
-                    'pattern' => 'puskesmas/pengaturan*'
-                ],
+                'Sistem & Manajemen' => [
+                    [
+                        'route' => 'puskesmas.posyandu',
+                        'icon' => 'ph-buildings',
+                        'label' => 'Fasilitas & Kader',
+                        'pattern' => 'puskesmas/posyandu*'
+                    ],
+                    [
+                        'route' => 'puskesmas.laporan',
+                        'icon' => 'ph-chart-line-up',
+                        'label' => 'Laporan',
+                        'pattern' => 'puskesmas/laporan*'
+                    ],
+                    [
+                        'route' => 'puskesmas.pengaturan',
+                        'icon' => 'ph-gear',
+                        'label' => 'Pengaturan',
+                        'pattern' => 'puskesmas/pengaturan*'
+                    ],
+                ]
             ];
         @endphp
 
-        @foreach($menus as $menu)
-            @php 
-                $isActive = request()->is($menu['pattern']); 
-                $activeClass = $isActive 
-                    ? 'bg-teal-50 text-teal-700 font-semibold shadow-[inset_2px_0_0_0_#0d9488]' 
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium';
-            @endphp
-            <a href="{{ route($menu['route']) }}" 
-               class="flex items-center gap-3 rounded-md px-2.5 py-2 transition-colors {{ $activeClass }}"
-               :class="{ 'justify-center px-0': sidebarCollapsed }"
-               title="{{ $menu['label'] }}">
-                <i class="ph-bold {{ $menu['icon'] }} text-lg {{ $isActive ? 'text-teal-600' : 'text-slate-400' }}"></i>
-                <span class="text-xs truncate" x-show="!sidebarCollapsed" x-transition.opacity.duration.200ms>
-                    {{ $menu['label'] }}
-                </span>
+        <div class="flex flex-col gap-1">
+            @foreach($menus as $groupName => $groupItems)
+                <div class="mb-1 mt-3 first:mt-0 px-3 transition-opacity duration-200" x-show="!sidebarCollapsed">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">{{ $groupName }}</span>
+                </div>
                 
-                @if($menu['route'] === 'puskesmas.validasi' && ($pendingValidationCount ?? 0) > 0)
-                    <span x-show="!sidebarCollapsed" class="ml-auto bg-rose-100 text-rose-600 py-0.5 px-2 rounded-full text-[9px] font-bold">
-                        {{ $pendingValidationCount }}
-                    </span>
-                    <!-- Red dot for collapsed mode -->
-                    <span x-show="sidebarCollapsed" class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
-                @endif
-            </a>
-        @endforeach
+                @foreach($groupItems as $menu)
+                    @php 
+                        $isActive = request()->is($menu['pattern']); 
+                        $activeClass = $isActive 
+                            ? 'bg-teal-50 text-teal-800 font-bold shadow-sm border border-teal-100/50' 
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold border border-transparent';
+                    @endphp
+                    <a href="{{ route($menu['route']) }}" 
+                       class="relative group flex items-center gap-3.5 rounded-xl px-3 py-2.5 transition-all duration-200 {{ $activeClass }}"
+                       :class="{ 'justify-center px-0': sidebarCollapsed }"
+                       title="{{ $menu['label'] }}">
+                       
+                        @if($isActive)
+                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-teal-500 rounded-r-full transition-opacity duration-200" x-show="!sidebarCollapsed"></div>
+                        @endif
+
+                        <i class="ph-bold {{ $menu['icon'] }} text-[20px] {{ $isActive ? 'text-teal-600' : 'text-slate-400' }} group-hover:scale-110 group-active:scale-95 transition-transform duration-200"></i>
+                        <span class="text-[13.5px] truncate" x-show="!sidebarCollapsed" x-transition.opacity.duration.200ms>
+                            {{ $menu['label'] }}
+                        </span>
+                        
+                        @if($menu['route'] === 'puskesmas.validasi' && ($pendingValidationCount ?? 0) > 0)
+                            <span x-show="!sidebarCollapsed" class="ml-auto bg-rose-100 text-rose-600 py-0.5 px-2 rounded-full text-[10px] font-bold">
+                                {{ $pendingValidationCount }}
+                            </span>
+                            <!-- Red dot for collapsed mode -->
+                            <span x-show="sidebarCollapsed" class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+                        @endif
+                    </a>
+                @endforeach
+            @endforeach
+        </div>
     </nav>
 
     <!-- Footer / Collapse & Logout -->
@@ -127,22 +144,22 @@
         
         <!-- Toggle Sidebar (Desktop Only) -->
         <button @click="sidebarCollapsed = !sidebarCollapsed" 
-                class="hidden lg:flex items-center gap-3 w-full rounded-md px-2.5 py-2 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors"
+                class="group hidden lg:flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors"
                 :class="{ 'justify-center px-0': sidebarCollapsed }"
                 title="Perkecil Menu">
-            <i class="ph-bold ph-arrows-left-right text-lg transition-transform" :class="{ 'rotate-180': sidebarCollapsed }"></i>
-            <span class="text-xs font-medium truncate" x-show="!sidebarCollapsed">Lipat Menu</span>
+            <i class="ph-bold ph-arrows-left-right text-[18px] group-hover:scale-110 transition-transform duration-200" :class="{ 'rotate-180': sidebarCollapsed }"></i>
+            <span class="text-[13px] font-bold truncate" x-show="!sidebarCollapsed">Lipat Menu</span>
         </button>
 
         <!-- Logout -->
-        <form action="{{ route('logout') }}" method="POST" class="w-full">
+        <form action="{{ route('logout') }}" method="POST" class="w-full" onsubmit="if(window.NutriAlert && typeof window.NutriAlert.confirm === 'function'){ event.preventDefault(); const form = this; window.NutriAlert.confirm('Keluar dari Akun?', 'Apakah Anda yakin ingin keluar dari sistem?', 'Keluar', 'Batal').then((r) => { if(r.isConfirmed) form.submit(); }); return false; } return confirm('Keluar dari sistem?');">
             @csrf
             <button type="submit" 
-                    class="flex items-center gap-3 w-full rounded-md px-2.5 py-2 text-rose-600 hover:bg-rose-50 font-medium transition-colors"
+                    class="group flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 font-bold transition-all duration-200"
                     :class="{ 'justify-center px-0': sidebarCollapsed }"
                     title="Keluar">
-                <i class="ph-bold ph-sign-out text-lg"></i>
-                <span class="text-xs truncate" x-show="!sidebarCollapsed">Keluar Sistem</span>
+                <i class="ph-bold ph-sign-out text-[18px] group-hover:scale-110 group-active:scale-95 transition-transform duration-200"></i>
+                <span class="text-[13px] truncate" x-show="!sidebarCollapsed">Keluar Sistem</span>
             </button>
         </form>
     </div>

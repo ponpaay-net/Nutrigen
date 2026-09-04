@@ -13,7 +13,7 @@
         body {
             background-color: white;
             color: black;
-            font-family: 'Times New Roman', Times, serif;
+            font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
@@ -100,27 +100,42 @@
         <table class="print-table">
             <thead>
                 <tr>
-                    <th style="width: 5%;">No</th>
-                    <th style="width: 35%; text-align: left;">Nama Posyandu</th>
-                    <th style="width: 15%;">Total Sasaran</th>
-                    <th style="width: 15%;">Balita Diukur</th>
-                    <th style="width: 15%;">Gizi Normal</th>
-                    <th style="width: 15%;">Berisiko</th>
+                    <th style="width: 4%;">No</th>
+                    @if($filters['posyandu_id'] === 'semua')
+                        <th style="width: 22%; text-align: left;">Nama Posyandu</th>
+                    @endif
+                    <th style="text-align: left;">Nama Balita & NIK</th>
+                    <th style="width: 18%; text-align: left;">Nama Orang Tua</th>
+                    <th style="width: 7%;">Umur</th>
+                    <th style="width: 7%;">BB</th>
+                    <th style="width: 7%;">TB</th>
+                    <th style="width: 16%;">Status Gizi</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($reports as $index => $row)
+                @forelse($pengukurans as $index => $row)
                     <tr>
                         <td class="num-cell">{{ $index + 1 }}</td>
-                        <td>{{ $row['nama_posyandu'] }}</td>
-                        <td class="num-cell">{{ number_format($row['sasaran']) }}</td>
-                        <td class="num-cell">{{ number_format($row['diukur']) }}</td>
-                        <td class="num-cell">{{ number_format($row['normal']) }}</td>
-                        <td class="num-cell">{{ number_format($row['berisiko']) }}</td>
+                        @if($filters['posyandu_id'] === 'semua')
+                            <td style="font-size: 10pt;">{{ $row->balita->posyandu->nama ?? '-' }}</td>
+                        @endif
+                        <td>
+                            <b>{{ $row->balita->nama ?? '-' }}</b><br>
+                            <span style="font-size: 9pt; color: #555;">NIK: {{ $row->balita->nik ?? '-' }}</span>
+                        </td>
+                        <td>
+                            {{ $row->balita->orangTua->nama_ibu ?? ($row->balita->orangTua->nama_ayah ?? '-') }}
+                        </td>
+                        <td class="num-cell">{{ $row->umur_bulan }} Bln</td>
+                        <td class="num-cell">{{ $row->berat_badan }} kg</td>
+                        <td class="num-cell">{{ $row->tinggi_badan }} cm</td>
+                        <td class="num-cell" style="font-weight: bold; {{ in_array(strtolower($row->status_gizi), ['normal']) ? 'color: #16a34a;' : 'color: #dc2626;' }}">
+                            {{ strtoupper($row->status_gizi) }}
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px;">Data tidak ditemukan.</td>
+                        <td colspan="{{ $filters['posyandu_id'] === 'semua' ? '8' : '7' }}" style="text-align: center; padding: 20px;">Belum ada data pengukuran anak yang dicatat pada bulan ini.</td>
                     </tr>
                 @endforelse
             </tbody>

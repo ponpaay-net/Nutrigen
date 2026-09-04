@@ -135,7 +135,7 @@
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto">
+                <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left min-w-[750px]">
                         <thead class="bg-slate-100/80 border-b border-slate-200">
                             <tr>
@@ -194,6 +194,51 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="md:hidden divide-y divide-slate-100">
+                    @forelse($reports as $row)
+                        <div class="p-4 flex flex-col gap-3 hover:bg-slate-50/50 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="ph-fill ph-house-line text-slate-400 text-lg"></i>
+                                    <span class="font-bold text-slate-900 text-[14px]">{{ $row['nama_posyandu'] }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold text-slate-500">Hadir</span>
+                                    <span class="font-black text-slate-900 text-[14px]">{{ $row['persentase_hadir'] }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-slate-50/80 border border-slate-100 rounded-xl p-3 grid grid-cols-2 gap-3">
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Sasaran / Diukur</div>
+                                    <div class="text-sm font-black text-slate-800">{{ number_format($row['sasaran']) }} <span class="text-slate-400 mx-1">/</span> <span class="text-indigo-700">{{ number_format($row['diukur']) }}</span></div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Normal / Risiko</div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex px-1.5 py-0.5 bg-emerald-50 text-emerald-700 font-bold text-xs rounded border border-emerald-200">
+                                            {{ number_format($row['normal']) }}
+                                        </span>
+                                        <span class="text-slate-300 font-bold">/</span>
+                                        <span class="inline-flex px-1.5 py-0.5 bg-rose-50 text-rose-700 font-bold text-xs rounded border border-rose-200">
+                                            {{ number_format($row['berisiko']) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="py-16 px-6 text-center">
+                            <div class="flex flex-col items-center justify-center text-center">
+                                <i class="ph-bold ph-clipboard-text text-4xl text-slate-300 mb-3"></i>
+                                <h4 class="text-sm font-bold text-slate-700 mb-1">Belum Ada Data</h4>
+                                <p class="text-sm text-slate-500 max-w-sm">Belum ada data evaluasi gizi di periode ini. Pastikan kader posyandu telah menginput data.</p>
+                            </div>
+                        </div>
+                    @endforelse
                 </div>
             </div>
             

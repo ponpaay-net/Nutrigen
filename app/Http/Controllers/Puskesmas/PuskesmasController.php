@@ -605,6 +605,7 @@ class PuskesmasController extends Controller
                 return [
                     'id' => $k->id,
                     'nama' => $k->user->name ?? $k->nama,
+                    'email' => $k->user->email ?? '',
                     'nik' => '-', // NIK Kader dihilangkan dari tabel V2
                     'no_hp' => $k->no_hp,
                     'aktivitas_bulan_ini' => $k->pengukurans()->whereMonth('tanggal_ukur', Carbon::now()->month)->count(),
@@ -677,6 +678,65 @@ class PuskesmasController extends Controller
 
         return redirect()->route('puskesmas.posyandu', ['id' => $posyandu->id])
             ->with('success', 'Kader berhasil ditambahkan.');
+    }
+
+    public function updateKader(Request $request, $id)
+    {
+        $puskesmasId = $this->getPuskesmasId();
+        
+        $kader = \App\Models\Kader::whereHas('posyandu', function ($q) use ($puskesmasId) {
+            $q->where('puskesmas_id', $puskesmasId);
+        })->findOrFail($id);
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,'.$kader->user_id,
+            'no_hp' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:8'
+        ]);
+
+        DB::transaction(function () use ($kader, $validated) {
+            $kader->update([
+                'nama' => $validated['nama'],
+                'no_hp' => $validated['no_hp'] ?? null,
+            ]);
+            
+            if ($kader->user) {
+                $userUpdate = [
+                    'name' => $validated['nama'],
+                    'email' => $validated['email'],
+                ];
+                if (!empty($validated['password'])) {
+                    $userUpdate['password'] = Hash::make($validated['password']);
+                }
+                $kader->user->update($userUpdate);
+            }
+        });
+
+        return redirect()->route('puskesmas.posyandu', ['id' => $kader->posyandu_id])
+            ->with('success', 'Kader berhasil diperbarui.');
+    }
+
+    public function destroyKader($id)
+    {
+        $puskesmasId = $this->getPuskesmasId();
+        
+        $kader = \App\Models\Kader::whereHas('posyandu', function ($q) use ($puskesmasId) {
+            $q->where('puskesmas_id', $puskesmasId);
+        })->findOrFail($id);
+        
+        $posyanduId = $kader->posyandu_id;
+        
+        DB::transaction(function () use ($kader) {
+            $userId = $kader->user_id;
+            $kader->delete();
+            if ($userId) {
+                \App\Models\User::destroy($userId);
+            }
+        });
+
+        return redirect()->route('puskesmas.posyandu', ['id' => $posyanduId])
+            ->with('success', 'Kader berhasil dihapus.');
     }
 
     public function laporan(Request $request)
@@ -759,35 +819,19 @@ class PuskesmasController extends Controller
         $tahun = $request->input('tahun', Carbon::now()->format('Y'));
         $posyanduId = $request->input('posyandu_id', 'semua');
         
-        $posyandus = Posyandu::where('puskesmas_id', $puskesmasId)->get(['id', 'nama'])->toArray();
+        $pengukurans = \App\Models\Pengukuran::with(['balita.posyandu', 'balita.orangTua'])
+            ->whereHas('balita.posyandu', function ($q) use ($puskesmasId, $posyanduId) {
+                $q->where('puskesmas_id', $puskesmasId);
+                if ($posyanduId !== 'semua') {
+                    $q->where('id', $posyanduId);
+                }
+            })
+            ->whereMonth('tanggal_ukur', $bulan)
+            ->whereYear('tanggal_ukur', $tahun)
+            ->orderBy('tanggal_ukur', 'asc')
+            ->get();
 
-        $reports = [];
-        if ($posyanduId === 'semua') {
-            foreach ($posyandus as $p) {
-                $pStats = $this->dashboardService->getKaderDashboardStats($p['id'], (int) $bulan, (int) $tahun);
-                $reports[] = [
-                    'nama_posyandu' => $p['nama'],
-                    'sasaran' => $pStats['total_balita'],
-                    'diukur' => $pStats['bulan_ini'],
-                    'normal' => $pStats['normal'],
-                    'berisiko' => $pStats['risiko'] + $pStats['stunting'],
-                    'persentase_hadir' => $pStats['total_balita'] > 0 ? round(($pStats['bulan_ini']/$pStats['total_balita'])*100) : 0
-                ];
-            }
-        } else {
-            $pName = collect($posyandus)->firstWhere('id', (int)$posyanduId)['nama'] ?? 'Posyandu';
-            $pStats = $this->dashboardService->getKaderDashboardStats($posyanduId, (int) $bulan, (int) $tahun);
-            $reports[] = [
-                'nama_posyandu' => $pName,
-                'sasaran' => $pStats['total_balita'],
-                'diukur' => $pStats['bulan_ini'],
-                'normal' => $pStats['normal'],
-                'berisiko' => $pStats['risiko'] + $pStats['stunting'],
-                'persentase_hadir' => $pStats['total_balita'] > 0 ? round(($pStats['bulan_ini']/$pStats['total_balita'])*100) : 0
-            ];
-        }
-
-        $fileName = 'Laporan_Evaluasi_Gizi_' . $bulan . '_' . $tahun . '.csv';
+        $fileName = 'Data_Pengukuran_Anak_' . $bulan . '_' . $tahun . '.csv';
 
         $headers = array(
             "Content-type"        => "text/csv",
@@ -797,18 +841,24 @@ class PuskesmasController extends Controller
             "Expires"             => "0"
         );
 
-        $callback = function() use($reports) {
+        $callback = function() use($pengukurans) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['Nama Posyandu', 'Total Sasaran (Balita)', 'Balita Diukur', 'Gizi Normal', 'Berisiko/Stunting', 'Tingkat Kehadiran (%)']);
+            fputcsv($file, ['No', 'Nama Posyandu', 'NIK Balita', 'Nama Balita', 'Umur (Bulan)', 'Jenis Kelamin', 'BB (kg)', 'TB (cm)', 'Status Gizi', 'Nama Ibu', 'No HP Ibu']);
             
-            foreach ($reports as $row) {
+            $no = 1;
+            foreach ($pengukurans as $row) {
                 fputcsv($file, [
-                    $row['nama_posyandu'],
-                    $row['sasaran'],
-                    $row['diukur'],
-                    $row['normal'],
-                    $row['berisiko'],
-                    $row['persentase_hadir']
+                    $no++,
+                    $row->balita->posyandu->nama ?? '-',
+                    $row->balita->nik ?? '-',
+                    $row->balita->nama ?? '-',
+                    $row->umur_bulan,
+                    $row->balita->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                    $row->berat_badan,
+                    $row->tinggi_badan,
+                    $row->status_gizi,
+                    $row->balita->orangTua->nama_ibu ?? '-',
+                    $row->balita->orangTua->no_hp_whatsapp ?? '-'
                 ]);
             }
             fclose($file);
@@ -835,29 +885,18 @@ class PuskesmasController extends Controller
             'berisiko' => $reportStats['risiko'] + $reportStats['stunting'],
         ];
 
-        $reports = [];
-        if ($posyanduId === 'semua') {
-            foreach ($posyandus as $p) {
-                $pStats = $this->dashboardService->getKaderDashboardStats($p['id'], (int) $bulan, (int) $tahun);
-                $reports[] = [
-                    'nama_posyandu' => $p['nama'],
-                    'sasaran' => $pStats['total_balita'],
-                    'diukur' => $pStats['bulan_ini'],
-                    'normal' => $pStats['normal'],
-                    'berisiko' => $pStats['risiko'] + $pStats['stunting'],
-                    'persentase_hadir' => $pStats['total_balita'] > 0 ? round(($pStats['bulan_ini']/$pStats['total_balita'])*100).'%' : '0%'
-                ];
-            }
-        } else {
-            $reports[] = [
-                'nama_posyandu' => collect($posyandus)->firstWhere('id', (int)$posyanduId)['nama'] ?? 'Posyandu',
-                'sasaran' => $stats['total_balita'],
-                'diukur' => $reportStats['total'],
-                'normal' => $stats['normal'],
-                'berisiko' => $stats['berisiko'],
-                'persentase_hadir' => $stats['total_balita'] > 0 ? round(($reportStats['total']/$stats['total_balita'])*100).'%' : '0%'
-            ];
-        }
+        // Fetch detailed measurement data
+        $pengukurans = \App\Models\Pengukuran::with(['balita.posyandu', 'balita.orangTua'])
+            ->whereHas('balita.posyandu', function ($q) use ($puskesmasId, $posyanduId) {
+                $q->where('puskesmas_id', $puskesmasId);
+                if ($posyanduId !== 'semua') {
+                    $q->where('id', $posyanduId);
+                }
+            })
+            ->whereMonth('tanggal_ukur', $bulan)
+            ->whereYear('tanggal_ukur', $tahun)
+            ->orderBy('tanggal_ukur', 'asc')
+            ->get();
 
         $filters = [
             'bulan' => str_pad($bulan, 2, '0', STR_PAD_LEFT),
@@ -867,7 +906,7 @@ class PuskesmasController extends Controller
         
         $puskesmas = Auth::user()?->puskesmas;
 
-        return view('puskesmas.laporan-print', compact('stats', 'reports', 'filters', 'puskesmas'));
+        return view('puskesmas.laporan-print', compact('stats', 'pengukurans', 'filters', 'puskesmas'));
     }
 
     public function pengaturan()

@@ -5,10 +5,10 @@
 @endphp
 
 <header
-    x-data="{ scrolled: false }"
+    x-data="{ scrolled: false, showMobileSearch: false }"
     @scroll.passive="scrolled = ($event.target.scrollTop > 8)"
     :class="{
-        'bg-white/90 backdrop-blur-md border-b border-slate-200/70 shadow-[0_2px_14px_rgba(15,23,42,0.04)]': scrolled,
+        'bg-white border-b border-slate-200 shadow-sm': scrolled,
         'bg-white border-b border-slate-100': !scrolled
     }"
     class="sticky top-0 z-40 flex items-center gap-3 lg:gap-6 px-4 lg:px-8 h-16 lg:h-[72px] w-full transition-all duration-200">
@@ -29,14 +29,21 @@
     <form action="{{ route('balita.index') }}" method="GET" class="hidden md:flex flex-1 min-w-0 justify-center">
         <div class="relative w-full max-w-md">
             <x-icon name="magnifying-glass" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none" />
-            <input type="text" name="search" placeholder="Cari nama balita…"
-                class="w-full h-10 pl-10 pr-12 rounded-xl bg-slate-100/80 hover:bg-slate-100 focus:bg-white border border-transparent focus:border-teal-300 focus:ring-4 focus:ring-teal-500/10 text-sm text-slate-700 placeholder:text-slate-400 transition-all focus:outline-none" />
-            <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-2.5 rounded-lg text-teal-600 hover:bg-teal-50 text-xs font-semibold focus:outline-none">Cari</button>
+            <input type="text" name="search" placeholder="Cari data balita..."
+                class="w-full h-10 pl-10 pr-12 rounded-xl bg-slate-100/80 hover:bg-slate-100 focus:bg-white border border-transparent focus:border-teal-300 focus:ring-4 focus:ring-teal-500/20 text-sm font-medium text-slate-700 placeholder:text-slate-400 transition-all focus:outline-none shadow-sm" />
+            <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-2.5 rounded-lg text-teal-600 hover:bg-teal-50 text-xs font-bold transition-colors focus:outline-none">Cari</button>
         </div>
     </form>
 
     {{-- RIGHT: notification + profile --}}
-    <div x-data="{ openNotif: false, openProfile: false }" class="flex items-center gap-2 lg:gap-2.5 ml-auto shrink-0">
+    <div x-data="{ openNotif: false, openProfile: false }" class="flex items-center gap-1.5 lg:gap-2.5 ml-auto shrink-0">
+
+        <!-- Mobile Search Toggle -->
+        <button @click="showMobileSearch = !showMobileSearch"
+            class="md:hidden relative w-10 h-10 flex items-center justify-center text-slate-600 hover:text-teal-600 hover:bg-teal-50 rounded-xl transition-all focus:outline-none"
+            aria-label="Cari">
+            <x-icon name="magnifying-glass" weight="bold" class="text-[20px]" />
+        </button>
 
         <!-- Notification -->
         <button @click="openNotif = true"
@@ -50,16 +57,15 @@
             @endif
         </button>
 
-        <!-- Profile -->
+        <div class="w-px h-6 bg-slate-200 mx-1 hidden sm:block"></div>
+
+        <!-- Profile Dropdown -->
         <div class="relative">
             <button @click="openProfile = !openProfile" @click.outside="openProfile = false"
-                class="flex items-center gap-2.5 pl-1.5 pr-2 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-teal-300 shadow-sm transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/20">
-                <span class="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center text-sm font-bold border-2 border-white shadow-sm overflow-hidden">{{ strtoupper(substr($greetingName, 0, 1)) }}</span>
-                <span class="hidden sm:flex flex-col text-left leading-tight">
-                    <span class="text-[12.5px] font-bold text-slate-800 truncate max-w-[130px]">{{ $greetingName }}</span>
-                    <span class="text-[10.5px] text-slate-500 font-medium truncate max-w-[130px]">{{ $greetRole }}</span>
-                </span>
-                <x-icon name="caret-down" weight="bold" class="text-slate-400 text-xs" />
+                :class="{ 'ring-2 ring-teal-500/50 bg-teal-50 border-teal-300': openProfile }"
+                class="flex items-center gap-2 p-1.5 rounded-xl bg-white border border-slate-200 hover:border-teal-300 hover:bg-teal-50 shadow-sm transition-all cursor-pointer focus:outline-none focus:ring-4 focus:ring-teal-500/20 group">
+                <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 text-white flex items-center justify-center text-sm font-bold shadow-sm overflow-hidden group-hover:scale-105 transition-transform">{{ strtoupper(substr($greetingName, 0, 1)) }}</span>
+                <x-icon name="caret-down" weight="bold" class="text-slate-400 text-xs mr-1 group-hover:text-teal-600 transition-colors" />
             </button>
 
             <div x-show="openProfile"
@@ -76,7 +82,7 @@
                     <x-icon name="info" weight="bold" class="text-[15px] text-slate-400" /> Tentang Aplikasi
                 </a>
                 <div class="h-px bg-slate-100 my-1"></div>
-                <form action="{{ route('logout') }}" method="POST">
+                <form action="{{ route('logout') }}" method="POST" onsubmit="if(window.NutriAlert && typeof window.NutriAlert.confirm === 'function'){ event.preventDefault(); const form = this; window.NutriAlert.confirm('Keluar dari Akun?', 'Apakah Anda yakin ingin keluar dari aplikasi?', 'Keluar', 'Batal').then((r) => { if(r.isConfirmed) form.submit(); }); return false; } return confirm('Keluar dari aplikasi?');">
                     @csrf
                     <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 font-semibold text-[13px] transition-colors text-left cursor-pointer">
                         <x-icon name="sign-out" weight="bold" class="text-[15px] text-rose-400" /> Keluar Aplikasi
@@ -99,7 +105,7 @@
                     {{-- Header --}}
                     <div class="px-4 pt-4 pb-3 sm:px-6 sm:pt-6 sm:pb-4 flex items-center justify-between border-b border-slate-100/80 shrink-0">
                         <div class="flex items-center gap-2.5 sm:gap-3">
-                            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-rose-50 border border-rose-100 text-rose-500 flex items-center justify-center shrink-0">
+                            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full {{ $notificationRole === 'puskesmas' ? 'bg-teal-50 border border-teal-100 text-teal-600' : 'bg-rose-50 border border-rose-100 text-rose-500' }} flex items-center justify-center shrink-0">
                                 <x-icon name="bell-ringing" weight="fill" class="text-xl" />
                             </div>
                             <div>
@@ -198,5 +204,16 @@
                 </div>
             </div>
         </template>
+    </div>
+
+    <!-- Mobile Search Dropdown -->
+    <div x-show="showMobileSearch" 
+         x-transition.opacity.duration.200ms
+         class="absolute top-full left-0 w-full bg-white border-b border-slate-200 p-3 shadow-sm md:hidden" style="display: none;">
+        <form action="{{ route('balita.index') }}" method="GET" class="relative w-full">
+            <x-icon name="magnifying-glass" weight="bold" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none" />
+            <input type="text" name="search" placeholder="Cari data balita..."
+                class="w-full h-11 pl-10 pr-4 rounded-xl bg-slate-100/80 focus:bg-white border border-transparent focus:border-teal-300 focus:ring-4 focus:ring-teal-500/20 text-sm font-medium text-slate-700 placeholder:text-slate-400 transition-all focus:outline-none" />
+        </form>
     </div>
 </header>

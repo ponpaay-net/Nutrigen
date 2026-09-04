@@ -45,7 +45,7 @@
     ];
 @endphp
 
-<div class="w-full pb-10 space-y-6">
+<div class="w-full pb-12 p-4 sm:p-6 lg:p-8 space-y-6">
 
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -207,14 +207,15 @@
                 <a href="{{ route('puskesmas.validasi') }}" class="text-xs font-bold text-teal-700 hover:text-teal-800 shrink-0 inline-flex items-center gap-1 transition-colors">Semua Antrean Validasi &rarr;</a>
             </div>
         </div>
-        <div class="overflow-x-auto">
+        <!-- Desktop Table View -->
+        <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                     <tr class="border-b-2 border-slate-100 bg-slate-50/50">
                         <th class="px-5 py-3 text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">Data Balita</th>
-                        <th class="px-5 py-3 text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">Antropometri</th>
+                        <th class="px-5 py-3 text-[10px] font-extrabold text-slate-600 uppercase tracking-wider text-center">Antropometri</th>
                         <th class="px-5 py-3 text-[10px] font-extrabold text-slate-600 uppercase tracking-wider text-center">Status Gizi</th>
-                        <th class="px-5 py-3 text-[10px] font-extrabold text-slate-600 uppercase tracking-wider text-right">Status Validasi</th>
+                        <th class="px-5 py-3 text-[10px] font-extrabold text-slate-600 uppercase tracking-wider text-right">Waktu & Validasi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -256,30 +257,30 @@
                         <tr x-show="!searchQuery || '{{ strtolower($activity->balita->nama ?? '') }}'.includes(searchQuery.toLowerCase())" class="hover:bg-slate-50/80 transition-colors group">
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-lg {{ $avatarClass }} flex items-center justify-center font-bold text-sm shrink-0 uppercase border border-white/20">
+                                    <div class="w-9 h-9 rounded-full {{ $avatarClass }} flex items-center justify-center font-bold text-sm shrink-0 uppercase border border-white/20">
                                         {{ substr($activity->balita->nama ?? 'B', 0, 1) }}
                                     </div>
                                     <div class="flex flex-col min-w-0">
-                                        <span class="text-[13px] font-bold text-slate-900 truncate">{{ $activity->balita->nama ?? 'Budi Santoso' }}</span>
+                                        <span class="text-[13px] font-bold text-slate-900 group-hover:text-teal-700 transition-colors truncate">{{ $activity->balita->nama ?? 'Budi Santoso' }}</span>
                                         <span class="text-[11px] font-medium text-slate-500 truncate">{{ $activity->balita->posyandu->nama ?? 'Posyandu' }}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-5 py-3.5">
-                                <div class="flex items-center gap-4">
-                                    <div>
-                                        <span class="block text-[11px] text-slate-500 font-bold uppercase tracking-wider leading-none mb-1">BB</span>
-                                        <span class="text-[13px] font-bold text-slate-800">{{ $activity->berat_badan ?? '-' }} <span class="text-xs font-semibold text-slate-500">kg</span></span>
+                            <td class="px-5 py-3.5 text-center">
+                                <div class="inline-flex items-center gap-4 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg">
+                                    <div class="text-left">
+                                        <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-0.5">BB</span>
+                                        <span class="text-xs font-bold text-slate-800">{{ $activity->berat_badan ?? '-' }}<span class="text-[10px] font-semibold text-slate-400 ml-0.5">kg</span></span>
                                     </div>
                                     <div class="w-px h-5 bg-slate-200"></div>
-                                    <div>
-                                        <span class="block text-[11px] text-slate-500 font-bold uppercase tracking-wider leading-none mb-1">TB</span>
-                                        <span class="text-[13px] font-bold text-slate-800">{{ $activity->tinggi_badan ?? '-' }} <span class="text-xs font-semibold text-slate-500">cm</span></span>
+                                    <div class="text-left">
+                                        <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none mb-0.5">TB</span>
+                                        <span class="text-xs font-bold text-slate-800">{{ $activity->tinggi_badan ?? '-' }}<span class="text-[10px] font-semibold text-slate-400 ml-0.5">cm</span></span>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-5 py-3.5 text-center">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider border {{ $badgeClass }}">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-extrabold uppercase tracking-wider border {{ $badgeClass }}">
                                     {{ $gizi }}
                                 </span>
                             </td>
@@ -295,16 +296,106 @@
                     @empty
                         <tr>
                             <td colspan="4" class="px-5 py-16 text-center">
-                                <div class="w-12 h-12 rounded bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-3">
-                                    <i class="ph-fill ph-folder-open text-2xl"></i>
+                                <div class="relative w-16 h-16 mx-auto mb-4">
+                                    <div class="absolute inset-0 bg-slate-100 rounded-full animate-pulse opacity-50"></div>
+                                    <div class="relative w-full h-full bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center">
+                                        <i class="ph-duotone ph-folder-open text-2xl text-slate-400"></i>
+                                    </div>
                                 </div>
-                                <p class="text-sm font-bold text-slate-700">Belum ada aktivitas</p>
-                                <p class="text-xs text-slate-500 mt-1">Data pengukuran posyandu terbaru akan muncul di sini.</p>
+                                <p class="text-sm font-bold text-slate-700">Belum Ada Aktivitas</p>
+                                <p class="text-xs text-slate-500 mt-1">Data pengukuran posyandu terbaru akan otomatis muncul di sini.</p>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="md:hidden divide-y divide-slate-100">
+            @forelse($recentActivities as $activity)
+                @php
+                    $gizi = strtoupper($activity->status_gizi ?? 'GIZI BAIK');
+                    
+                    $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                    $avatarClass = 'bg-gradient-to-br from-emerald-400 to-emerald-500 text-white shadow-sm shadow-emerald-200';
+                    
+                    if(str_contains(strtolower($gizi), 'buruk') || str_contains(strtolower($gizi), 'stunting')) {
+                        $badgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+                        $avatarClass = 'bg-gradient-to-br from-rose-400 to-rose-500 text-white shadow-sm shadow-rose-200';
+                    }
+                    elseif(str_contains(strtolower($gizi), 'kurang') || str_contains(strtolower($gizi), 'risiko')) {
+                        $badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                        $avatarClass = 'bg-gradient-to-br from-amber-400 to-amber-500 text-white shadow-sm shadow-amber-200';
+                    }
+                    elseif(str_contains(strtolower($gizi), 'lebih') || str_contains(strtolower($gizi), 'obesitas')) {
+                        $badgeClass = 'bg-sky-50 text-sky-700 border-sky-200';
+                        $avatarClass = 'bg-gradient-to-br from-sky-400 to-sky-500 text-white shadow-sm shadow-sky-200';
+                    }
+
+                    $val = strtolower($activity->status_validasi ?? 'pending');
+                    if ($val === 'valid') {
+                        $vIcon = 'ph-check-circle text-emerald-500';
+                        $vText = 'Tervalidasi';
+                        $vColor = 'text-emerald-700';
+                    } elseif ($val === 'revisi' || $val === 'ditolak') {
+                        $vIcon = 'ph-warning-circle text-rose-500';
+                        $vText = 'Intervensi/Revisi';
+                        $vColor = 'text-rose-700';
+                    } else {
+                        $vIcon = 'ph-clock text-amber-500';
+                        $vText = 'Menunggu';
+                        $vColor = 'text-amber-700';
+                    }
+                @endphp
+                <div x-show="!searchQuery || '{{ strtolower($activity->balita->nama ?? '') }}'.includes(searchQuery.toLowerCase())" class="p-4 hover:bg-slate-50/50 transition-colors flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full {{ $avatarClass }} flex items-center justify-center font-bold text-sm shrink-0 uppercase border border-white/20">
+                                {{ substr($activity->balita->nama ?? 'B', 0, 1) }}
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                <span class="text-sm font-bold text-slate-900 truncate">{{ $activity->balita->nama ?? 'Budi Santoso' }}</span>
+                                <span class="text-[11px] font-medium text-slate-500 truncate">{{ $activity->balita->posyandu->nama ?? 'Posyandu' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-50/80 border border-slate-100 rounded-xl p-3 flex flex-col gap-2.5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex gap-4">
+                                <div>
+                                    <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Berat</span>
+                                    <span class="font-extrabold text-slate-800 text-xs">{{ $activity->berat_badan ?? '-' }}<span class="text-slate-400 font-normal text-[10px] ml-0.5">kg</span></span>
+                                </div>
+                                <div>
+                                    <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Tinggi</span>
+                                    <span class="font-extrabold text-slate-800 text-xs">{{ $activity->tinggi_badan ?? '-' }}<span class="text-slate-400 font-normal text-[10px] ml-0.5">cm</span></span>
+                                </div>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider border {{ $badgeClass }}">
+                                {{ $gizi }}
+                            </span>
+                        </div>
+                        <div class="h-px w-full bg-slate-200/60"></div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-semibold text-slate-500 flex items-center gap-1.5"><i class="ph-bold ph-clock text-slate-400"></i> {{ $activity->created_at->diffForHumans() }}</span>
+                            <span class="font-bold flex items-center gap-1 {{ $vColor }}"><i class="ph-fill {{ $vIcon }}"></i> {{ $vText }}</span>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="py-16 px-6 text-center">
+                    <div class="relative w-16 h-16 mx-auto mb-4">
+                        <div class="absolute inset-0 bg-slate-100 rounded-full animate-pulse opacity-50"></div>
+                        <div class="relative w-full h-full bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center">
+                            <i class="ph-duotone ph-folder-open text-2xl text-slate-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm font-bold text-slate-700">Belum Ada Aktivitas</p>
+                    <p class="text-xs text-slate-500 mt-1">Data pengukuran posyandu terbaru akan otomatis muncul di sini.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 
