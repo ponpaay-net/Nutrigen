@@ -49,7 +49,7 @@
                         'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-[0_16px_40px_-12px_rgba(5,150,105,0.4)]': '{{ $story['state'] ?? 'normal' }}' === 'normal',
                         'bg-gradient-to-br from-amber-400 to-amber-500 shadow-[0_16px_40px_-12px_rgba(245,158,11,0.4)]': '{{ $story['state'] ?? 'normal' }}' === 'kuning',
                         'bg-gradient-to-br from-rose-500 to-rose-600 shadow-[0_16px_40px_-12px_rgba(225,29,72,0.4)]': '{{ $story['state'] ?? 'normal' }}' === 'merah',
-                        'bg-gradient-to-br from-blue-500 to-blue-600 shadow-[0_16px_40px_-12px_rgba(37,99,235,0.4)]': !['normal', 'kuning', 'merah'].includes('{{ $story['state'] ?? 'normal' }}')
+                        'bg-gradient-to-br from-slate-500 to-slate-600 shadow-[0_16px_40px_-12px_rgba(100,116,139,0.4)]': !['normal', 'kuning', 'merah'].includes('{{ $story['state'] ?? 'normal' }}')
                      }">
 
                     <div class="mt-2 mb-4">
@@ -87,7 +87,7 @@
                 <div class="mt-8">
                     <x-ui.section-title title="Catatan Posyandu" subtitle="Riwayat pengukuran." />
                     
-                    <x-ui.card padding="p-5" class="mt-3">
+                    <x-ui.card padding="p-5" class="mt-3" id="riwayat">
                         @forelse($timeline ?? [] as $index => $item)
                             <x-domain.growth-timeline-item 
                                 date="{{ $item['date'] }}"
