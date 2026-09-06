@@ -178,7 +178,7 @@ Route::prefix('kader')->middleware(['web', 'auth', 'prevent-back-history', 'role
 // ==========================================================================
 use App\Http\Controllers\PortalIbu\PortalIbuController;
 
-Route::prefix('portal-ibu')->name('portal-ibu.')->middleware(['web', 'prevent-back-history', 'signed'])->group(function () {
+Route::prefix('portal-ibu')->name('portal-ibu.')->middleware(['web', 'prevent-back-history', 'signed', 'throttle:portal-ibu'])->group(function () {
     // URL mapped to user's requested routes, but Name strictly preserved for UI
     Route::get('/pilih-anak', [PortalIbuController::class, 'childSelector'])->name('child-selector');
     Route::get('/dashboard', [PortalIbuController::class, 'home'])->name('home');
