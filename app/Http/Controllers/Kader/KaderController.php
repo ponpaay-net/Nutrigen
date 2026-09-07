@@ -44,14 +44,14 @@ class KaderController extends Controller
 
     private function formatDisplayStatus(?string $status, ?string $statusValidasi = null): string
     {
-        if (!$status || strtolower($status) === 'belum ada') {
+        if (!$status || strtolower((string) $status) === 'belum ada') {
             return 'Belum Diukur';
         }
 
         // Jika BELUM divalidasi oleh Puskesmas (status_validasi == 'pending'):
         // Sesuai standar Buku KIA / KMS, kader belum mengeluarkan vonis medis klinis
         if ($statusValidasi === 'pending' || $statusValidasi === null) {
-            return match(strtolower($status)) {
+            return match(strtolower((string) $status)) {
                 'stunting', 'pendek', 'sangat pendek' => 'Perlu Konfirmasi Gizi (TB Rendah)',
                 'risiko', 'kurang', 'gizi kurang' => 'Garis Kuning (Perlu Pemantauan)',
                 'normal', 'gizi baik' => 'Gizi Baik (Sesuai KMS)',
@@ -65,7 +65,7 @@ class KaderController extends Controller
 
         // Jika SUDAH divalidasi oleh Dokter/Ahli Gizi Puskesmas (status_validasi == 'approved'):
         // Tampilkan diagnosa klinis resmi
-        return match(strtolower($status)) {
+        return match(strtolower((string) $status)) {
             'stunting' => 'Stunting',
             'risiko' => 'Risiko Stunting',
             'kurang', 'gizi kurang' => 'Gizi Kurang',
@@ -97,14 +97,14 @@ class KaderController extends Controller
             
             $status = $latest ? $latest->status_gizi : 'Belum Ada';
             $statusValidasi = $latest ? $latest->status_validasi : null;
-            $statusType = match(strtolower($status)) {
+            $statusType = match(strtolower((string) $status)) {
                 'stunting' => 'danger',
                 'risiko', 'kurang' => 'warning',
                 'normal' => 'success',
                 default => 'warning'
             };
 
-            $shortStatus = match(strtolower($status)) {
+            $shortStatus = match(strtolower((string) $status)) {
                 'stunting', 'pendek' => 'Konfirmasi TB',
                 'risiko', 'kurang' => 'Pantauan Gizi',
                 'normal' => 'Gizi Baik',
@@ -187,7 +187,7 @@ class KaderController extends Controller
         $latest = $b->latestPengukuran;
         $age = Carbon::parse($b->tanggal_lahir)->diff(Carbon::now());
         $status = $latest ? $latest->status_gizi : 'Belum Ada';
-        $statusType = match (strtolower($status)) {
+        $statusType = match (strtolower((string) $status)) {
             'stunting' => 'danger',
             'risiko', 'kurang' => 'warning',
             'normal' => 'success',
@@ -198,7 +198,7 @@ class KaderController extends Controller
         if ($rejectedMeasurement) {
             $statusType = 'warning';
         }
-        $isGirl = in_array(strtolower($b->jenis_kelamin ?? ''), ['p', 'perempuan', 'female']);
+        $isGirl = in_array(strtolower((string) $b->jenis_kelamin ?? ''), ['p', 'perempuan', 'female']);
         $genderLabel = $isGirl ? 'Perempuan' : 'Laki-laki';
         $maskedNik = $b->nik;
         if ($b->nik && strlen($b->nik) >= 12) {
@@ -255,7 +255,7 @@ class KaderController extends Controller
                     'kurang' => 'Risiko',
                     'stunting' => 'Stunting'
                 ];
-                $expected = $statusMap[strtolower($statusGizi)] ?? $statusGizi;
+                $expected = $statusMap[strtolower((string) $statusGizi)] ?? $statusGizi;
                 $subq->where('status_gizi', $expected);
             });
         }
@@ -540,7 +540,7 @@ class KaderController extends Controller
         $totalMeasures = $measurementsList->count();
 
         $measurements = $measurementsList->map(function($p, $index) use ($measurementsList, $totalMeasures, $b) {
-            $statusType = match(strtolower($p->status_gizi)) {
+            $statusType = match(strtolower((string) $p->status_gizi)) {
                 'normal' => 'success',
                 'risiko' => 'warning',
                 'stunting' => 'danger',

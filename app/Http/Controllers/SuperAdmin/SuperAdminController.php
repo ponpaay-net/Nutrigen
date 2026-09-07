@@ -331,7 +331,7 @@ class SuperAdminController extends Controller
         ];
 
         foreach ($measurements as $m) {
-            $st = strtolower($m->status_gizi ?? '');
+            $st = strtolower((string) $m->status_gizi ?? '');
             if (str_contains($st, 'stunting') || str_contains($st, 'pendek')) {
                 $statusCounts['stunting']++;
             } elseif (str_contains($st, 'kurang') || str_contains($st, 'buruk') || str_contains($st, 'wasting')) {
@@ -358,8 +358,8 @@ class SuperAdminController extends Controller
             ->get();
 
             $pTotal = $pMeasurements->count();
-            $pStunting = $pMeasurements->filter(fn($m) => str_contains(strtolower($m->status_gizi ?? ''), 'stunting') || str_contains(strtolower($m->status_gizi ?? ''), 'pendek'))->count();
-            $pNormal = $pMeasurements->filter(fn($m) => str_contains(strtolower($m->status_gizi ?? ''), 'normal'))->count();
+            $pStunting = $pMeasurements->filter(fn($m) => str_contains(strtolower((string) $m->status_gizi ?? ''), 'stunting') || str_contains(strtolower((string) $m->status_gizi ?? ''), 'pendek'))->count();
+            $pNormal = $pMeasurements->filter(fn($m) => str_contains(strtolower((string) $m->status_gizi ?? ''), 'normal'))->count();
             $pPrevalensi = $pTotal > 0 ? round(($pStunting / $pTotal) * 100, 1) : 0;
 
             return [

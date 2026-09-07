@@ -125,7 +125,7 @@ class PuskesmasController extends Controller
             })
             ->findOrFail($id);
 
-        $statusGizi = strtolower($p->status_gizi);
+        $statusGizi = strtolower((string) $p->status_gizi);
         $statusType = 'success';
         $statusLabel = 'Normal';
         if (in_array($statusGizi, ['stunting'])) {
@@ -262,7 +262,7 @@ class PuskesmasController extends Controller
 
         $children = [];
         foreach ($allPengukurans as $p) {
-            $statusGizi = strtolower($p->status_gizi);
+            $statusGizi = strtolower((string) $p->status_gizi);
             $statusType = 'success';
             $statusLabel = 'Normal';
             $isAnomali = false;
@@ -515,11 +515,11 @@ class PuskesmasController extends Controller
                 'risiko' => 'Risiko',
                 'stunting' => 'Stunting'
             ];
-            $expected = $statusMap[strtolower($statusGizi)] ?? $statusGizi;
+            $expected = $statusMap[strtolower((string) $statusGizi)] ?? $statusGizi;
             return $q->whereHas('pengukurans', function($subq) use ($expected) {
                 // Ensure the latest measurement that is not draft matches the expected status
                 $subq->where('status_validasi', '!=', 'draft')
-                     ->whereRaw('LOWER(status_gizi) = ?', [strtolower($expected)]);
+                     ->whereRaw('LOWER(status_gizi) = ?', [strtolower((string) $expected)]);
             });
         });
 
@@ -556,7 +556,7 @@ class PuskesmasController extends Controller
             $latestPengukuran = count($formattedPengukurans) > 0 ? $formattedPengukurans[0] : null;
             $rawStatus = $latestPengukuran ? $latestPengukuran['status_gizi'] : 'Belum Diukur';
             $statusLabel = ucwords($rawStatus);
-            $checkStatus = strtolower($rawStatus);
+            $checkStatus = strtolower((string) $rawStatus);
 
             $statusType = 'success'; // Default normal
             if(in_array($checkStatus, ['kurang', 'kurus', 'risiko lebih', 'risiko'])) $statusType = 'warning';
@@ -1058,7 +1058,7 @@ class PuskesmasController extends Controller
         $totalMeasures = $measurementsList->count();
 
         $measurements = $measurementsList->map(function($p, $index) use ($measurementsList, $totalMeasures, $b) {
-            $statusType = match(strtolower($p->status_gizi)) {
+            $statusType = match(strtolower((string) $p->status_gizi)) {
                 'normal' => 'success',
                 'risiko', 'kurang', 'kurus', 'risiko lebih' => 'warning',
                 'stunting', 'gizi buruk', 'sangat kurus', 'obesitas' => 'danger',

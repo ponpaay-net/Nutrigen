@@ -92,7 +92,7 @@ class PortalIbuController extends Controller
                 $latest->z_score_tbu
             );
 
-            $gizi = strtolower($latest->status_gizi);
+            $gizi = strtolower((string) $latest->status_gizi);
             if (in_array($gizi, ['stunting'])) {
                 $pageState = 'merah';
             } elseif (in_array($gizi, ['risiko', 'kurang'])) {
@@ -189,7 +189,7 @@ class PortalIbuController extends Controller
                 'age' => $ageParts->y . ' Tahun ' . $ageParts->m . ' Bulan',
                 'weight' => $p->berat_badan,
                 'height' => $p->tinggi_badan,
-                'status' => strtolower($p->status_gizi)
+                'status' => strtolower((string) $p->status_gizi)
             ];
         })->toArray();
 
@@ -210,7 +210,7 @@ class PortalIbuController extends Controller
                 $latest->z_score_bbu,
                 $latest->z_score_tbu
             );
-            $gizi = strtolower($latest->status_gizi);
+            $gizi = strtolower((string) $latest->status_gizi);
             if (in_array($gizi, ['stunting'])) $storyState = 'merah';
             elseif (in_array($gizi, ['risiko', 'kurang'])) $storyState = 'kuning';
         }
@@ -389,7 +389,7 @@ class PortalIbuController extends Controller
 
         $children = $balitaList->map(function ($balita) use ($orangTuaId) {
             $latest = $balita->pengukurans->first();
-            $status = $latest ? ucfirst(strtolower($latest->status_gizi)) : null;
+            $status = $latest ? ucfirst(strtolower((string) $latest->status_gizi)) : null;
 
             $ageParts = Carbon::parse($balita->tanggal_lahir)->diff(Carbon::now('Asia/Jakarta'));
             $age = $ageParts->y > 0
