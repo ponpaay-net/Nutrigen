@@ -233,7 +233,7 @@
                         Keterlambatan Rekap <br>Memperlambat Intervensi
                     </h2>
                     <p class="text-slate-500 text-lg leading-relaxed mb-10 font-medium">
-                        Risiko hilangnya catatan fisik, kesalahan pembacaan, serta rekap berjenjang yang memakan waktu berminggu-minggu membuat penanganan gizi rawan terlambat. NutriGen hadir sebagai **pencadangan (backup) digital** *real-time*.
+                        Risiko hilangnya catatan fisik, kesalahan pembacaan, serta rekap berjenjang yang memakan waktu berminggu-minggu membuat penanganan gizi rawan terlambat. NutriGen hadir sebagai <strong class="font-black text-emerald-600">pencadangan (backup) digital</strong> <em class="italic font-bold text-emerald-500">real-time</em>.
                     </p>
 
                     <div class="space-y-6">
