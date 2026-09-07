@@ -2,636 +2,507 @@
 
 @section('title', 'NutriGen | Platform Monitoring Gizi Balita')
 
+@push('head')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+    body, .nutrigen-page { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* Elegant Gradients & Shapes */
+    .hero-gradient-blob { background: radial-gradient(circle at 70% 30%, rgba(16,185,129,0.08) 0%, rgba(6,182,212,0.04) 50%, transparent 70%); }
+    .hero-shape-right {
+        background: linear-gradient(135deg, #10b981 0%, #0d9488 50%, #06b6d4 100%);
+        border-radius: 50% 0 0 50% / 50% 0 0 50%;
+    }
+
+    /* Pro SaaS Card Hover with Multi-layered Shadows */
+    .card-saas {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+    }
+    .card-saas:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.1), 0 8px 10px -6px rgba(16, 185, 129, 0.05);
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .gradient-text { background: linear-gradient(135deg, #10b981, #0d9488, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    
+    /* Sleek Button */
+    .btn-primary-saas {
+        background: linear-gradient(135deg, #10b981, #06b6d4);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.3);
+    }
+    .btn-primary-saas:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .eyebrow-badge { background: rgba(16, 185, 129, 0.05); backdrop-filter: blur(10px); }
+
+    /* Icon Wraps */
+    .icon-bg-1 { background: linear-gradient(135deg, #d1fae5, #ecfdf5); }
+    .icon-bg-2 { background: linear-gradient(135deg, #fef3c7, #fffbeb); }
+    .icon-bg-3 { background: linear-gradient(135deg, #dbeafe, #eff6ff); }
+    .icon-bg-4 { background: linear-gradient(135deg, #fce7f3, #fdf2f8); }
+
+    .about-img-card { background: linear-gradient(135deg, #10b981, #06b6d4); }
+    
+    /* Floating Animations */
+    @keyframes floatY { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+    .float-anim { animation: floatY 6s ease-in-out infinite; }
+    .float-anim-2 { animation: floatY 7s ease-in-out infinite; animation-delay: -2s; }
+
+</style>
+@endpush
+
 @section('content')
+<div class="nutrigen-page bg-white text-slate-800 overflow-x-hidden selection:bg-emerald-200 selection:text-emerald-900">
 
-    {{-- 1. Hero Section --}}
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-slate-50">
-        {{-- Grid Pattern + Glow --}}
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] z-0"></div>
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-r from-emerald-100/60 via-cyan-100/60 to-emerald-100/60 rounded-[100%] blur-[120px] opacity-80 pointer-events-none z-0"></div>
+    {{-- =============================================
+         SECTION 1: HERO
+    ============================================== --}}
+    <section class="relative min-h-[90vh] flex items-center pt-24 pb-16 overflow-hidden hero-gradient-blob">
+        <div class="absolute right-0 top-0 bottom-0 w-[42%] hero-shape-right opacity-[0.85] -z-0 hidden lg:block"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:24px_24px] opacity-10 -z-10"></div>
 
-        {{-- Floating Info Cards --}}
-        <div class="hidden lg:block absolute top-56 left-8 xl:left-20 z-10" data-aos="fade-right" data-aos-delay="400">
-            <div class="bg-white/90 backdrop-blur-md border border-slate-100 p-3 rounded-2xl shadow-lg flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div>
-                    <p class="text-xs font-bold text-slate-800 leading-tight">Validasi Real-time</p>
-                    <p class="text-[10px] text-slate-500 font-medium">Oleh Ahli Gizi</p>
-                </div>
-            </div>
-        </div>
-        <div class="hidden lg:block absolute top-72 right-8 xl:right-20 z-10" data-aos="fade-left" data-aos-delay="500">
-            <div class="bg-white/90 backdrop-blur-md border border-slate-100 p-3 rounded-2xl shadow-lg flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 shrink-0">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                </div>
-                <div>
-                    <p class="text-xs font-bold text-slate-800 leading-tight">Standar WHO 2006</p>
-                    <p class="text-[10px] text-slate-500 font-medium">Z-Score Akurat</p>
-                </div>
-            </div>
-        </div>
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
 
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-20 text-center flex flex-col items-center">
-
-            {{-- Badge --}}
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 text-emerald-700 font-semibold text-xs sm:text-sm mb-8 shadow-sm" data-aos="fade-up">
-                <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                Solusi Digital Stunting Terintegrasi 2026
-            </div>
-
-            <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.08] mb-6 max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-                Bersama Tuntaskan Stunting,<br class="hidden sm:block"> <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-cyan-600">Bangun Generasi Emas</span>
-            </h1>
-
-            <p class="text-lg lg:text-xl font-medium text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed" data-aos="fade-up" data-aos-delay="200">
-                Ekosistem digital terintegrasi yang menghubungkan Ibu, Kader Posyandu, dan Tenaga Puskesmas untuk pemantauan gizi anak yang presisi, <span class="text-slate-700 font-semibold">real-time</span>, dan berbasis data.
-            </p>
-
-            {{-- CTAs --}}
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto" data-aos="fade-up" data-aos-delay="300">
-                <a href="{{ route('login') }}" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold rounded-2xl shadow-[0_8px_24px_rgba(16,185,129,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(16,185,129,0.4)] active:scale-95 flex items-center justify-center gap-2 group">
-                    <span>Masuk ke Sistem</span>
-                    <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                </a>
-                <a href="#how-it-works" class="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-slate-200 transition-all duration-300 hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2">
-                    Pelajari Ekosistem
-                </a>
-            </div>
-
-            <p class="mt-8 text-xs font-semibold text-slate-400 uppercase tracking-widest" data-aos="fade-up" data-aos-delay="400">Terintegrasi dengan Standar Kurva WHO 2006</p>
-        </div>
-    </section>
-
-    {{-- 2 & 3. Permasalahan & Statistik --}}
-    <section id="problem" class="py-24 lg:py-32 bg-white relative border-y border-slate-100">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-                {{-- Text Area (Problem) --}}
-                <div class="lg:col-span-7" data-aos="fade-up">
-                    <h2 class="text-emerald-600 font-extrabold text-sm uppercase tracking-widest mb-4">Realita Saat Ini</h2>
-                    <h3 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.1] mb-6">
-                        Pemantauan Manual Meninggalkan Celah Berbahaya.
-                    </h3>
-                    <p class="text-lg text-slate-500 font-medium leading-relaxed mb-10">
-                        Jutaan buku KIA tersimpan di laci tanpa dievaluasi. Data Posyandu memakan waktu berminggu-minggu untuk direkap, menyebabkan keterlambatan intervensi gizi pada masa <em>golden age</em> balita.
-                    </p>
-
-                    <div class="space-y-3">
-                        <div class="flex items-start gap-4 group p-4 rounded-2xl hover:bg-rose-50/50 border border-transparent hover:border-rose-100 transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center group-hover:scale-110 group-hover:bg-rose-100 transition-all duration-300 shadow-sm">
-                                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div>
-                                <h4 class="text-slate-900 font-bold text-base leading-snug mb-1 group-hover:text-rose-700 transition-colors">Data Lambat Diproses</h4>
-                                <p class="text-slate-500 text-sm leading-relaxed">Data lambat sampai ke tenaga kesehatan Puskesmas, menunda tindakan preventif.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-4 group p-4 rounded-2xl hover:bg-amber-50/50 border border-transparent hover:border-amber-100 transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center group-hover:scale-110 group-hover:bg-amber-100 transition-all duration-300 shadow-sm">
-                                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div>
-                                <h4 class="text-slate-900 font-bold text-base leading-snug mb-1 group-hover:text-amber-700 transition-colors">Kurangnya Edukasi Mandiri</h4>
-                                <p class="text-slate-500 text-sm leading-relaxed">Ibu tidak memahami kurva pertumbuhan anaknya secara mandiri di rumah.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-4 group p-4 rounded-2xl hover:bg-blue-50/50 border border-transparent hover:border-blue-100 transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
-                            <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300 shadow-sm">
-                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                            </div>
-                            <div>
-                                <h4 class="text-slate-900 font-bold text-base leading-snug mb-1 group-hover:text-blue-700 transition-colors">Rawan Human Error</h4>
-                                <p class="text-slate-500 text-sm leading-relaxed">Risiko kesalahan perhitungan manual dalam menentukan status stunting.</p>
-                            </div>
-                        </div>
-                    </div>
+            {{-- Left: Text --}}
+            <div class="lg:col-span-7" x-data="{shown:false}" x-intersect="shown=true">
+                <div x-show="shown" x-transition:enter="transition duration-700 delay-100" x-transition:enter-start="opacity-0 translate-y-6" x-transition:enter-end="opacity-100 translate-y-0"
+                     class="inline-flex items-center gap-2 eyebrow-badge border border-emerald-100 text-emerald-700 font-semibold text-xs px-4 py-2 rounded-full mb-6 tracking-wide">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Sistem Pemantauan Terintegrasi v2.0
                 </div>
 
-                {{-- Statistik Card — Light with green tones --}}
-                <div class="lg:col-span-5" data-aos="fade-up" data-aos-delay="200">
-                    <div class="relative bg-gradient-to-br from-emerald-50 via-white to-cyan-50 p-6 sm:p-10 rounded-[1.5rem] sm:rounded-[2.5rem] border border-emerald-100 shadow-[0_20px_60px_rgba(16,185,129,0.1)] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_30px_70px_rgba(16,185,129,0.15)] transition-all duration-500">
-                        <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-100/50 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none"></div>
-                        <div class="absolute bottom-0 left-0 w-48 h-48 bg-cyan-100/50 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl pointer-events-none"></div>
-                        <div class="relative z-10">
-                            <div class="flex items-baseline mb-2">
-                                <span class="text-6xl sm:text-7xl lg:text-8xl font-extrabold text-slate-900 tracking-tight">21.6</span>
-                                <span class="text-3xl sm:text-4xl font-bold text-emerald-500 ml-2">%</span>
-                            </div>
-                            <h4 class="text-xl font-bold text-slate-800 mb-5 pb-5 border-b border-slate-200">Angka Stunting Nasional</h4>
-                            <p class="text-slate-600 font-medium leading-relaxed text-sm">
-                                Meskipun menurun, angka ini masih jauh dari target ambang batas WHO (di bawah 20%). Kita butuh revolusi kecepatan data untuk mengejar target 14%.
-                            </p>
-                            <div class="mt-6 pt-5 border-t border-slate-100">
-                                <div class="flex items-center gap-2">
-                                    <div class="h-2 flex-1 bg-slate-100 rounded-full overflow-hidden">
-                                        <div class="h-full w-[72%] bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full"></div>
-                                    </div>
-                                    <span class="text-xs font-bold text-slate-500">Target: 14%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+                <h1 x-show="shown" x-transition:enter="transition duration-700 delay-200" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                    class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.15] tracking-tight text-slate-800 mb-6">
+                    Digitalisasi Posyandu.<br>
+                    <span class="gradient-text">Deteksi Presisi dalam Detik</span>
+                </h1>
 
-    {{-- 4. Solusi (Solution) --}}
-    <section class="py-24 lg:py-32 relative overflow-hidden bg-white">
-        {{-- Subtle background grid --}}
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none"></div>
-        {{-- Soft glow blobs --}}
-        <div class="absolute top-0 left-1/4 w-[600px] h-[300px] bg-emerald-100/60 rounded-full blur-[120px] pointer-events-none"></div>
-        <div class="absolute bottom-0 right-1/4 w-[400px] h-[250px] bg-cyan-100/60 rounded-full blur-[100px] pointer-events-none"></div>
-
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-            {{-- Header --}}
-            <div class="text-center mb-20" data-aos="fade-up">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full text-emerald-700 text-xs font-bold uppercase tracking-widest mb-6">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Solusi NutriGen
-                </div>
-                <h3 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.1] mb-6 max-w-3xl mx-auto">
-                    Satu Sistem. Data Real-Time.<br class="hidden sm:block"> Eksekusi Tepat Sasaran.
-                </h3>
-                <p class="text-lg text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto">
-                    NutriGen bukan sekadar aplikasi pencatat. Ini adalah ekosistem cerdas yang memutus birokrasi data, mengedukasi ibu secara proaktif, dan memberi tenaga medis "mata" ke setiap desa secara instan.
+                <p x-show="shown" x-transition:enter="transition duration-700 delay-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                   class="text-lg text-slate-500 leading-relaxed mb-10 max-w-xl font-medium">
+                    Pendamping pintar pelengkap Buku KIA. Hubungkan Dinas Kesehatan, Puskesmas, Kader, dan Orang Tua dalam satu ekosistem cerdas dengan perhitungan Z-Score WHO 2006 otomatis dan validasi klinis berjenjang.
                 </p>
+
+                <div x-show="shown" x-transition:enter="transition duration-700 delay-400" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0"
+                     class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <a href="{{ route('login') }}" class="btn-primary-saas text-white font-bold px-8 py-4 rounded-xl text-base inline-flex items-center gap-2.5">
+                        Mulai Sekarang
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                    <a href="#features" class="inline-flex items-center gap-2 text-slate-600 font-semibold px-6 py-4 rounded-xl hover:bg-slate-50 transition-colors duration-300 text-base group">
+                        Lihat Fitur
+                        <svg class="w-4 h-4 text-slate-400 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    </a>
+                </div>
             </div>
 
-            {{-- Cards --}}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-
-                {{-- Card 1: 100% Paperless — Emerald --}}
-                <div class="relative group rounded-[28px] overflow-hidden" data-aos="fade-up" data-aos-delay="100">
-                    <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-[28px] p-6 sm:p-8 h-full shadow-[0_8px_30px_rgba(16,185,129,0.25)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.35)] hover:-translate-y-2 transition-all duration-400">
-                        <div class="text-5xl sm:text-6xl md:text-7xl font-extrabold text-white/15 leading-none mb-4 select-none">01</div>
-                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            {{-- Right: Illustration Cards --}}
+            <div class="lg:col-span-5 relative hidden lg:flex flex-col justify-center h-[500px] z-10 w-full pl-8">
+                {{-- Main dashboard card --}}
+                <div class="float-anim bg-white/95 backdrop-blur-md rounded-2xl p-6 w-full max-w-[380px] shadow-[0_20px_40px_-15px_rgba(16,185,129,0.15)] border border-white/40 ml-auto mr-12 relative z-20">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest mb-1">Status Validasi</p>
+                            <p class="text-3xl font-black text-slate-800">247 <span class="text-sm font-medium text-slate-500">Data</span></p>
                         </div>
-                        <h4 class="text-xl font-bold text-white mb-3 tracking-tight">100% Paperless</h4>
-                        <p class="text-white/75 font-medium text-sm leading-relaxed">Buku KIA bertransformasi menjadi dashboard personal di saku tiap Ibu. Aman dan selalu dapat diakses.</p>
-                        <div class="mt-6 flex items-center gap-2 text-emerald-100 font-semibold text-xs">
-                            <span class="w-6 h-0.5 bg-white/50 rounded-full"></span>
-                            <span>Zero kertas</span>
+                        <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
+                    </div>
+                    {{-- Mini bar chart --}}
+                    <div class="flex items-end gap-2 h-16 mb-4">
+                        @foreach([30, 55, 40, 75, 45, 85, 60, 95] as $h)
+                        <div class="flex-1 rounded-sm bg-gradient-to-t from-emerald-500 to-teal-400 opacity-{{ $h > 70 ? '100' : '40' }} transition-all hover:opacity-100 cursor-pointer" style="height: {{ $h }}%;"></div>
+                        @endforeach
+                    </div>
+                    <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-500 rounded-full w-3/4"></div>
                     </div>
                 </div>
 
-                {{-- Card 2: Real-Time — Cyan/Blue --}}
-                <div class="relative group rounded-[28px] overflow-hidden" data-aos="fade-up" data-aos-delay="200">
-                    <div class="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-[28px] p-6 sm:p-8 h-full shadow-[0_8px_30px_rgba(6,182,212,0.25)] hover:shadow-[0_20px_50px_rgba(6,182,212,0.35)] hover:-translate-y-2 transition-all duration-400">
-                        <div class="text-5xl sm:text-6xl md:text-7xl font-extrabold text-white/15 leading-none mb-4 select-none">02</div>
-                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-white mb-3 tracking-tight">Sinkronisasi Real-Time</h4>
-                        <p class="text-white/75 font-medium text-sm leading-relaxed">Keputusan intervensi stunting puskesmas diambil dari data bulan ini, bukan rekap tahun lalu.</p>
-                        <div class="mt-6 flex items-center gap-2 text-cyan-100 font-semibold text-xs">
-                            <span class="w-6 h-0.5 bg-white/50 rounded-full"></span>
-                            <span>Detik, bukan bulan</span>
-                        </div>
+                {{-- Floating badge: Super Admin --}}
+                <div class="float-anim-2 absolute top-12 -left-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl shadow-blue-500/10 px-5 py-4 border border-white flex items-center gap-3 z-30">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shadow-inner">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Agregat Dinkes</p>
+                        <p class="text-sm font-extrabold text-slate-800">Laporan Wilayah</p>
                     </div>
                 </div>
 
-                {{-- Card 3: Validasi — Amber --}}
-                <div class="relative group rounded-[28px] overflow-hidden" data-aos="fade-up" data-aos-delay="300">
-                    <div class="bg-gradient-to-br from-amber-400 to-orange-500 rounded-[28px] p-6 sm:p-8 h-full shadow-[0_8px_30px_rgba(245,158,11,0.25)] hover:shadow-[0_20px_50px_rgba(245,158,11,0.35)] hover:-translate-y-2 transition-all duration-400">
-                        <div class="text-5xl sm:text-6xl md:text-7xl font-extrabold text-white/15 leading-none mb-4 select-none">03</div>
-                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-white mb-3 tracking-tight">Validasi Berlapis</h4>
-                        <p class="text-white/75 font-medium text-sm leading-relaxed">Algoritma otomatis mendeteksi anomali penimbangan dan menugaskan petugas gizi untuk verifikasi.</p>
-                        <div class="mt-6 flex items-center gap-2 text-amber-100 font-semibold text-xs">
-                            <span class="w-6 h-0.5 bg-white/50 rounded-full"></span>
-                            <span>AI-powered detection</span>
-                        </div>
+                {{-- Floating badge: Alert --}}
+                <div class="float-anim absolute -bottom-2 right-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl shadow-rose-500/10 px-5 py-4 border border-white flex items-center gap-3 z-30">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-orange-400 flex items-center justify-center shadow">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Peringatan Klinis</p>
+                        <p class="text-sm font-extrabold text-rose-600">3 Indikasi Stunting</p>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
-        {{-- Background texture --}}
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-        {{-- Glow orbs --}}
-        <div class="absolute top-0 left-1/4 w-[500px] h-[300px] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-    {{-- 5. Workflow (Cara Kerja) --}}
-    <section id="how-it-works" class="py-24 lg:py-32 bg-white relative overflow-hidden border-t border-slate-100">
+    {{-- =============================================
+         SECTION 2: SERVICES (4-column ecosystem)
+    ============================================== --}}
+    <section id="features" class="py-24 bg-white border-y border-slate-50">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="text-center mb-16" x-data="{shown:false}" x-intersect="shown=true">
+                <div x-show="shown" x-transition:enter="transition duration-600" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+                     class="text-sm font-bold uppercase tracking-[0.15em] text-emerald-600 mb-3">Satu Platform, 4 Pilar</div>
+                <h2 x-show="shown" x-transition:enter="transition duration-700 delay-100" x-transition:enter-start="opacity-0 translate-y-6" x-transition:enter-end="opacity-100 translate-y-0"
+                    class="text-3xl sm:text-4xl font-extrabold text-slate-800 leading-tight tracking-tight max-w-3xl mx-auto">
+                    Alur Kerja yang Terstruktur & Teraudit
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+                {{-- Decorative connecting line --}}
+                <div class="absolute top-1/2 left-0 w-full h-[1px] bg-slate-100 -translate-y-1/2 hidden lg:block z-0"></div>
+
+                @foreach([
+                    ['icon' => 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 'role' => '1. Kader Posyandu', 'title' => 'Input Lapangan', 'desc' => 'Mencatat TB/BB balita di posyandu dengan sistem validasi eror otomatis.', 'color' => 'from-emerald-400 to-teal-500', 'bg' => 'icon-bg-1'],
+                    ['icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'role' => '2. Puskesmas', 'title' => 'Validasi Klinis', 'desc' => 'Ahli gizi memverifikasi data yang memiliki indikasi gizi buruk/stunting.', 'color' => 'from-teal-400 to-cyan-500', 'bg' => 'icon-bg-3'],
+                    ['icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', 'role' => '3. Dinas Kesehatan', 'title' => 'Manajemen Agregat', 'desc' => 'Memantau data seluruh puskesmas, mengekspor laporan PDF terformat.', 'color' => 'from-cyan-400 to-blue-500', 'bg' => 'icon-bg-2'],
+                    ['icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', 'role' => '4. Orang Tua', 'title' => 'Edukasi B2C', 'desc' => 'Akses Magic Link via WA untuk melihat kurva pertumbuhan anak tanpa install aplikasi.', 'color' => 'from-indigo-400 to-purple-500', 'bg' => 'icon-bg-4'],
+                ] as $i => $s)
+                <div class="bg-white rounded-2xl p-6 border border-emerald-50 card-saas flex flex-col relative z-10" x-data="{shown:false}" x-intersect="shown=true">
+                    <div x-show="shown" x-transition:enter="transition duration-700 delay-{{ $i * 100 }}" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">{{ $s['role'] }}</p>
+                        <div class="w-14 h-14 {{ $s['bg'] }} rounded-xl flex items-center justify-center mb-6 border border-white">
+                            <div class="w-8 h-8 bg-gradient-to-br {{ $s['color'] }} rounded-lg flex items-center justify-center shadow-sm">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $s['icon'] }}"></path></svg>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">{{ $s['title'] }}</h3>
+                        <p class="text-slate-500 leading-relaxed text-sm flex-grow mb-6">{{ $s['desc'] }}</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- =============================================
+         SECTION 3: ABOUT / PROBLEM (Light Colors Only)
+    ============================================== --}}
+    <section class="py-24 bg-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] -z-10"></div>
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+            {{-- Left: Stacked image cards --}}
+            <div class="relative flex justify-center items-center" x-data="{shown:false}" x-intersect="shown=true">
+                <div x-show="shown" x-transition:enter="transition duration-900 delay-100" x-transition:enter-start="opacity-0 -translate-x-8" x-transition:enter-end="opacity-100 translate-x-0"
+                     class="relative w-full max-w-sm">
+                    {{-- Main card - Softened Gradient --}}
+                    <div class="bg-gradient-to-br from-teal-400 to-emerald-500 rounded-3xl p-10 text-white shadow-[0_20px_50px_-12px_rgba(16,185,129,0.25)] relative z-20">
+                        <div class="absolute top-0 right-0 p-6 opacity-20">
+                            <svg class="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.2L18.8 19H5.2L12 6.2zM11 11v4h2v-4h-2zm0 5v2h2v-2h-2z"/></svg>
+                        </div>
+                        <div class="text-xs font-bold text-emerald-50 uppercase tracking-[0.2em] mb-4">Statistik SSGI</div>
+                        <div class="text-7xl font-black mb-1 font-mono tracking-tighter text-white">19.8<span class="text-4xl font-bold text-teal-100">%</span></div>
+                        <div class="text-base font-semibold text-emerald-50 mb-6 border-b border-emerald-300/50 pb-6">Angka Stunting Nasional</div>
+                        <p class="text-sm text-emerald-50 leading-relaxed font-medium pr-24">Pemerintah menargetkan penurunan signifikan. NutriGen memangkas birokrasi agar intervensi lebih cepat.</p>
+                    </div>
+
+                    {{-- Floating overlay badge --}}
+                    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-white rounded-2xl flex flex-col items-center justify-center text-slate-800 shadow-xl shadow-emerald-500/10 border border-emerald-50 z-30 float-anim">
+                        <div class="text-4xl font-black text-emerald-500 mb-1">0</div>
+                        <div class="text-[11px] font-bold text-center text-slate-500 uppercase tracking-wider">Toleransi<br>Error Data</div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Right: Text and checkpoints --}}
+            <div x-data="{shown:false}" x-intersect="shown=true">
+                <div x-show="shown" x-transition:enter="transition duration-700 delay-100" x-transition:enter-start="opacity-0 translate-x-8" x-transition:enter-end="opacity-100 translate-x-0">
+                    <div class="text-sm font-bold uppercase tracking-[0.15em] text-emerald-600 mb-3">Tantangan Lapangan</div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-800 leading-[1.15] tracking-tight mb-6">
+                        Keterlambatan Rekap <br>Memperlambat Intervensi
+                    </h2>
+                    <p class="text-slate-500 text-lg leading-relaxed mb-10 font-medium">
+                        Risiko hilangnya catatan fisik, kesalahan pembacaan, serta rekap berjenjang yang memakan waktu berminggu-minggu membuat penanganan gizi rawan terlambat. NutriGen hadir sebagai **pencadangan (backup) digital** *real-time*.
+                    </p>
+
+                    <div class="space-y-6">
+                        @foreach([
+                            ['c' => 'from-emerald-400 to-teal-400', 'title' => 'Algoritma Validasi Z-Score', 'desc' => 'Sistem menolak otomatis input BB/TB yang tidak masuk akal secara medis.'],
+                            ['c' => 'from-teal-400 to-cyan-400', 'title' => 'Monitoring Hierarkis', 'desc' => 'Data mengalir bersih dari Kader -> Puskesmas -> Dinas Kesehatan.'],
+                            ['c' => 'from-cyan-400 to-blue-400', 'title' => 'Distribusi Otomatis via WhatsApp', 'desc' => 'Orang tua menerima update status gizi anak tanpa birokrasi rumit.'],
+                        ] as $c)
+                        <div class="flex items-start gap-5">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br {{ $c['c'] }} flex items-center justify-center shadow-sm">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 mb-1.5 text-base">{{ $c['title'] }}</p>
+                                <p class="text-slate-500 text-sm leading-relaxed">{{ $c['desc'] }}</p>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    {{-- =============================================
+         SECTION 4: STATS (Vibrant Light Mode)
+    ============================================== --}}
+    <section class="py-16 bg-gradient-to-r from-emerald-500 to-teal-500 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.15)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.15)_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
         <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-20" data-aos="fade-up">
-                <h2 class="text-emerald-600 font-extrabold text-sm uppercase tracking-widest mb-4">Cara Kerja</h2>
-                <h3 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">Kecepatan Menyelamatkan Generasi</h3>
-                <p class="text-lg text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">Data bergerak dari Posyandu ke Ahli Gizi dalam hitungan detik, bukan bulan.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12 relative">
-                {{-- Desktop connecting line --}}
-                <div class="hidden md:block absolute top-[3.5rem] left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-emerald-200 via-emerald-400 to-emerald-200 z-0 rounded-full"></div>
-
-                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="100">
-                    <div class="w-28 h-28 mx-auto bg-emerald-50 border-2 border-emerald-100 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-emerald-100 group-hover:border-emerald-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-emerald-100 transition-all duration-300">
-                        <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-slate-900 tracking-tight">1. Input Kader</h3>
-                    <p class="text-slate-500 font-medium text-sm leading-relaxed max-w-[260px] mx-auto">Kader Posyandu memasukkan data ukur balita melalui Web App ringan dari smartphone saat di lokasi.</p>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 text-center divide-x divide-white/20" x-data="{shown:false}" x-intersect="shown=true">
+                @foreach([
+                    ['num' => '100%', 'label' => 'Paperless', 'sub' => 'Digitalisasi total'],
+                    ['num' => '< 3s', 'label' => 'Hitung Z-Score', 'sub' => 'Otomatis presisi'],
+                    ['num' => '4', 'label' => 'Aktor Sistem', 'sub' => 'Dinkes s/d Orang Tua'],
+                    ['num' => 'WHO', 'label' => 'Standar Gizi', 'sub' => 'Kurva 2006'],
+                ] as $i => $s)
+                <div x-show="shown" x-transition:enter="transition duration-700 delay-{{ $i * 100 }}" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" class="px-4 text-white">
+                    <div class="text-3xl sm:text-4xl font-black mb-2">{{ $s['num'] }}</div>
+                    <div class="font-bold text-sm mb-1 uppercase tracking-wide">{{ $s['label'] }}</div>
+                    <div class="text-emerald-50 text-xs font-medium">{{ $s['sub'] }}</div>
                 </div>
-
-                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="200">
-                    <div class="w-28 h-28 mx-auto bg-white border-2 border-emerald-500 rounded-3xl flex items-center justify-center mb-6 shadow-[0_0_0_8px_rgba(16,185,129,0.08)] group-hover:scale-110 group-hover:shadow-[0_0_0_12px_rgba(16,185,129,0.1)] transition-all duration-300">
-                        <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18"/><path d="M6 18H4c-.6 0-1-.4-1-1V5c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v13"/><path d="M14 18h-2V7c0-.6.4-1 1-1h4c.6 0 1 .4 1 1v10c0 .6-.4 1-1 1h-2"/><path d="M10 22V8c0-.6.4-1 1-1h2c.6 0 1 .4 1 1v14"/><path d="M10 12h4"/><path d="M12 10v4"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-slate-900 tracking-tight">2. Validasi Klinis</h3>
-                    <p class="text-slate-500 font-medium text-sm leading-relaxed max-w-[260px] mx-auto">Sistem mendeteksi anomali stunting dan memasukannya ke antrean validasi Ahli Gizi Puskesmas.</p>
-                </div>
-
-                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="300">
-                    <div class="w-28 h-28 mx-auto bg-cyan-50 border-2 border-cyan-100 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-cyan-100 group-hover:border-cyan-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-cyan-100 transition-all duration-300">
-                        <svg class="w-10 h-10 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-slate-900 tracking-tight">3. Notifikasi Ibu</h3>
-                    <p class="text-slate-500 font-medium text-sm leading-relaxed max-w-[260px] mx-auto">Ibu menerima ringkasan kurva & rekomendasi gizi instan melalui WhatsApp secara privat.</p>
-                </div>
+                @endforeach
             </div>
         </div>
     </section>
 
-    {{-- 6 & 7. Ekosistem & Feature Bento Grid --}}
-    <section id="features" class="py-24 lg:py-32 bg-slate-50 border-y border-slate-100 relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-            <div class="mb-16" data-aos="fade-up">
-                <h2 class="text-emerald-600 font-extrabold text-sm uppercase tracking-widest mb-4">Ekosistem Sinergis</h2>
-                <h3 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-3xl">
-                    Tiga Aktor, Satu Sumber Kebenaran.
-                </h3>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-6 md:grid-rows-2 gap-6 auto-rows-fr">
-
-                {{-- BENTO 1: Ibu (Large - Span 4) --}}
-                <div class="md:col-span-4 md:row-span-1 bg-white rounded-[24px] p-8 lg:p-10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 hover:border-pink-200 hover:shadow-[0_12px_40px_rgba(236,72,153,0.07)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-48 h-48 bg-pink-50/60 rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl pointer-events-none group-hover:opacity-100 opacity-60 transition-opacity"></div>
-                    <div class="relative z-10" data-aos="fade-up">
-                        <div class="w-12 h-12 bg-pink-50 text-pink-500 rounded-xl flex items-center justify-center mb-6 ring-1 ring-pink-100 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        </div>
-                        <h4 class="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Portal Ibu (B2C)</h4>
-                        <p class="text-slate-500 font-medium leading-relaxed max-w-lg">Tidak perlu *install* aplikasi. Ibu cukup klik tautan WhatsApp untuk melihat kurva pertumbuhan standar WHO, evaluasi status gizi, dan rekomendasi menu resep harian.</p>
-                    </div>
-                </div>
-
-                {{-- BENTO 2: AI (Small - Span 2) — Replaced black with deep emerald --}}
-                <div class="md:col-span-2 md:row-span-1 bg-gradient-to-br from-emerald-700 via-emerald-600 to-cyan-600 rounded-[24px] p-8 lg:p-10 shadow-[0_15px_40px_rgba(16,185,129,0.2)] hover:shadow-[0_24px_60px_rgba(16,185,129,0.3)] border border-emerald-500/20 text-white flex flex-col justify-between group relative overflow-hidden transition-all duration-500 hover:-translate-y-1">
-                    <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:14px_14px] opacity-40"></div>
-                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-3xl opacity-50 group-hover:opacity-70 transition-opacity duration-500"></div>
-                    <div class="relative z-10 h-full flex flex-col" data-aos="fade-up" data-aos-delay="100">
-                        <div class="w-12 h-12 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl flex items-center justify-center mb-6 group-hover:-translate-y-1 group-hover:shadow-lg transition-all duration-300">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        </div>
-                        <div class="mt-auto">
-                            <h4 class="text-2xl font-bold text-white mb-3 tracking-tight">AI Nutrition</h4>
-                            <p class="text-white/75 font-medium text-sm leading-relaxed">Resep dikurasi otomatis berdasarkan status gizi aktual balita.</p>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- BENTO 3: Puskesmas (Small - Span 2) --}}
-                <div class="md:col-span-2 md:row-span-1 bg-white rounded-[24px] p-8 lg:p-10 border border-blue-100 flex flex-col justify-between group shadow-[0_4px_20px_rgba(59,130,246,0.05)] hover:border-blue-200 hover:shadow-[0_12px_40px_rgba(59,130,246,0.1)] hover:-translate-y-1 transition-all duration-300">
-                    <div class="h-full flex flex-col" data-aos="fade-up" data-aos-delay="200">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        </div>
-                        <div class="mt-auto">
-                            <h4 class="text-xl font-bold text-slate-900 mb-3 tracking-tight">Portal Puskesmas</h4>
-                            <p class="text-slate-500 font-medium text-sm leading-relaxed">Dashboard agregat untuk validasi klinis tingkat kecamatan.</p>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- BENTO 4: Kader (Large - Span 4) --}}
-                <div class="md:col-span-4 md:row-span-1 bg-white rounded-[24px] p-8 lg:p-10 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-amber-100 hover:border-amber-200 hover:shadow-[0_12px_40px_rgba(245,158,11,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center group relative overflow-hidden">
-                    <div class="absolute bottom-0 right-0 w-40 h-40 bg-amber-50/80 rounded-full translate-y-1/2 translate-x-1/4 blur-2xl pointer-events-none"></div>
-                    <div class="relative z-10" data-aos="fade-up" data-aos-delay="300">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center mb-6 ring-1 ring-amber-100 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        </div>
-                        <h4 class="text-2xl font-bold text-slate-900 mb-3 tracking-tight">Portal Kader Posyandu</h4>
-                        <p class="text-slate-500 font-medium leading-relaxed max-w-lg">Form input digital cerdas yang menggantikan buku tulis. Validasi Z-Score bawaan mencegah kesalahan input data antropometri sebelum dikirim ke server pusat.</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    {{-- 8. Demo Video Section — Smaller, more focused --}}
-    <section id="video-demo" class="py-20 lg:py-28 bg-white relative">
+    {{-- =============================================
+         SECTION 5: VIDEO DEMO
+    ============================================== --}}
+    <section id="video-demo" class="py-24 bg-white relative">
         <div class="max-w-5xl mx-auto px-6 lg:px-8">
-            <div class="text-center mb-12" data-aos="fade-up">
-                <h2 class="text-emerald-600 font-extrabold text-sm uppercase tracking-widest mb-4">Demo</h2>
-                <h3 class="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Lihat Bagaimana NutriGen Bekerja</h3>
-                <p class="text-base text-slate-500 font-medium max-w-xl mx-auto leading-relaxed">Demo eksklusif alur kerja NutriGen dari posyandu ke puskesmas dalam 1 Menit.</p>
+            <div class="text-center mb-12" x-data="{shown:false}" x-intersect="shown=true">
+                <div x-show="shown" x-transition:enter="transition duration-600" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+                     class="text-sm font-bold uppercase tracking-[0.15em] text-emerald-600 mb-3">Live Demo</div>
+                <h2 x-show="shown" x-transition:enter="transition duration-700 delay-100" x-transition:enter-start="opacity-0 translate-y-6" x-transition:enter-end="opacity-100 translate-y-0"
+                    class="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">Antarmuka Modern & Cepat</h2>
             </div>
 
-            <div class="relative max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="150">
-                <div class="absolute -inset-3 bg-gradient-to-br from-emerald-400/15 to-cyan-400/15 rounded-[2rem] blur-xl opacity-70 pointer-events-none"></div>
-                <div class="relative rounded-[20px] border border-slate-200 bg-white p-2 shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_16px_40px_-8px_rgba(0,0,0,0.12)] overflow-hidden">
-                    <div class="flex items-center gap-1.5 px-3 py-2.5 bg-slate-50 rounded-t-[16px] border-b border-slate-100">
-                        <div class="flex gap-1.5">
-                            <div class="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
-                            <div class="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
-                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+            <div class="relative rounded-2xl overflow-hidden shadow-[0_25px_50px_-12px_rgba(16,185,129,0.15)] border border-emerald-100/60 bg-white" x-data="{shown:false}" x-intersect="shown=true">
+                <div x-show="shown" x-transition:enter="transition duration-900 delay-200" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+                    <div class="bg-slate-50/80 backdrop-blur px-4 py-3 flex items-center gap-2 border-b border-slate-100">
+                        <div class="w-3 h-3 rounded-full bg-rose-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+                        <div class="ml-4 flex-1 bg-white rounded-md px-3 py-1.5 text-[11px] text-slate-400 font-medium shadow-sm border border-slate-100 flex items-center gap-2">
+                            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            nutrigen.up.railway.app
                         </div>
                     </div>
-                    <div class="aspect-video bg-slate-900 rounded-b-[16px] relative overflow-hidden flex items-center justify-center">
-                        <iframe 
-                            class="absolute top-0 left-0 w-full h-full"
-                            src="https://www.youtube.com/embed/99Radiqy15c" 
-                            title="YouTube video player" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                            referrerpolicy="strict-origin-when-cross-origin" 
-                            allowfullscreen>
-                        </iframe>
+                    <div class="aspect-video bg-slate-50">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/99Radiqy15c?rel=0" title="Demo NutriGen" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- 9. FAQ --}}
-    <section class="py-24 lg:py-32 relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-cyan-600">
-        {{-- Grid overlay --}}
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none"></div>
-        {{-- Glow orbs --}}
-        <div class="absolute -top-40 -right-40 w-96 h-96 bg-white/10 rounded-full blur-[100px] pointer-events-none"></div>
-        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-cyan-300/20 rounded-full blur-[100px] pointer-events-none"></div>
-
-        <div class="max-w-4xl mx-auto px-6 lg:px-8 relative z-10">
-            {{-- Header --}}
-            <div class="text-center mb-14" data-aos="fade-up">
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/15 backdrop-blur-sm border border-white/25 rounded-full text-white/90 text-xs font-bold uppercase tracking-widest mb-6">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    FAQ
-                </div>
-                <h2 class="text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3">Pertanyaan yang Sering Ditanyakan</h2>
-                <p class="text-white/70 font-medium max-w-lg mx-auto leading-relaxed">Semua yang perlu Anda ketahui tentang NutriGen dan cara kerjanya.</p>
+    {{-- =============================================
+         SECTION 5.5: FAQ (Pertanyaan Umum)
+    ============================================== --}}
+    <section id="faq" class="py-24 bg-slate-50/50 border-t border-slate-100 relative">
+        <div class="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.02] -z-10"></div>
+        <div class="max-w-4xl mx-auto px-6 lg:px-8">
+            <div class="text-center mb-16" x-data="{shown:false}" x-intersect="shown=true">
+                <div x-show="shown" x-transition:enter="transition duration-600" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+                     class="text-sm font-bold uppercase tracking-[0.15em] text-emerald-600 mb-3">FAQ</div>
+                <h2 x-show="shown" x-transition:enter="transition duration-700 delay-100" x-transition:enter-start="opacity-0 translate-y-6" x-transition:enter-end="opacity-100 translate-y-0"
+                    class="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">Pertanyaan yang Sering Diajukan</h2>
             </div>
 
-            {{-- FAQ Items --}}
-            <div class="space-y-3">
-                <div x-data="{ open: false }" class="group" data-aos="fade-up" data-aos-delay="100">
-                    <div class="bg-white/12 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden transition-all duration-300 hover:bg-white/18 hover:border-white/35" :class="open ? 'bg-white/18 border-white/35' : ''">
-                        <button @click="open = !open" class="w-full px-6 py-5 text-left flex items-center gap-4 focus:outline-none">
-                            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300" :class="open ? 'bg-white text-emerald-600' : 'bg-white/20 text-white'">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                            </div>
-                            <span class="font-bold text-white text-base flex-1">Apakah Ibu harus mendownload aplikasi NutriGen?</span>
-                            <div class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-white/25">
-                                <svg class="w-4 h-4 text-white transition-transform duration-300" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </button>
-                        <div x-show="open" x-collapse>
-                            <div class="px-6 pb-5 pl-[4.25rem] text-white/80 font-medium leading-relaxed text-sm border-t border-white/15 pt-4">
-                                Tidak perlu. NutriGen menggunakan sistem <strong class="text-white font-bold">Magic Link</strong> yang dikirim melalui WhatsApp Bot secara berkala. Ibu cukup klik tautan tersebut untuk membuka Portal Ibu di <em>browser</em> HP dengan lancar — tanpa perlu install apapun.
-                            </div>
+            <div class="space-y-4" x-data="{active: null, shown: false}" x-intersect="shown=true">
+                @foreach([
+                    ['q' => 'Apakah saya harus mengunduh aplikasi untuk melihat grafik pertumbuhan anak?', 'a' => 'Tidak. NutriGen menggunakan sistem Magic Link via WhatsApp sehingga Orang Tua bisa langsung melihat data kurva pertumbuhan (Z-Score WHO) melalui browser smartphone tanpa perlu menginstal aplikasi tambahan.'],
+                    ['q' => 'Siapa saja yang bisa melakukan validasi stunting?', 'a' => 'Validasi klinis dan penetapan status gizi (Normal/Stunting/Gizi Buruk) hanya bisa dilakukan oleh Ahli Gizi atau petugas terlatih di Puskesmas. Kader di lapangan hanya bertugas menginput data mentah TB/BB.'],
+                    ['q' => 'Apakah data balita terjamin keamanannya?', 'a' => 'Sangat terjamin. Kami mematuhi standar privasi data rekam medis. Akses berlapis diterapkan dari level Kader, Puskesmas, hingga Dinas Kesehatan (Super Admin) dengan autentikasi enkripsi standar industri.'],
+                    ['q' => 'Bagaimana cara Puskesmas wilayah kami bergabung dengan NutriGen?', 'a' => 'Pendaftaran instansi Puskesmas baru dan wilayah kerjanya dikelola langsung oleh administrator tingkat Dinas Kesehatan (Super Admin). Silakan hubungi perwakilan Dinkes wilayah Anda.'],
+                ] as $i => $faq)
+                <div x-show="shown" x-transition:enter="transition duration-500 delay-{{ $i * 100 }}" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+                     class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:border-emerald-200"
+                     :class="{'ring-2 ring-emerald-50 border-emerald-200 shadow-md': active === {{ $i }}}">
+                    <button @click="active !== {{ $i }} ? active = {{ $i }} : active = null" 
+                            class="w-full px-6 py-5 text-left flex items-center justify-between focus:outline-none">
+                        <span class="font-bold text-slate-800 text-base sm:text-lg pr-4" :class="{'text-emerald-700': active === {{ $i }}}">{{ $faq['q'] }}</span>
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300"
+                             :class="active === {{ $i }} ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'">
+                            <svg class="w-5 h-5 transform transition-transform duration-300" :class="{'rotate-180': active === {{ $i }}}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </button>
+                    <div x-show="active === {{ $i }}" x-collapse>
+                        <div class="px-6 pb-6 text-slate-500 leading-relaxed font-medium text-sm sm:text-base">
+                            {{ $faq['a'] }}
                         </div>
                     </div>
                 </div>
-
-                <div x-data="{ open: false }" class="group" data-aos="fade-up" data-aos-delay="150">
-                    <div class="bg-white/12 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden transition-all duration-300 hover:bg-white/18 hover:border-white/35" :class="open ? 'bg-white/18 border-white/35' : ''">
-                        <button @click="open = !open" class="w-full px-6 py-5 text-left flex items-center gap-4 focus:outline-none">
-                            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300" :class="open ? 'bg-white text-emerald-600' : 'bg-white/20 text-white'">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
-                            </div>
-                            <span class="font-bold text-white text-base flex-1">Bagaimana cara mendaftar?</span>
-                            <div class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-white/25">
-                                <svg class="w-4 h-4 text-white transition-transform duration-300" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </button>
-                        <div x-show="open" x-collapse>
-                            <div class="px-6 pb-5 pl-[4.25rem] text-white/80 font-medium leading-relaxed text-sm border-t border-white/15 pt-4">
-                                Registrasi publik ditutup untuk menjaga integritas data medis. Akun Ibu didaftarkan oleh <strong class="text-white font-bold">Kader Posyandu</strong> saat kunjungan pertama, sedangkan akun Kader dan Puskesmas dikelola oleh Administrator Dinas Kesehatan.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div x-data="{ open: false }" class="group" data-aos="fade-up" data-aos-delay="200">
-                    <div class="bg-white/12 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden transition-all duration-300 hover:bg-white/18 hover:border-white/35" :class="open ? 'bg-white/18 border-white/35' : ''">
-                        <button @click="open = !open" class="w-full px-6 py-5 text-left flex items-center gap-4 focus:outline-none">
-                            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300" :class="open ? 'bg-white text-emerald-600' : 'bg-white/20 text-white'">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                            </div>
-                            <span class="font-bold text-white text-base flex-1">Apakah standar pengukuran sudah sesuai WHO?</span>
-                            <div class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-white/25">
-                                <svg class="w-4 h-4 text-white transition-transform duration-300" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </button>
-                        <div x-show="open" x-collapse>
-                            <div class="px-6 pb-5 pl-[4.25rem] text-white/80 font-medium leading-relaxed text-sm border-t border-white/15 pt-4">
-                                Ya, sistem <em>backend</em> kami mengimplementasikan standar <strong class="text-white font-bold">Z-Score WHO 2006</strong> untuk menghitung persentil pertumbuhan tinggi dan berat badan balita secara instan dan akurat.
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </section>
 
-    {{-- 10. About NutriGen --}}
-    <section class="relative overflow-hidden" data-aos="fade-up">
-        <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[480px]">
-            {{-- Left: Vibrant emerald panel --}}
-            <div class="relative bg-gradient-to-br from-emerald-700 to-emerald-500 flex flex-col justify-center px-10 lg:px-16 py-20 overflow-hidden">
-                <div class="absolute -top-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
-
-                <div class="relative z-10">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 border border-white/30 rounded-full text-white text-xs font-bold uppercase tracking-widest mb-8">
-                        <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
-                        Misi Utama NutriGen
-                    </div>
-                    <h3 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.1] mb-6">
-                        Generasi<br><span class="text-cyan-200">Bebas Stunting.</span>
-                    </h3>
-                    <p class="text-white/80 font-medium leading-relaxed text-base max-w-md">
-                        NutriGen dibangun dengan satu keyakinan sederhana: data yang akurat dan intervensi yang cepat dapat menyelamatkan masa depan seorang anak.
-                    </p>
-                </div>
-            </div>
-
-            {{-- Right: Light panel with stats --}}
-            <div class="bg-slate-50 flex flex-col justify-center px-10 lg:px-16 py-20 relative overflow-hidden">
-                <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-                <div class="relative z-10">
-                    <p class="text-slate-600 font-medium leading-relaxed text-base mb-10">
-                        Kami menggabungkan teknologi modern dengan infrastruktur kesehatan masyarakat yang ada, <strong class="text-emerald-700 font-bold">memberdayakan Kader</strong>, memudahkan Puskesmas, dan mengedukasi Ibu secara simultan.
-                    </p>
-
-                    {{-- Mini Stats --}}
-                    <div class="grid grid-cols-3 gap-2 sm:gap-4">
-                        <div class="bg-white rounded-2xl p-3 sm:p-5 border border-emerald-100 shadow-sm text-center">
-                            <div class="text-xl sm:text-2xl font-extrabold text-emerald-600 mb-1">3</div>
-                            <div class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide">Portal Pengguna</div>
-                        </div>
-                        <div class="bg-white rounded-2xl p-3 sm:p-5 border border-blue-100 shadow-sm text-center">
-                            <div class="text-xl sm:text-2xl font-extrabold text-blue-600 mb-1">WHO</div>
-                            <div class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide">Standar 2006</div>
-                        </div>
-                        <div class="bg-white rounded-2xl p-3 sm:p-5 border border-amber-100 shadow-sm text-center">
-                            <div class="text-xl sm:text-2xl font-extrabold text-amber-600 mb-1">100%</div>
-                            <div class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide">Paperless</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- Final CTA --}}
-    <section class="relative py-24 sm:py-32 dark-mesh overflow-hidden border-t border-slate-900">
-        <div class="max-w-4xl mx-auto px-6 lg:px-8 text-center relative z-10" data-aos="fade-up">
-            <h2 class="text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6">Siap Merubah Masa Depan?</h2>
-            <p class="text-xl text-slate-400 font-medium mb-12 max-w-2xl mx-auto">Bergabunglah dalam revolusi digital penanggulangan stunting di Indonesia.</p>
-
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                @auth
-                    <a href="{{ route('dashboard') }}" class="w-full sm:w-auto px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-emerald-500/50">Buka Dashboard Saya</a>
-                @else
-                    <a href="{{ route('login') }}" class="w-full sm:w-auto px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-emerald-500/50">Masuk ke Sistem</a>
-                @endauth
-            </div>
-        </div>
-    </section>
-
-    {{-- Team Section --}}
-    <section class="py-24 lg:py-32 bg-slate-50 relative overflow-hidden border-t border-slate-200" data-aos="fade-up">
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-        <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-50 rounded-full translate-x-1/2 -translate-y-1/2 blur-[100px] pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-cyan-50 rounded-full -translate-x-1/2 translate-y-1/2 blur-[100px] pointer-events-none"></div>
-
-        <div class="max-w-3xl mx-auto px-6 lg:px-8 relative z-10 text-center">
-            {{-- Top accent --}}
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full text-emerald-700 text-xs font-bold uppercase tracking-widest mb-8">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+    {{-- =============================================
+         SECTION 6: MEET THE TEAM
+    ============================================== --}}
+    <section class="py-24 bg-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] -z-10"></div>
+        <div class="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-[11px] px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase shadow-sm">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 Tim Pengembang
             </div>
-
-            <div class="relative bg-white p-10 lg:p-14 rounded-[3rem] border border-slate-200 shadow-[0_15px_50px_rgba(0,0,0,0.04)] w-full overflow-hidden group">
-                {{-- Subtle top line on hover --}}
-                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                <h2 class="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight mb-5">
-                    Built by <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-cyan-600">Student Innovators</span>
-                </h2>
-
-                <p class="text-lg text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto mb-3">
+            
+            <div class="bg-white rounded-[2rem] p-10 md:p-14 shadow-[0_20px_50px_-12px_rgba(16,185,129,0.15)] border border-emerald-100/60 relative z-10 transition-all duration-300 hover:shadow-[0_20px_50px_-12px_rgba(16,185,129,0.25)]">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight mb-6">Built by <span class="text-emerald-600">Student Innovators</span></h2>
+                <p class="text-slate-500 leading-relaxed font-medium mb-8 max-w-2xl mx-auto">
                     NutriGen dikembangkan oleh mahasiswa lintas universitas yang berkolaborasi dalam Hackathon Digdaya 2026 untuk menghadirkan solusi digital penanganan stunting berbasis Posyandu.
                 </p>
-
-                {{-- University badges --}}
-                <div class="flex flex-wrap items-center justify-center gap-3 mb-10">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-semibold text-slate-600">
-                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        Universitas Syiah Kuala
-                    </div>
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-semibold text-slate-600">
-                        <div class="w-2 h-2 rounded-full bg-cyan-500"></div>
-                        UIN Ar-Raniry Banda Aceh
-                    </div>
+                
+                <div class="flex flex-wrap justify-center gap-3 mb-10">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-slate-600 text-xs font-semibold border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Universitas Syiah Kuala</span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-slate-600 text-xs font-semibold border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> UIN Ar-Raniry Banda Aceh</span>
                 </div>
 
-                {{-- Avatars --}}
-                <div class="flex items-center justify-center -space-x-4 mb-10">
-                    <div class="w-14 h-14 rounded-full border-4 border-white overflow-hidden z-40 relative shadow-md hover:-translate-y-2 hover:scale-110 transition-all duration-300 cursor-pointer">
-                        <img src="{{ asset('images/team/member-1.png') }}" alt="Team Member 1" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-14 h-14 rounded-full border-4 border-white overflow-hidden z-30 relative shadow-md hover:-translate-y-2 hover:scale-110 transition-all duration-300 cursor-pointer">
-                        <img src="{{ asset('images/team/member-2.jpeg') }}" alt="Team Member 2" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-14 h-14 rounded-full border-4 border-white overflow-hidden z-20 relative shadow-md hover:-translate-y-2 hover:scale-110 transition-all duration-300 cursor-pointer">
-                        <img src="{{ asset('images/team/member-3.jpeg') }}" alt="Team Member 3" class="w-full h-full object-cover">
-                    </div>
-                    <div class="w-14 h-14 rounded-full border-4 border-white overflow-hidden z-10 relative shadow-md hover:-translate-y-2 hover:scale-110 transition-all duration-300 cursor-pointer">
-                        <img src="{{ asset('images/team/member-4.jpeg') }}" alt="Team Member 4" class="w-full h-full object-cover">
-                    </div>
+                <div class="flex justify-center -space-x-4 mb-10">
+                    <div class="w-16 h-16 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-sm z-40"><img src="https://ui-avatars.com/api/?name=M&background=0D8ABC&color=fff" alt="Team 1" class="w-full h-full object-cover"></div>
+                    <div class="w-16 h-16 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-sm z-30"><img src="https://ui-avatars.com/api/?name=A&background=10b981&color=fff" alt="Team 2" class="w-full h-full object-cover"></div>
+                    <div class="w-16 h-16 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-sm z-20"><img src="https://ui-avatars.com/api/?name=R&background=f59e0b&color=fff" alt="Team 3" class="w-full h-full object-cover"></div>
+                    <div class="w-16 h-16 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-sm z-10"><img src="https://ui-avatars.com/api/?name=F&background=8b5cf6&color=fff" alt="Team 4" class="w-full h-full object-cover"></div>
                 </div>
 
-                <a href="{{ route('team') }}" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-slate-900 text-white font-bold rounded-full shadow-[0_4px_15px_rgba(15,23,42,0.2)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.3)] hover:bg-emerald-600 transition-all duration-500 hover:-translate-y-1 active:scale-95 group/btn">
-                    <span>Kenali Tim Kami Lebih Dekat</span>
-                    <svg class="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </a>
+                <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 inline-flex items-center gap-2 text-sm shadow-lg shadow-slate-900/20">
+                    Kenali Tim Kami Lebih Dekat <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </button>
             </div>
         </div>
     </section>
 
-    {{-- Footer --}}
-    <x-public-footer description="Platform manajemen stunting end-to-end yang mengintegrasikan data dari Posyandu ke Puskesmas secara real-time. Membangun generasi emas Indonesia.">
+    {{-- =============================================
+         SECTION 7: CTA SECTION
+    ============================================== --}}
+    <section class="bg-white text-slate-800 relative overflow-hidden border-t border-slate-100">
+        {{-- Decorative Background Elements --}}
+        <div class="absolute inset-0 bg-gradient-to-b from-white via-emerald-50/30 to-teal-50/50 -z-20"></div>
+        
+        {{-- Soft Glow Blobs --}}
+        <div class="absolute top-0 left-0 w-[500px] h-[500px] bg-emerald-200/30 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 -z-10 pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-teal-200/20 rounded-full blur-[100px] translate-x-1/3 translate-y-1/3 -z-10 pointer-events-none"></div>
 
-        <x-slot name="badges">
-            <div class="inline-flex items-center gap-2.5 px-4 py-2 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-800 text-sm font-semibold text-slate-300 hover:border-slate-700 transition-colors">
-                <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
-                <span>Built in Indonesia</span>
+        <div class="py-28 text-center relative z-10" x-data="{shown:false}" x-intersect="shown=true">
+            {{-- Floating Decorative Icons --}}
+            <div class="absolute top-20 left-[15%] text-emerald-300/40 float-anim hidden md:block">
+                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
             </div>
-            <div class="inline-flex items-center gap-2.5 px-4 py-2 bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-800 text-sm font-semibold text-slate-300 hover:border-slate-700 transition-colors">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></span>
-                <span>Digdaya 2026</span>
+            <div class="absolute bottom-32 right-[15%] text-teal-300/40 float-anim-2 hidden md:block">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
             </div>
-            <div class="inline-flex items-center gap-2.5 px-4 py-2 bg-emerald-950/30 backdrop-blur-md rounded-2xl border border-emerald-900/50 text-sm font-semibold text-emerald-400 hover:border-emerald-800/50 transition-colors shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                <span>v1.0 MVP</span>
+
+            <div x-show="shown" x-transition:enter="transition duration-700" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0" class="relative">
+                <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-emerald-200 text-emerald-700 font-bold text-[11px] px-4 py-1.5 rounded-full mb-8 tracking-widest uppercase shadow-sm">
+                    Mulai Digunakan Hari Ini
+                </div>
+                <h2 class="text-4xl lg:text-5xl font-extrabold tracking-tight mb-6">
+                    Beralih ke <span class="gradient-text">NutriGen</span> Sekarang
+                </h2>
+                <p class="text-slate-500 max-w-lg mx-auto leading-relaxed mb-10 text-base font-medium">Bergabunglah dengan ekosistem kesehatan modern. Akses sistem pelaporan dan validasi klinis stunting terintegrasi untuk wilayah Anda dengan sekali klik.</p>
+                <div class="flex justify-center">
+                    <a href="{{ route('login') }}" class="btn-primary-saas text-white font-bold px-12 py-5 rounded-2xl text-lg inline-flex items-center gap-3 shadow-[0_8px_30px_rgb(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgb(16,185,129,0.45)] ring-4 ring-emerald-50">
+                        Login ke Dashboard Utama
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
             </div>
-        </x-slot>
+        </div>
+    </section>
 
-        <x-slot name="platformLinks">
-            <li><a href="#how-it-works" class="text-base font-medium text-slate-400 hover:text-emerald-400 transition-all duration-300 flex items-center gap-3 group hover:translate-x-2"><span class="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-emerald-400 transition-colors duration-300"></span> Cara Kerja</a></li>
-            <li><a href="#features" class="text-base font-medium text-slate-400 hover:text-emerald-400 transition-all duration-300 flex items-center gap-3 group hover:translate-x-2"><span class="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-emerald-400 transition-colors duration-300"></span> Ekosistem NutriGen</a></li>
-            <li><a href="{{ route('team') }}" class="text-base font-medium text-emerald-500 hover:text-emerald-400 transition-all duration-300 flex items-center gap-3 group hover:translate-x-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:bg-emerald-400 transition-colors duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span> Meet Our Team</a></li>
-            <li><a href="{{ route('login') }}" class="text-base font-medium text-slate-400 hover:text-emerald-400 transition-all duration-300 flex items-center gap-3 group hover:translate-x-2"><span class="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-emerald-400 transition-colors duration-300"></span> Portal Petugas</a></li>
-        </x-slot>
-
-        <x-slot name="contactLinks">
-            <li>
-                <a href="mailto:teamnutrigen@gmail.com" class="text-base font-medium text-slate-400 hover:text-emerald-400 transition-all duration-300 flex items-center gap-4 group hover:translate-x-2">
-                    <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:border-emerald-500/50 group-hover:bg-emerald-950/30 transition-all duration-300">
-                        <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+    {{-- =============================================
+         SECTION 8: REAL FOOTER
+    ============================================== --}}
+    <footer class="bg-white border-t border-slate-200 pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+                {{-- Brand & About --}}
+                <div class="md:col-span-5">
+                    <div class="flex items-center gap-2 mb-6">
+                        <svg class="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.2L18.8 19H5.2L12 6.2zM11 11v4h2v-4h-2zm0 5v2h2v-2h-2z"/></svg>
+                        <span class="text-2xl font-black text-slate-800 tracking-tight">NutriGen</span>
                     </div>
-                    teamnutrigen@gmail.com
-                </a>
-            </li>
-            <li>
-                <a href="#" class="text-base font-medium text-slate-400 hover:text-emerald-400 transition-all duration-300 flex items-center gap-4 group hover:translate-x-2">
-                    <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:border-emerald-500/50 group-hover:bg-emerald-950/30 transition-all duration-300">
-                        <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                    <p class="text-slate-500 leading-relaxed font-medium mb-6 text-sm">
+                        Platform manajemen stunting end-to-end yang mengintegrasikan data dari Posyandu ke Puskesmas secara real-time. Membangun generasi emas Indonesia.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-md flex items-center gap-1.5"><svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg> Built in Indonesia</span>
+                        <span class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-md"><span class="text-emerald-500 mr-1">●</span> Digdaya 2026</span>
+                        <span class="px-3 py-1 bg-slate-100 text-slate-500 text-xs font-bold rounded-md">v1.0 MVP</span>
                     </div>
-                    WhatsApp Support
-                </a>
-            </li>
-            <li>
-                <a href="#" class="text-base font-medium text-slate-400 hover:text-emerald-400 transition-all duration-300 flex items-center gap-4 group hover:translate-x-2">
-                    <div class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:border-emerald-500/50 group-hover:bg-emerald-950/30 transition-all duration-300">
-                        <svg class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    </div>
-                    Banda Aceh, Indonesia
-                </a>
-            </li>
-        </x-slot>
+                </div>
 
-        <x-slot name="copyright">
-            <span class="text-slate-300 font-bold tracking-wide">NutriGen MVP</span> &bull; Hackathon Digdaya 2026 &bull; Version 1.0 &bull; <span class="text-emerald-400">2026</span>
-        </x-slot>
+                {{-- Links --}}
+                <div class="md:col-span-3 md:col-start-7">
+                    <h4 class="font-extrabold text-slate-800 tracking-wider text-sm uppercase mb-6">Platform</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#features" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors text-sm flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-slate-300"></span> Cara Kerja</a></li>
+                        <li><a href="#faq" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors text-sm flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-slate-300"></span> FAQ & Bantuan</a></li>
+                        <li><a href="#" class="text-emerald-600 font-semibold transition-colors text-sm flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span> Meet Our Team</a></li>
+                        <li><a href="{{ route('login') }}" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors text-sm flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-slate-300"></span> Portal Petugas</a></li>
+                    </ul>
+                </div>
 
-    </x-public-footer>
+                {{-- Contact --}}
+                <div class="md:col-span-3">
+                    <h4 class="font-extrabold text-slate-800 tracking-wider text-sm uppercase mb-6">Kontak</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <span class="text-slate-500 font-medium text-sm mt-1">teamnutrigen@gmail.com</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <span class="text-slate-500 font-medium text-sm mt-1">WhatsApp Support</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                            <span class="text-slate-500 font-medium text-sm mt-1">Banda Aceh, Indonesia</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
+            <div class="pt-8 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="text-slate-400 text-sm font-medium">
+                    &copy; 2026 <span class="text-emerald-600 font-bold">NutriGen MVP</span> &bull; Hackathon Digdaya 2026
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-slate-50 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 flex items-center justify-center transition-colors border border-slate-100">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-slate-50 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 flex items-center justify-center transition-colors border border-slate-100">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clip-rule="evenodd"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</div>
 @endsection
