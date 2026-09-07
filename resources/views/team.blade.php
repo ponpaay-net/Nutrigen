@@ -2,6 +2,23 @@
 
 @section('title', 'Meet Our Team | NutriGen')
 
+@push('styles')
+<style>
+    @keyframes float {
+        0% { transform: translateY(0px) translateX(0px); }
+        50% { transform: translateY(-20px) translateX(10px); }
+        100% { transform: translateY(0px) translateX(0px); }
+    }
+    .float-anim {
+        animation: float 6s ease-in-out infinite;
+    }
+    .float-anim-delayed {
+        animation: float 8s ease-in-out infinite;
+        animation-delay: 2s;
+    }
+</style>
+@endpush
+
 @section('content')
 
     {{-- SECTION 1: HERO (Clean, airy, with massive vibrant gradient shape like the reference) --}}
@@ -121,8 +138,8 @@
     {{-- SECTION 3: THE TEAM (Soft, floating cards with centered avatars) --}}
     <section id="team" class="py-24 bg-white relative overflow-hidden">
         {{-- Soft abstract background shapes --}}
-        <div class="absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-        <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-cyan-50 to-sky-50 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
+        <div class="float-anim absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div class="float-anim-delayed absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-cyan-50 to-sky-50 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
 
         <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
             <div class="text-center mb-20" data-aos="fade-up">
@@ -136,10 +153,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
                 {{-- Member 1 --}}
-                <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(16,185,129,0.08)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="100">
+                <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(16,185,129,0.12)] hover:-translate-y-3 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="100">
                     <div class="relative w-36 h-36 mb-8">
-                        <div class="absolute inset-0 bg-emerald-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
-                        <img src="{{ asset('images/team/member-1.png') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Naufal">
+                        <div class="absolute inset-0 bg-emerald-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50 group-hover:opacity-80"></div>
+                        <img src="{{ asset('images/team/member-1.png') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500" alt="Naufal">
                     </div>
                     <div class="inline-flex px-4 py-1.5 bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Frontend Developer</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">M. Naufal<br>Alifaturafif</h3>
@@ -156,10 +173,10 @@
                 </div>
 
                 {{-- Member 2 --}}
-                <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(6,182,212,0.08)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(6,182,212,0.12)] hover:-translate-y-3 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="200">
                     <div class="relative w-36 h-36 mb-8">
-                        <div class="absolute inset-0 bg-cyan-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
-                        <img src="{{ asset('images/team/member-2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Bintang">
+                        <div class="absolute inset-0 bg-cyan-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50 group-hover:opacity-80"></div>
+                        <img src="{{ asset('images/team/member-2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500" alt="Bintang">
                     </div>
                     <div class="inline-flex px-4 py-1.5 bg-cyan-50 text-cyan-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Backend Developer</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">Bintang Naufal<br>Fayazzi</h3>
@@ -176,10 +193,10 @@
                 </div>
 
                 {{-- Member 3 --}}
-                <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(139,92,246,0.08)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="300">
+                <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(139,92,246,0.12)] hover:-translate-y-3 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="300">
                     <div class="relative w-36 h-36 mb-8">
-                        <div class="absolute inset-0 bg-violet-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
-                        <img src="{{ asset('images/team/member-3.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Riyan">
+                        <div class="absolute inset-0 bg-violet-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50 group-hover:opacity-80"></div>
+                        <img src="{{ asset('images/team/member-3.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500" alt="Riyan">
                     </div>
                     <div class="inline-flex px-4 py-1.5 bg-violet-50 text-violet-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Project Lead & UI/UX</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">Riyan Arya<br>Syahputra</h3>
@@ -196,10 +213,10 @@
                 </div>
 
                 {{-- Member 4 --}}
-                <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(245,158,11,0.08)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="400">
+                <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(245,158,11,0.12)] hover:-translate-y-3 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="400">
                     <div class="relative w-36 h-36 mb-8">
-                        <div class="absolute inset-0 bg-amber-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
-                        <img src="{{ asset('images/team/member-4.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Risky">
+                        <div class="absolute inset-0 bg-amber-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50 group-hover:opacity-80"></div>
+                        <img src="{{ asset('images/team/member-4.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500" alt="Risky">
                     </div>
                     <div class="inline-flex px-4 py-1.5 bg-amber-50 text-amber-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Business Analyst</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">Risky Husnaa<br>Mulyadi</h3>
