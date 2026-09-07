@@ -16,6 +16,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/seed-super-admin', function () {
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'SuperAdminSeeder']);
+    return "Super Admin Seeder executed successfully! You can now login at /login";
+});
+
 Route::get('/refresh-database-nutrigen', function () {
     try {
         Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
