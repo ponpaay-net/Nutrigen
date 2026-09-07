@@ -17,8 +17,25 @@ Route::get('/', function () {
 });
 
 Route::get('/seed-super-admin', function () {
-    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'SuperAdminSeeder']);
-    return "Super Admin Seeder executed successfully! You can now login at /login";
+    try {
+        $exitCode = \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'SuperAdminSeeder', '--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        $user = \App\Models\User::where('email', 'kemenkes@nutrigen.go.id')->first();
+        
+        if ($user) {
+            $user->password = \Illuminate\Support\Facades\Hash::make('Kemenkes2026!');
+            $user->save();
+        }
+
+        return response()->json([
+            'exit_code' => $exitCode,
+            'output' => $output,
+            'user_exists' => $user ? true : false,
+            'user_role' => $user ? $user->role : null,
+        ]);
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
 });
 
 Route::get('/refresh-database-nutrigen', function () {
