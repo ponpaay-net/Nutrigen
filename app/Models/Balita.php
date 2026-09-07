@@ -30,8 +30,8 @@ class Balita extends Model
         'berat_lahir' => 'float',
         'panjang_lahir' => 'float',
         'lingkar_kepala_lahir' => 'float',
-        'nik' => 'encrypted',
-        'no_bpjs' => 'encrypted',
+        'nik' => \App\Casts\FallbackEncryptCast::class,
+        'no_bpjs' => \App\Casts\FallbackEncryptCast::class,
     ];
 
     public function orangTua(): BelongsTo
