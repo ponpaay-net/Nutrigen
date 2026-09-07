@@ -87,10 +87,10 @@
                     </div>
                 </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                <a href="{{ route('balita.index') }}" class="inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-[13.5px] font-semibold transition-colors"><x-icon name="arrow-left" weight="bold" class="text-[15px]" /> Kembali</a>
-                <a href="{{ route('balita.edit', $balitaId) }}" class="inline-flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-[13.5px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[15px] text-slate-500" /> Edit</a>
-                <a href="{{ route('balita.ukur', $balitaId) }}" class="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[14px] font-bold shadow-md shadow-teal-600/20 transition-all active:scale-[0.98]"><x-icon name="scales" weight="bold" class="text-[16px]" /> Ukur Sekarang</a>
+            <div class="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:gap-2 shrink-0">
+                <a href="{{ route('balita.index') }}" class="h-10 sm:h-11 px-3 sm:px-4 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-[13px] sm:text-[13.5px] font-semibold transition-colors inline-flex items-center justify-center gap-1.5"><x-icon name="arrow-left" weight="bold" class="text-[15px]" /> Kembali</a>
+                <a href="{{ route('balita.edit', $balitaId) }}" class="h-10 sm:h-11 px-3 sm:px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-[13px] sm:text-[13.5px] font-semibold transition-colors inline-flex items-center justify-center gap-1.5"><x-icon name="pencil-line" weight="bold" class="text-[15px] text-slate-500" /> Edit</a>
+                <a href="{{ route('balita.ukur', $balitaId) }}" class="col-span-2 sm:col-span-1 h-11 px-5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] sm:text-[14px] font-bold shadow-md shadow-teal-600/20 transition-all active:scale-[0.98] inline-flex items-center justify-center gap-2"><x-icon name="scales" weight="bold" class="text-[16px]" /> Ukur Sekarang</a>
             </div>
         </div>
 
@@ -124,9 +124,9 @@
 
     {{-- TAB BAR --}}
     <div class="flex gap-1 p-1 rounded-2xl bg-white border border-slate-200 shadow-sm">
-        <button type="button" @click="tab = 'info'" x-bind:class="tab === 'info' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl text-[12.5px] sm:text-[13px] font-semibold transition-all min-w-0"><x-icon name="identification-card" weight="bold" class="text-[15px] shrink-0" /><span class="truncate">Identitas</span></button>
-        <button type="button" @click="tab = 'riwayat'" x-bind:class="tab === 'riwayat' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl text-[12.5px] sm:text-[13px] font-semibold transition-all min-w-0"><x-icon name="chart-line-up" weight="bold" class="text-[15px] shrink-0" /><span class="truncate">Riwayat</span></button>
-        <button type="button" @click="tab = 'kurva'" x-bind:class="tab === 'kurva' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 inline-flex items-center justify-center gap-1.5 h-10 px-3 sm:px-4 rounded-xl text-[12.5px] sm:text-[13px] font-semibold transition-all min-w-0"><x-icon name="chart-line" weight="bold" class="text-[15px] shrink-0" /><span class="truncate">Kurva WHO</span></button>
+        <button type="button" @click="tab = 'info'" x-bind:class="tab === 'info' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 h-10 px-2 sm:px-4 rounded-xl text-[12px] sm:text-[13px] font-semibold transition-all min-w-0"><x-icon name="identification-card" weight="bold" class="text-[15px] shrink-0" /><span class="whitespace-nowrap">Identitas</span></button>
+        <button type="button" @click="tab = 'riwayat'" x-bind:class="tab === 'riwayat' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 h-10 px-2 sm:px-4 rounded-xl text-[12px] sm:text-[13px] font-semibold transition-all min-w-0"><x-icon name="chart-line-up" weight="bold" class="text-[15px] shrink-0" /><span class="whitespace-nowrap">Riwayat</span></button>
+        <button type="button" @click="tab = 'kurva'" x-bind:class="tab === 'kurva' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'" class="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 h-10 px-2 sm:px-4 rounded-xl text-[12px] sm:text-[13px] font-semibold transition-all min-w-0"><x-icon name="chart-line" weight="bold" class="text-[15px] shrink-0" /><span class="whitespace-nowrap">Kurva WHO</span></button>
     </div>
 
     {{-- TAB: IDENTITAS & ORANG TUA --}}
@@ -224,7 +224,18 @@
                             <div class="bg-slate-50 rounded-lg px-2.5 py-1.5"><p class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wide">TB</p><p class="text-[13px] font-bold text-slate-800 tabular-nums mt-0.5">{{ $m['height'] ? number_format($m['height'],1,',','.') . ' cm' : '—' }}</p></div>
                             <div class="bg-slate-50 rounded-lg px-2.5 py-1.5"><p class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wide">LK</p><p class="text-[13px] font-bold text-slate-800 tabular-nums mt-0.5">{{ $m['head_circ'] ? number_format($m['head_circ'],1,',','.') . ' cm' : '—' }}</p></div>
                         </div>
-                        <div class="flex items-center justify-end gap-1 mt-2.5 text-[12px] font-semibold text-teal-600"><x-icon name="eye" weight="bold" class="text-[13px]" /> Lihat Detail</div>
+                        <div class="flex items-center justify-end gap-2 mt-2.5">
+                            @if(($m['status_validasi'] ?? '') === 'draft' && isset($m['id']))
+                                <form action="{{ route('pengukuran.hapus-draft', $m['id']) }}" method="POST" class="inline-block" @click.stop onsubmit="return confirm('Hapus data pengukuran ini?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 text-[11px] font-semibold transition-colors">
+                                        <x-icon name="trash" weight="bold" class="text-[12px]" /> Hapus
+                                    </button>
+                                </form>
+                            @endif
+                            <div class="flex items-center gap-1 text-[12px] font-semibold text-teal-600"><x-icon name="eye" weight="bold" class="text-[13px]" /> Lihat Detail</div>
+                        </div>
                         @if($isRejected && !empty($m['catatan_validator']))
                             <div class="mt-2.5 border border-rose-200 rounded-lg p-2.5 bg-white flex items-start gap-2"><x-icon name="chat-circle-text" weight="fill" class="text-rose-500 text-[16px] shrink-0 mt-0.5" /><p class="text-[12px] text-slate-600 leading-relaxed">{{ $m['catatan_validator'] }}</p></div>
                         @endif
@@ -248,7 +259,20 @@
                                 <td class="py-4 pr-3 text-[13px] font-semibold tabular-nums hidden sm:table-cell {{ $m['z_score_bbu'] !== null ? ($m['z_score_bbu'] < -2 ? 'text-rose-600' : ($m['z_score_bbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_bbu'] !== null ? $m['z_score_bbu'] . ' SD' : '—' }}</td>
                                 <td class="py-4 pr-3 text-[13px] font-semibold tabular-nums hidden sm:table-cell {{ $m['z_score_tbu'] !== null ? ($m['z_score_tbu'] < -2 ? 'text-rose-600' : ($m['z_score_tbu'] < -1 ? 'text-amber-600' : 'text-emerald-600')) : 'text-slate-400' }}">{{ $m['z_score_tbu'] !== null ? $m['z_score_tbu'] . ' SD' : '—' }}</td>
                                 <td class="py-4 pr-3 whitespace-nowrap"><span class="text-[12.5px] font-semibold {{ $badgeText }}">{{ $m['status'] }}</span></td>
-                                <td class="py-4 text-right whitespace-nowrap"><button type="button" @click.stop="active = {{ $i }}" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-700 text-[12px] font-semibold transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button></td>
+                                <td class="py-4 text-right whitespace-nowrap">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button type="button" @click.stop="active = {{ $i }}" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-700 text-[12px] font-semibold transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
+                                        @if(($m['status_validasi'] ?? '') === 'draft' && isset($m['id']))
+                                            <form action="{{ route('pengukuran.hapus-draft', $m['id']) }}" method="POST" class="inline-block" @click.stop onsubmit="return confirm('Hapus data pengukuran ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 text-[12px] font-semibold transition-colors">
+                                                    <x-icon name="trash" weight="bold" class="text-[13px]" /> Hapus
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -271,16 +295,16 @@
                                         <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">L. Kepala</p><p class="text-[16px] font-bold text-slate-900 tabular-nums mt-1" x-text="items[active]?.head_circ ? items[active].head_circ + ' cm' : '—'"></p></div>
                                         <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Z-BB/U</p><p class="text-[16px] font-bold tabular-nums mt-1" x-bind:class="items[active]?.z_score_bbu !== null ? (items[active].z_score_bbu < -2 ? 'text-rose-600' : items[active].z_score_bbu < -1 ? 'text-amber-600' : 'text-emerald-600') : 'text-slate-400'" x-text="items[active]?.z_score_bbu !== null ? items[active].z_score_bbu + ' SD' : '—'"></p></div>
                                         <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Z-TB/U</p><p class="text-[16px] font-bold tabular-nums mt-1" x-bind:class="items[active]?.z_score_tbu !== null ? (items[active].z_score_tbu < -2 ? 'text-rose-600' : items[active].z_score_tbu < -1 ? 'text-amber-600' : 'text-emerald-600') : 'text-slate-400'" x-text="items[active]?.z_score_tbu !== null ? items[active].z_score_tbu + ' SD' : '—'"></p></div>
-                                        <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Validasi</p><p class="text-[16px] font-bold mt-1" x-text="items[active]?.status_validasi === 'approved' ? 'Tervalidasi' : (items[active]?.status_validasi === 'rejected' ? 'Perlu Revisi' : 'Menunggu')"></p></div>
+                                        <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Validasi</p><p class="text-[16px] font-bold mt-1" x-text="items[active]?.status_validasi === 'approved' ? 'Tervalidasi' : (items[active]?.status_validasi === 'rejected' ? 'Validasi Ulang' : 'Menunggu')"></p></div>
                                     </div>
-                                    <div class="flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl"><span class="text-[11px] font-semibold uppercase tracking-wide text-slate-500 shrink-0">Status</span><span class="inline-flex items-center gap-1.5 text-[13px] font-bold text-right" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'text-rose-600' : (items[active]?.status_validasi === 'pending' ? 'text-amber-600' : 'text-emerald-600')"><span class="w-1.5 h-1.5 rounded-full" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'bg-rose-500' : (items[active]?.status_validasi === 'pending' ? 'bg-amber-400' : 'bg-emerald-500')"></span><span x-text="items[active]?.status"></span></span></div>
+                                    <div class="flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl"><span class="text-[11px] font-semibold uppercase tracking-wide text-slate-500 shrink-0">Status</span><span class="inline-flex items-center gap-1.5 text-[13px] font-bold text-right" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'text-amber-700' : (items[active]?.status_validasi === 'pending' ? 'text-slate-600' : 'text-emerald-600')"><span class="w-1.5 h-1.5 rounded-full" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'bg-amber-500' : (items[active]?.status_validasi === 'pending' ? 'bg-slate-400' : 'bg-emerald-500')"></span><span x-text="items[active]?.status"></span></span></div>
                                     <template x-if="items[active]?.status_validasi === 'rejected' && items[active]?.catatan_validator">
-                                        <div class="border border-rose-200 rounded-xl p-4 flex items-start gap-3 bg-rose-50/40"><x-icon name="chat-circle-text" weight="fill" class="text-rose-500 text-[20px] shrink-0 mt-0.5" /><div class="min-w-0"><p class="text-[11px] font-bold text-rose-600 uppercase tracking-wide">Catatan Petugas Gizi Puskesmas</p><p class="text-[13.5px] text-slate-700 mt-1.5 leading-relaxed" x-text="items[active]?.catatan_validator"></p></div></div>
+                                        <div class="border border-amber-200 rounded-xl p-4 flex items-start gap-3 bg-amber-50/70"><x-icon name="chat-circle-text" weight="fill" class="text-amber-600 text-[20px] shrink-0 mt-0.5" /><div class="min-w-0"><p class="text-[11px] font-bold text-amber-800 uppercase tracking-wide">Catatan Anomali dari Puskesmas</p><p class="text-[13.5px] text-slate-800 mt-1.5 leading-relaxed" x-text="items[active]?.catatan_validator"></p></div></div>
                                     </template>
                                 </div>
                                 <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2 shrink-0">
                                     <button type="button" @click="active = null" class="h-10 px-5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors">Tutup</button>
-                                    <template x-if="items[active]?.status_validasi === 'rejected'"><a :href="'{{ route('balita.ukur', $balitaId) }}'" class="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[13px] font-semibold transition-colors"><x-icon name="pencil-line" weight="bold" class="text-[14px]" /> Perbaiki Data</a></template>
+                                    <template x-if="items[active]?.status_validasi === 'rejected'"><a :href="'{{ route('kader.validasi-ulang') }}'" class="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[13px] font-bold transition-colors shadow-xs"><x-icon name="arrows-counter-clockwise" weight="bold" class="text-[14px]" /> Validasi Ulang</a></template>
                                 </div>
                             </div>
                         </template>

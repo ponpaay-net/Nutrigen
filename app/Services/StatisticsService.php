@@ -52,31 +52,35 @@ class StatisticsService
             ->whereMonth('validated_at', $now->month)
             ->count();
 
-        // Total measurements taken this month (regardless of status)
+        // Total measurements taken this month (regardless of status, except draft)
         $diukurThisMonth = Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
             $q->where('puskesmas_id', $puskesmasId);
         })->whereYear('tanggal_ukur', $now->year)
             ->whereMonth('tanggal_ukur', $now->month)
+            ->where('status_validasi', '!=', 'draft')
             ->count();
 
-        // Distribution for the month (normal, risiko, stunting)
+        // Distribution for the month (normal, risiko, stunting, excluding drafts)
         $normal = Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
             $q->where('puskesmas_id', $puskesmasId);
         })->where('status_gizi', 'Normal')
             ->whereYear('tanggal_ukur', $now->year)
             ->whereMonth('tanggal_ukur', $now->month)
+            ->where('status_validasi', '!=', 'draft')
             ->count();
         $risiko = Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
             $q->where('puskesmas_id', $puskesmasId);
         })->where('status_gizi', 'Risiko')
             ->whereYear('tanggal_ukur', $now->year)
             ->whereMonth('tanggal_ukur', $now->month)
+            ->where('status_validasi', '!=', 'draft')
             ->count();
         $stunting = Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
             $q->where('puskesmas_id', $puskesmasId);
         })->where('status_gizi', 'Stunting')
             ->whereYear('tanggal_ukur', $now->year)
             ->whereMonth('tanggal_ukur', $now->month)
+            ->where('status_validasi', '!=', 'draft')
             ->count();
 
         return [

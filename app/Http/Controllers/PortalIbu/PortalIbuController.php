@@ -55,7 +55,7 @@ class PortalIbuController extends Controller
             }
         } else {
             // Check if the actual latest measurement in DB is pending
-            $absoluteLatest = Pengukuran::where('balita_id', $balita->id)->latest('tanggal_ukur')->first();
+            $absoluteLatest = Pengukuran::where('balita_id', $balita->id)->where('status_validasi', '!=', 'draft')->latest('tanggal_ukur')->first();
             if ($absoluteLatest && $absoluteLatest->status_validasi === 'pending') {
                 $hasPending = true;
             }

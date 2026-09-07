@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan_Hasil_Pengukuran_Posyandu_{{ str_replace(' ', '_', $cleanPosyanduName ?? 'Posyandu') }}_{{ str_replace(' ', '_', $periode) }}.pdf</title>
+    <title>Laporan_Hasil_Pengukuran_Posyandu_Bunga_Tanjung_VII_September_2026.pdf</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -372,16 +372,16 @@
     <!-- ACTION TOOLBAR (Hidden during print) -->
     <div class="no-print">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <a href="{{ route('laporan.index') }}" class="btn btn-secondary">
+            <a href="http://localhost/kader/laporan" class="btn btn-secondary">
                 &larr; Kembali ke Portal
             </a>
             <div>
                 <p style="font-size: 13px; font-weight: 700; color: #0f172a;">Pratinjau Cetak Laporan Posyandu</p>
-                <p style="font-size: 11px; color: #64748b;">Posyandu {{ $cleanPosyanduName }} &bull; Periode {{ $periode }} &bull; Format A4 Landscape Resmi</p>
+                <p style="font-size: 11px; color: #64748b;">Posyandu Bunga Tanjung VII &bull; Periode September 2026 &bull; Format A4 Landscape Resmi</p>
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-            <a href="{{ route('laporan.export.excel', ['periode' => request('periode')]) }}" class="btn btn-excel">
+            <a href="http://localhost/kader/laporan/export-excel?periode=2026-09" class="btn btn-excel">
                 &#128196; Export Excel (.xls)
             </a>
             <button onclick="window.print()" class="btn btn-primary">
@@ -392,26 +392,26 @@
 
     <!-- KOP SURAT RESMI DINAS & POSYANDU -->
     <div class="kop-header">
-        <img src="{{ asset('images/kemenkes_logo.png') }}" alt="Logo Kemenkes" class="kop-logo" onerror="this.src='/images/kemenkes_logo.png'">
+        <img src="public/images/kemenkes_logo.png" alt="Logo Kemenkes" class="kop-logo">
         <div class="kop-text">
             <div class="kop-instansi">KEMENTERIAN KESEHATAN REPUBLIK INDONESIA</div>
-            <div class="kop-dinas">DINAS KESEHATAN {{ strtoupper($kabupatenKota ?? 'KOTA BANDA ACEH') }}</div>
-            <div class="kop-puskesmas">UPTD PUSKESMAS {{ strtoupper($cleanPuskesmasName) }}</div>
-            <div class="kop-posyandu">POSYANDU {{ strtoupper($cleanPosyanduName) }} &bull; DESA/KEL. {{ strtoupper($desa) }}</div>
+            <div class="kop-dinas">DINAS KESEHATAN KOTA BANDA ACEH</div>
+            <div class="kop-puskesmas">UPTD PUSKESMAS KUTA ALAM</div>
+            <div class="kop-posyandu">POSYANDU BUNGA TANJUNG VII &bull; DESA/KEL. GAMPONG LAMPULO</div>
             <div class="kop-detail">
-                Alamat: {{ $alamat }} &bull; Telp: {{ $puskesmasTelp ?? '-' }} &bull; Format Standar Pelaporan Buku KIA / KMS Terintegrasi NutriGen
+                Alamat: Balai Pertemuan Warga, Lr. Samudra No. 12, Lampulo &bull; Telp: 0853426763509 &bull; Format Standar Pelaporan Buku KIA / KMS Terintegrasi NutriGen
             </div>
         </div>
-        <img src="{{ asset('images/logo/logo-nutrigen.png') }}" alt="Logo NutriGen" class="kop-logo" onerror="this.src='/images/logo/logo-nutrigen.png'">
+        <img src="public/images/logo/logo-nutrigen.png" alt="Logo NutriGen" class="kop-logo">
     </div>
     <div class="kop-line-double"></div>
 
     <!-- TITLE BOX -->
     <div class="doc-title-box">
         <h1 class="doc-title">LAPORAN HASIL PENIMBANGAN & PEMANTAUAN TUMBUH KEMBANG BALITA</h1>
-        <div class="doc-period">PERIODE PELAKSANAAN: {{ strtoupper($periode) }}</div>
+        <div class="doc-period">PERIODE PELAKSANAAN: SEPTEMBER 2026</div>
         <div class="doc-meta">
-            Tempat: Posyandu {{ $cleanPosyanduName }} &bull; Wilayah Binaan: UPTD Puskesmas {{ $cleanPuskesmasName }} &bull; Waktu Cetak: {{ now()->translatedFormat('d F Y, H:i') }} WIB
+            Tempat: Posyandu Bunga Tanjung VII &bull; Wilayah Binaan: UPTD Puskesmas Kuta Alam &bull; Waktu Cetak: 06 September 2026, 03:01 WIB
         </div>
     </div>
 
@@ -419,27 +419,27 @@
     <div class="kpi-grid">
         <div class="kpi-card kpi-teal">
             <div class="kpi-label">Total Sasaran (S)</div>
-            <div class="kpi-value">{{ $totalBalita }}</div>
+            <div class="kpi-value">28</div>
             <div class="kpi-sub">Balita terdaftar di Posyandu</div>
         </div>
         <div class="kpi-card kpi-emerald">
             <div class="kpi-label">Balita Terukur (D)</div>
-            <div class="kpi-value">{{ $sudahDiukur }}</div>
-            <div class="kpi-sub">{{ $persentase }}% cakupan penimbangan (D/S)</div>
+            <div class="kpi-value">2</div>
+            <div class="kpi-sub">7% cakupan penimbangan (D/S)</div>
         </div>
         <div class="kpi-card kpi-blue">
             <div class="kpi-label">Status Gizi Normal</div>
-            <div class="kpi-value">{{ $stats['normal'] ?? 0 }}</div>
+            <div class="kpi-value">0</div>
             <div class="kpi-sub">Sesuai kurva pertumbuhan baku</div>
         </div>
         <div class="kpi-card kpi-amber">
             <div class="kpi-label">Pantauan Gizi</div>
-            <div class="kpi-value">{{ $perluPerhatian }}</div>
+            <div class="kpi-value">2</div>
             <div class="kpi-sub">Gizi kurang & risiko stunting</div>
         </div>
         <div class="kpi-card kpi-rose">
             <div class="kpi-label">Konfirmasi Puskesmas</div>
-            <div class="kpi-value">{{ $berisiko }}</div>
+            <div class="kpi-value">0</div>
             <div class="kpi-sub">Stunting & rujukan medis</div>
         </div>
     </div>
@@ -470,95 +470,46 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($balitas as $index => $b)
-                @php
-                    $m = $b->pengukurans->first();
-                    $displayStatus = 'Belum Diukur';
-                    $badgeClass = 'status-warning';
-                    
-                    if ($m) {
-                        $statusValidasi = $m->status_validasi;
-                        $statusGizi = $m->status_gizi;
-                        
-                        if ($statusValidasi === 'approved') {
-                            $displayStatus = match(strtolower($statusGizi)) {
-                                'stunting' => 'Stunting',
-                                'risiko' => 'Risiko Stunting',
-                                'kurang', 'gizi kurang' => 'Gizi Kurang',
-                                'normal', 'gizi baik' => 'Normal',
-                                default => ucfirst($statusGizi)
-                            };
-                            $badgeClass = match(strtolower($statusGizi)) {
-                                'stunting' => 'status-danger',
-                                'risiko', 'kurang', 'gizi kurang' => 'status-warning',
-                                default => 'status-normal'
-                            };
-                        } elseif ($statusValidasi === 'rejected') {
-                            $displayStatus = 'Perlu Revisi';
-                            $badgeClass = 'status-danger';
-                        } else {
-                            $displayStatus = match(strtolower($statusGizi)) {
-                                'stunting', 'pendek' => 'TB Rendah (Menunggu)',
-                                'risiko', 'kurang' => 'Pantauan (Menunggu)',
-                                'normal', 'gizi baik' => 'Gizi Baik (KMS)',
-                                default => 'Menunggu Validasi'
-                            };
-                            $badgeClass = match(strtolower($statusGizi)) {
-                                'stunting', 'pendek' => 'status-warning',
-                                'risiko', 'kurang' => 'status-warning',
-                                default => 'status-normal'
-                            };
-                        }
-                    }
-                    $catatan = $m ? ($m->catatan_kader ?? ($m->catatan_validator ?? '-')) : '-';
-                @endphp
-                <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="text-center font-bold" style="letter-spacing: 0.2px;">{{ $b->nik ?? '-' }}</td>
-                    <td class="font-bold">{{ $b->nama }}</td>
-                    <td class="text-center">{{ $b->jenis_kelamin }}</td>
-                    <td class="text-center">{{ $b->tanggal_lahir ? \Carbon\Carbon::parse($b->tanggal_lahir)->format('d/m/Y') : '-' }}</td>
-                    <td class="text-center">{{ $m ? $m->umur_bulan . ' bln' : '-' }}</td>
-                    <td>{{ $b->orangTua->nama_ibu ?? '-' }}</td>
-                    <td class="text-center">{{ $m ? \Carbon\Carbon::parse($m->tanggal_ukur)->format('d/m/Y') : '-' }}</td>
-                    <td class="text-center font-bold">{{ $m ? number_format((float)$m->berat_badan, 2) : '-' }}</td>
-                    <td class="text-center font-bold">{{ $m ? number_format((float)$m->tinggi_badan, 1) : '-' }}</td>
-                    <td class="text-center">{{ ($m && $m->lingkar_kepala) ? number_format((float)$m->lingkar_kepala, 1) : '-' }}</td>
-                    <td class="text-center">{{ $m ? ($m->asi_eksklusif ? 'Ya' : 'Tdk') : '-' }}</td>
-                    <td class="text-center font-bold">{{ $m ? ($m->status_kenaikan ?? '-') : '-' }}</td>
-                    <td class="text-center font-bold">{{ $m && $m->z_score_bbu !== null ? number_format((float)$m->z_score_bbu, 2) : '-' }}</td>
-                    <td class="text-center font-bold">{{ $m && $m->z_score_tbu !== null ? number_format((float)$m->z_score_tbu, 2) : '-' }}</td>
-                    <td class="text-center font-bold">{{ $m && $m->z_score_bbt !== null ? number_format((float)$m->z_score_bbt, 2) : '-' }}</td>
-                    <td class="text-center font-bold">{{ $m ? ($m->rekomendasi_pmt ?? '-') : '-' }}</td>
+                                            <tr>
+                    <td class="text-center">1</td>
+                    <td class="text-center font-bold" style="letter-spacing: 0.2px;">1171010406250001</td>
+                    <td class="font-bold">Muhammad Al-Fatih Pratama</td>
+                    <td class="text-center">L</td>
+                    <td class="text-center">04/06/2025</td>
+                    <td class="text-center">12 bln</td>
+                    <td>Cut Annisa Zahra</td>
+                    <td class="text-center">05/09/2026</td>
+                    <td class="text-center font-bold">18.50</td>
+                    <td class="text-center font-bold">74.0</td>
+                    <td class="text-center">45.0</td>
+                    <td class="text-center">Tdk</td>
+                    <td class="text-center font-bold">N</td>
+                    <td class="text-center font-bold">-</td>
+                    <td class="text-center font-bold">-</td>
+                    <td class="text-center font-bold">-</td>
+                    <td class="text-center font-bold">-</td>
                     <td class="text-center">
-                        <span class="status-badge {{ $badgeClass }}">{{ $displayStatus }}</span>
+                        <span class="status-badge status-warning">Pantauan (Menunggu)</span>
                     </td>
-                    <td>{{ $catatan }}</td>
+                    <td>-</td>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="19" class="text-center" style="padding: 18px; color: #64748b;">
-                        Tidak ada data balita yang diukur pada periode {{ $periode }}.
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
+                    </tbody>
     </table>
 
     <!-- OFFICIAL DUAL SIGNATURES SECTION -->
     <div class="signature-section">
         <div class="signature-box">
             <p class="signature-title">Mengetahui,</p>
-            <p class="signature-role">Petugas Gizi / Bidan Pembina {{ $puskesmasName }}</p>
+            <p class="signature-role">Petugas Gizi / Bidan Pembina Puskesmas Kuta Alam</p>
             <div style="height: 48px;"></div>
             <div class="signature-name-plain">( .................................................... )</div>
             <p class="signature-nip">NIP. .............................................</p>
         </div>
         <div class="signature-box">
-            <p class="signature-title">{{ $desa }}, {{ now()->translatedFormat('d F Y') }}</p>
-            <p class="signature-role">Pelaksana Kader Posyandu {{ $cleanPosyanduName }}</p>
+            <p class="signature-title">Gampong Lampulo, 06 September 2026</p>
+            <p class="signature-role">Pelaksana Kader Posyandu Bunga Tanjung VII</p>
             <div style="height: 48px;"></div>
-            <div class="signature-name">{{ $kaderName }}</div>
+            <div class="signature-name">Cut Malahayati, A.Md.Keb</div>
             <p class="signature-nip">Kader Penanggung Jawab</p>
         </div>
     </div>
@@ -566,7 +517,7 @@
     <!-- DOCUMENT FOOTER -->
     <div class="doc-footer">
         <span>NutriGen Digital Posyandu System &bull; Dokumen Sah Pelaporan Posyandu &bull; Format Terintegrasi KMS / KIA</span>
-        <span>Dicetak otomatis pada {{ now()->translatedFormat('d F Y, H:i') }} WIB</span>
+        <span>Dicetak otomatis pada 06 September 2026, 03:01 WIB</span>
     </div>
 
 </body>

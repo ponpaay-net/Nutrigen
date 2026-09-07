@@ -5,45 +5,68 @@
      class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] lg:hidden" @click="mobileSidebarOpen = false" style="display: none;"></div>
 
 @php
+    $isSuperAdmin = request()->is('super-admin*');
     $isPush = request()->is('puskesmas*');
 
     $activeCls    = 'bg-teal-600 text-white shadow-[0_10px_24px_-12px_rgba(13,148,136,0.55)]';
     $inactiveCls  = 'text-slate-500 hover:bg-teal-50/70 hover:text-teal-600';
     $indicatorCls = 'bg-teal-300';
 
-    $groups = $isPush ? [
-        'Menu Utama' => [
-            ['label' => 'Dashboard',        'icon' => 'squares-four',   'route' => 'puskesmas.dashboard', 'active' => request()->routeIs('puskesmas.dashboard')],
-            ['label' => 'Validasi',         'icon' => 'shield-check',   'route' => 'puskesmas.validasi',  'active' => request()->routeIs('puskesmas.validasi'), 'badge' => ($validationNotifsCount ?? 0)],
-            ['label' => 'Data Balita',      'icon' => 'baby',           'route' => 'puskesmas.balita',    'active' => request()->routeIs('puskesmas.balita')],
-            ['label' => 'Posyandu & Kader', 'icon' => 'storefront',     'route' => 'puskesmas.posyandu',  'active' => request()->is('puskesmas/posyandu*')],
-        ],
-        'Lainnya' => [
-            ['label' => 'Laporan',          'icon' => 'chart-line-up',  'route' => 'puskesmas.laporan',   'active' => request()->is('puskesmas/laporan*')],
-            ['label' => 'Pengaturan',       'icon' => 'gear-six',       'route' => 'puskesmas.pengaturan','active' => request()->is('puskesmas/pengaturan*')],
-        ],
-    ] : [
-        'Menu Utama' => [
-            ['label' => 'Dashboard',        'icon' => 'squares-four',   'route' => 'kader.dashboard', 'active' => request()->routeIs('kader.dashboard')],
-            ['label' => 'Data Balita',      'icon' => 'baby',           'route' => 'balita.index',    'active' => request()->routeIs('balita.*')],
-            ['label' => 'Jadwal Posyandu',  'icon' => 'calendar-check', 'route' => 'jadwal.index',    'active' => request()->routeIs('jadwal.*')],
-        ],
-        'Lainnya' => [
-            ['label' => 'Laporan',          'icon' => 'chart-line-up',  'route' => 'laporan.index',   'active' => request()->routeIs('laporan.*')],
-            ['label' => 'Profil Kader',     'icon' => 'user-circle',    'route' => 'kader.profil',    'active' => request()->routeIs('kader.profil*')],
-        ],
-    ];
+    if ($isSuperAdmin) {
+        $groups = [
+            'Nasional (Kemenkes)' => [
+                ['label' => 'Dashboard',        'icon' => 'squares-four',   'route' => 'super-admin.dashboard', 'active' => request()->routeIs('super-admin.dashboard')],
+            ],
+            'Master Data' => [
+                ['label' => 'Data Puskesmas',   'icon' => 'buildings',      'route' => 'super-admin.puskesmas.index', 'active' => request()->is('super-admin/puskesmas*')],
+            ],
+        ];
+    } elseif ($isPush) {
+        $groups = [
+            'Menu Utama' => [
+                ['label' => 'Dashboard',        'icon' => 'squares-four',   'route' => 'puskesmas.dashboard', 'active' => request()->routeIs('puskesmas.dashboard')],
+                ['label' => 'Validasi',         'icon' => 'shield-check',   'route' => 'puskesmas.validasi',  'active' => request()->routeIs('puskesmas.validasi'), 'badge' => ($validationNotifsCount ?? 0)],
+                ['label' => 'Data Balita',      'icon' => 'baby',           'route' => 'puskesmas.balita',    'active' => request()->routeIs('puskesmas.balita')],
+                ['label' => 'Posyandu & Kader', 'icon' => 'storefront',     'route' => 'puskesmas.posyandu',  'active' => request()->is('puskesmas/posyandu*')],
+            ],
+            'Lainnya' => [
+                ['label' => 'Laporan',          'icon' => 'chart-line-up',  'route' => 'puskesmas.laporan',   'active' => request()->is('puskesmas/laporan*')],
+                ['label' => 'Pengaturan',       'icon' => 'gear-six',       'route' => 'puskesmas.pengaturan','active' => request()->is('puskesmas/pengaturan*')],
+            ],
+        ];
+    } else {
+        $kaderPosyanduId = auth()->user()?->kader?->posyandu_id;
+        $revalidasiBadge = 0;
+        if ($kaderPosyanduId) {
+            $revalidasiBadge = \App\Models\Pengukuran::whereHas('balita', function($q) use ($kaderPosyanduId) {
+                $q->where('posyandu_id', $kaderPosyanduId);
+            })->where('status_validasi', 'rejected')->count();
+        }
+
+        $groups = [
+            'Menu Utama' => [
+                ['label' => 'Dashboard',        'icon' => 'squares-four',            'route' => 'kader.dashboard',      'active' => request()->routeIs('kader.dashboard')],
+                ['label' => 'Validasi Ulang',   'icon' => 'arrows-counter-clockwise','route' => 'kader.validasi-ulang', 'active' => request()->routeIs('kader.validasi-ulang*'), 'badge' => $revalidasiBadge],
+                ['label' => 'Data Balita',      'icon' => 'baby',                    'route' => 'balita.index',         'active' => request()->routeIs('balita.*')],
+                ['label' => 'Jadwal Posyandu',  'icon' => 'calendar-check',          'route' => 'jadwal.index',         'active' => request()->routeIs('jadwal.*')],
+            ],
+            'Lainnya' => [
+                ['label' => 'Laporan',          'icon' => 'chart-line-up',  'route' => 'laporan.index',   'active' => request()->routeIs('laporan.*')],
+                ['label' => 'Profil Kader',     'icon' => 'user-circle',    'route' => 'kader.profil',    'active' => request()->routeIs('kader.profil*')],
+            ],
+        ];
+    }
 @endphp
 
 <!-- Sidebar Container -->
 <aside :class="{
-        'translate-x-0 w-[264px]': mobileSidebarOpen,
-        '-translate-x-full w-[264px]': !mobileSidebarOpen,
+        'translate-x-0': mobileSidebarOpen,
+        '-translate-x-full': !mobileSidebarOpen,
         'lg:translate-x-0': true,
         'lg:w-[264px]': sidebarExpanded,
         'lg:w-[80px]': !sidebarExpanded
     }"
-    class="fixed lg:static inset-y-0 left-0 z-[110] flex flex-col h-full bg-white border-r border-slate-200 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden shrink-0">
+    class="fixed lg:static inset-y-0 left-0 z-[110] -translate-x-full lg:translate-x-0 w-[264px] flex flex-col h-full bg-white border-r border-slate-200 transition-transform lg:transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden shrink-0">
 
     <!-- Brand -->
     <div class="relative h-[72px] flex items-center shrink-0 px-4 sm:px-5 border-b border-slate-100">
@@ -79,7 +102,7 @@
                     <span class="truncate transition-all duration-200" :class="{ 'opacity-100 translate-x-0': sidebarExpanded, 'lg:opacity-0 lg:w-0 lg:overflow-hidden': !sidebarExpanded }">{{ $item['label'] }}</span>
 
                     @if(isset($item['badge']) && $item['badge'] > 0)
-                        <span class="ml-auto min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-white/25 text-white text-[10px] rounded-full font-bold transition-all duration-200" :class="{ 'opacity-100': sidebarExpanded, 'lg:opacity-0 lg:hidden': !sidebarExpanded }">{{ $item['badge'] }}</span>
+                        <span class="ml-auto min-w-[18px] h-[18px] px-1.5 flex items-center justify-center {{ $item['active'] ? 'bg-white/25 text-white' : 'bg-amber-500 text-white' }} text-[10px] rounded-full font-bold transition-all duration-200" :class="{ 'opacity-100': sidebarExpanded, 'lg:opacity-0 lg:hidden': !sidebarExpanded }">{{ $item['badge'] }}</span>
                     @elseif(!$item['active'])
                         <x-icon name="caret-right" weight="bold" class="ml-auto text-xs text-slate-300 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                     @endif

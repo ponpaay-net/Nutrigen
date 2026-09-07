@@ -42,6 +42,32 @@
                     <span class="text-slate-600 text-sm sm:text-base font-medium">dari {{ $total }} balita terukur</span>
                 </div>
                 <p class="mt-3 text-sm text-slate-500">Progres pengukuran bulan ini di posyandu Anda.</p>
+                
+                <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                    @php
+                        // Cek apakah bulan ini sesi sudah dikirim
+                        $sesiAktif = \App\Models\SesiPosyandu::where('posyandu_id', Auth::user()->kader->posyandu_id)
+                            ->where('bulan', \Carbon\Carbon::now()->month)
+                            ->where('tahun', \Carbon\Carbon::now()->year)
+                            ->first();
+                    @endphp
+                    @if($sesiAktif && $sesiAktif->status === 'dikirim')
+                        <div class="flex items-center gap-2 text-sm font-semibold text-emerald-600 mb-2">
+                            <x-icon name="check-circle" weight="fill" /> Sesi Terkirim (Menunggu Verifikasi)
+                        </div>
+                        <form action="{{ route('sesi.tarik-kembali') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menarik kembali data ini untuk diperbaiki?');">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center justify-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition-colors border border-slate-300">
+                                Tarik Kembali Sesi
+                            </button>
+                        </form>
+                    @elseif($sudah > 0)
+                        <!-- Jika ada draft, tampilkan tombol kirim -->
+                        <button type="button" onclick="document.getElementById('modalKirimSesi').classList.remove('hidden')" class="inline-flex items-center justify-center px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-teal-500/20 active:scale-95">
+                            Kirim Data ke Puskesmas <x-icon name="paper-plane-right" weight="fill" class="ml-2" />
+                        </button>
+                    @endif
+                </div>
             </div>
             <div class="rounded-2xl bg-gradient-to-br from-teal-50 to-teal-100/60 border border-teal-100 p-5 flex flex-col justify-center">
                 <div class="flex items-center justify-between mb-3">
@@ -59,19 +85,56 @@
         </div>
     </section>
 
-    {{-- REVISI ALERT --}}
+    <!-- Modal Kirim Sesi -->
+    <div id="modalKirimSesi" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="document.getElementById('modalKirimSesi').classList.add('hidden')"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 animate-[bounceIn_0.3s]">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-900">Konfirmasi Kirim Sesi</h3>
+                <button type="button" onclick="document.getElementById('modalKirimSesi').classList.add('hidden')" class="text-slate-400 hover:text-slate-600"><x-icon name="x" weight="bold" class="text-xl" /></button>
+            </div>
+            
+            @if($belum > 0)
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5">
+                <div class="flex gap-3">
+                    <div class="text-amber-500 mt-0.5"><x-icon name="warning-circle" weight="fill" class="text-xl" /></div>
+                    <div>
+                        <p class="text-sm font-bold text-amber-900">Perhatian: Target belum 100%</p>
+                        <p class="text-xs text-amber-700 mt-1">Masih ada <span class="font-bold">{{ $belum }} balita</span> yang belum ditimbang pada sesi ini. Data ini akan dilaporkan sebagai balita yang mangkir.</p>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <form action="{{ route('sesi.kirim') }}" method="POST">
+                @csrf
+                <div class="mb-5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Catatan/Kendala Lapangan (Opsional)</label>
+                    <textarea name="catatan_kader" rows="3" placeholder="Contoh: {{ $belum > 0 ? $belum . ' balita tidak hadir karena di luar kota / sedang sakit' : 'Sesi berjalan lancar' }}" class="w-full rounded-xl border-slate-300 focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50 text-sm p-3"></textarea>
+                    <p class="text-xs text-slate-500 mt-1">Catatan ini akan diteruskan ke petugas gizi Puskesmas.</p>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="document.getElementById('modalKirimSesi').classList.add('hidden')" class="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-teal-500/20 active:scale-95">Tetap Kirim ke Puskesmas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- VALIDASI ULANG ALERT --}}
     @if(($statRevisi ?? 0) > 0)
-    <div class="rounded-2xl bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500 p-4 flex items-start sm:items-center justify-between gap-4">
+    <div class="rounded-2xl bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div class="flex items-start gap-3">
-            <div class="shrink-0 text-amber-600"><x-icon name="warning-circle" weight="fill" class="text-xl" /></div>
+            <div class="shrink-0 text-amber-600 mt-0.5"><x-icon name="arrows-counter-clockwise" weight="bold" class="text-xl" /></div>
             <div>
-                <h3 class="text-sm font-semibold text-amber-900">Perlu Tindakan: <span class="tabular-nums">{{ $statRevisi }}</span> Data Balita Perlu Koreksi</h3>
-                <p class="text-sm text-amber-800 mt-0.5">Puskesmas memberikan catatan verifikasi. Tinjau &amp; perbaiki.</p>
+                <h3 class="text-sm font-bold text-amber-950">Perlu Tindakan: <span class="tabular-nums">{{ $statRevisi }}</span> Balita Memerlukan Validasi Ulang</h3>
+                <p class="text-xs sm:text-sm text-amber-900/80 mt-0.5">Puskesmas mendeteksi anomali data penimbangan dan meminta pengukuran ulang.</p>
             </div>
         </div>
-        <a href="{{ route('balita.index', ['filter' => 'ditolak']) }}"
-           class="inline-flex items-center justify-center gap-1.5 px-4 h-10 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-xl transition-colors shrink-0 focus:outline-none focus:ring-2 focus:ring-amber-400">
-            Tinjau Catatan <x-icon name="arrow-right" weight="bold" />
+        <a href="{{ route('kader.validasi-ulang') }}"
+           class="inline-flex items-center justify-center gap-1.5 px-4 h-10 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-all shadow-xs shrink-0 focus:outline-none focus:ring-2 focus:ring-amber-400 active:scale-[0.98]">
+            Validasi Ulang Sekarang <x-icon name="arrow-right" weight="bold" />
         </a>
     </div>
     @endif
@@ -80,16 +143,16 @@
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         @php
             $kpis = [
-                ['label' => 'Total Balita', 'value' => $total, 'sub' => $todayFormatted, 'icon' => 'users', 'color' => 'teal'],
-                ['label' => 'Sudah Diukur', 'value' => $sudah, 'sub' => $percent . '% tercapai', 'icon' => 'check-circle', 'color' => 'emerald'],
-                ['label' => 'Belum Diukur', 'value' => $belum, 'sub' => 'Antrean', 'icon' => 'clock', 'color' => 'amber'],
-                ['label' => 'Perlu Pantauan', 'value' => $statPerlu ?? 0, 'sub' => 'Prioritas', 'icon' => 'activity', 'color' => 'rose'],
+                ['label' => 'Total Balita', 'value' => $total, 'sub' => $todayFormatted, 'icon' => 'users', 'bar' => 'bg-teal-500', 'box' => 'bg-teal-50 text-teal-600 ring-teal-100'],
+                ['label' => 'Sudah Diukur', 'value' => $sudah, 'sub' => $percent . '% tercapai', 'icon' => 'check-circle', 'bar' => 'bg-emerald-500', 'box' => 'bg-emerald-50 text-emerald-600 ring-emerald-100'],
+                ['label' => 'Belum Diukur', 'value' => $belum, 'sub' => 'Antrean', 'icon' => 'clock', 'bar' => 'bg-amber-500', 'box' => 'bg-amber-50 text-amber-600 ring-amber-100'],
+                ['label' => 'Perlu Pantauan', 'value' => $statPerlu ?? 0, 'sub' => 'Prioritas', 'icon' => 'activity', 'bar' => 'bg-rose-500', 'box' => 'bg-rose-50 text-rose-600 ring-rose-100'],
             ];
         @endphp
         @foreach($kpis as $kpi)
         <div class="group relative rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-4 sm:p-5 flex flex-col overflow-hidden">
-            <span class="absolute top-0 inset-x-0 h-1 bg-{{ $kpi['color'] }}-500"></span>
-            <span class="w-10 h-10 rounded-xl bg-{{ $kpi['color'] }}-50 text-{{ $kpi['color'] }}-600 flex items-center justify-center ring-1 ring-{{ $kpi['color'] }}-100">
+            <span class="absolute top-0 inset-x-0 h-1 {{ $kpi['bar'] }}"></span>
+            <span class="w-10 h-10 rounded-xl {{ $kpi['box'] }} flex items-center justify-center ring-1">
                 <x-icon name="{{ $kpi['icon'] }}" weight="fill" class="text-lg" />
             </span>
             <p class="mt-3 text-2xl sm:text-3xl font-bold tabular-nums text-slate-900 leading-none">{{ $kpi['value'] }}</p>

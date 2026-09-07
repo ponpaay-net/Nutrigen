@@ -26,12 +26,12 @@
                     <span class="bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-full">{{ number_format($stats['pending_validasi']) }}</span>
                 </a>
                 @endif
-                <a href="{{ route('puskesmas.laporan.export.excel', request()->all()) }}" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm shadow-emerald-600/20 transition-all border border-emerald-700">
-                    <i class="ph-bold ph-microsoft-excel-logo text-lg"></i>
+                <a href="{{ route('puskesmas.laporan.export.csv', request()->all()) }}" class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-xs transition-all active:scale-95">
+                    <i class="ph-bold ph-file-csv text-lg"></i>
                     Export CSV
                 </a>
-                <a href="{{ route('puskesmas.laporan.cetak.pdf', request()->all()) }}" target="_blank" class="inline-flex items-center gap-2 bg-white hover:bg-rose-50 text-rose-700 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm border border-slate-200 hover:border-rose-300 transition-all">
-                    <i class="ph-bold ph-printer text-lg"></i>
+                <a href="{{ route('puskesmas.laporan.cetak.pdf', request()->all()) }}" target="_blank" class="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-xs transition-all active:scale-95">
+                    <i class="ph-bold ph-file-pdf text-lg"></i>
                     Cetak A4 / PDF
                 </a>
             </div>

@@ -26,8 +26,7 @@ class GrowthCalculationService
     }
 
     /**
-     * Hitung z-score BB/U & TB/U + status gizi.
-     * Signature date-based (kompatibel dgn pemanggil: controller & seeder).
+     * Hitung z-score BB/U, TB/U, BB/TB + status gizi Kemenkes & Rekomendasi PMT.
      */
     public function calculate(
         \DateTimeInterface $tanggalLahir,
@@ -44,14 +43,31 @@ class GrowthCalculationService
 
         $zBbu = ($beratBadan !== null && $beratBadan > 0) ? $this->zScore($beratBadan, $ref['bb_l'], $ref['bb_median'], $ref['bb_s']) : null;
         $zTbu = ($tinggiBadan !== null && $tinggiBadan > 0) ? $this->zScore($tinggiBadan, $ref['tb_l'], $ref['tb_median'], $ref['tb_s']) : null;
+        
+        $zBbt = null;
+        if ($beratBadan !== null && $tinggiBadan !== null && $beratBadan > 0 && $tinggiBadan > 0) {
+            $zBbt = $this->bbtZscore($umur, $sex, $beratBadan, $tinggiBadan);
+        }
 
+        $statusTbu = $this->determineStatusTbu($zTbu);
+        $statusBbt = $this->determineStatusBbt($zBbt);
+        $statusBbu = $this->determineStatusBbu($zBbu);
+        
+        // Backward compatibility for old status_gizi column if needed, or simply map to general string
         $status = $this->determineStatusGizi($zTbu, $zBbu);
 
+        $rekomendasiPmt = $this->determineRekomendasiPmt($statusBbt, $statusBbu, $statusTbu);
+
         return [
-            'umur_bulan'  => $umurBulan,
-            'z_score_bbu' => $zBbu !== null ? round($zBbu, 2) : null,
-            'z_score_tbu' => $zTbu !== null ? round($zTbu, 2) : null,
-            'status_gizi' => $status,
+            'umur_bulan'      => $umurBulan,
+            'z_score_bbu'     => $zBbu !== null ? round($zBbu, 2) : null,
+            'z_score_tbu'     => $zTbu !== null ? round($zTbu, 2) : null,
+            'z_score_bbt'     => $zBbt !== null ? round($zBbt, 2) : null,
+            'status_gizi'     => $status, // legacy general status
+            'status_tbu'      => $statusTbu,
+            'status_bbt'      => $statusBbt,
+            'status_bbu'      => $statusBbu,
+            'rekomendasi_pmt' => $rekomendasiPmt,
         ];
     }
 
@@ -230,5 +246,54 @@ class GrowthCalculationService
             return 'Risiko'; // at-risk bawah / gizi lebih / data ekstrem
         }
         return 'Normal';
+    }
+
+    private function determineStatusTbu(?float $z): ?string
+    {
+        if ($z === null) return null;
+        if ($z < -3.0) return 'Sangat Pendek';
+        if ($z >= -3.0 && $z < -2.0) return 'Pendek';
+        if ($z >= -2.0 && $z <= 3.0) return 'Normal';
+        return 'Tinggi';
+    }
+
+    private function determineStatusBbt(?float $z): ?string
+    {
+        if ($z === null) return null;
+        if ($z < -3.0) return 'Gizi Buruk';
+        if ($z >= -3.0 && $z < -2.0) return 'Gizi Kurang';
+        if ($z >= -2.0 && $z <= 1.0) return 'Gizi Baik';
+        if ($z > 1.0 && $z <= 2.0) return 'Berisiko Gizi Lebih';
+        if ($z > 2.0 && $z <= 3.0) return 'Gizi Lebih';
+        return 'Obesitas';
+    }
+
+    private function determineStatusBbu(?float $z): ?string
+    {
+        if ($z === null) return null;
+        if ($z < -3.0) return 'BB Sangat Kurang';
+        if ($z >= -3.0 && $z < -2.0) return 'BB Kurang';
+        if ($z >= -2.0 && $z <= 1.0) return 'Normal';
+        return 'Risiko Lebih';
+    }
+
+    private function determineRekomendasiPmt(?string $statusBbt, ?string $statusBbu, ?string $statusTbu): ?string
+    {
+        // 1. Prioritas PMT Pemulihan (90 Hari)
+        if (in_array($statusBbt, ['Gizi Kurang', 'Gizi Buruk'])) {
+            return 'Prioritas PMT Pemulihan (90 Hari)';
+        }
+        
+        // 2. PMT Pencegahan (14-28 Hari)
+        if (in_array($statusBbu, ['BB Kurang', 'BB Sangat Kurang'])) {
+            return 'PMT Pencegahan (14-28 Hari)';
+        }
+
+        // 3. Evaluasi Medis
+        if (in_array($statusTbu, ['Pendek', 'Sangat Pendek'])) {
+            return 'Evaluasi Medis Stunting (Puskesmas)';
+        }
+
+        return 'Pemantauan Rutin Posyandu';
     }
 }

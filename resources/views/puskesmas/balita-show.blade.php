@@ -211,21 +211,21 @@
                                             'warning' => 'text-amber-700 bg-amber-50 border-amber-200',
                                             default => 'text-emerald-700 bg-emerald-50 border-emerald-200'
                                         };
-                                        $vStatus = $m['status_validasi'];
+                                        $vStatus = strtolower($m['status_validasi'] ?? '');
                                         $vColor = match($vStatus) {
-                                            'valid' => 'text-teal-700',
-                                            'ditolak' => 'text-rose-700',
+                                            'valid', 'approved' => 'text-teal-700',
+                                            'ditolak', 'rejected' => 'text-amber-700',
                                             default => 'text-slate-500'
                                         };
                                         $vIcon = match($vStatus) {
-                                            'valid' => 'ph-check-circle',
-                                            'ditolak' => 'ph-x-circle',
+                                            'valid', 'approved' => 'ph-check-circle',
+                                            'ditolak', 'rejected' => 'ph-arrows-counter-clockwise',
                                             default => 'ph-clock'
                                         };
                                         $vLabel = match($vStatus) {
-                                            'valid' => 'Valid',
-                                            'ditolak' => 'Ditolak',
-                                            default => 'Pending'
+                                            'valid', 'approved' => 'Tervalidasi',
+                                            'ditolak', 'rejected' => 'Validasi Ulang',
+                                            default => 'Menunggu'
                                         };
                                     @endphp
                                     <tr class="hover:bg-slate-50/50 transition-colors">

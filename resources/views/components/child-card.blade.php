@@ -18,12 +18,12 @@
 
     $valMeta = match($valStatus) {
         'approved' => ['label' => 'Tervalidasi',    'cls' => 'bg-emerald-50 text-emerald-700 border-emerald-200', 'icon' => 'check-circle'],
-        'rejected' => ['label' => 'Perlu Revisi',   'cls' => 'bg-rose-50 text-rose-700 border-rose-200',           'icon' => 'warning'],
-        default    => ['label' => 'Menunggu Validasi', 'cls' => 'bg-amber-50 text-amber-700 border-amber-200',    'icon' => 'clock'],
+        'rejected' => ['label' => 'Validasi Ulang', 'cls' => 'bg-amber-50 text-amber-800 border-amber-200',       'icon' => 'arrows-counter-clockwise'],
+        default    => ['label' => 'Menunggu Validasi', 'cls' => 'bg-slate-50 text-slate-700 border-slate-200',   'icon' => 'clock'],
     };
 @endphp
 
-<div class="group relative flex flex-col h-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_1px_3px_rgba(15,23,42,0.05),0_8px_20px_-12px_rgba(15,23,42,0.10)] hover:shadow-[0_2px_6px_rgba(15,23,42,0.07),0_16px_36px_-16px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 hover:border-teal-200 transition-all duration-200">
+<div class="group relative flex flex-col w-full h-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-[0_1px_3px_rgba(15,23,42,0.05),0_8px_20px_-12px_rgba(15,23,42,0.10)] hover:shadow-[0_2px_6px_rgba(15,23,42,0.07),0_16px_36px_-16px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 hover:border-teal-200 transition-all duration-200">
     <span class="absolute left-0 top-0 bottom-0 w-[3px] {{ $theme['bar'] }}"></span>
 
     <div class="flex-1 p-4 pl-[18px] flex flex-col gap-3">
@@ -54,17 +54,17 @@
             </span>
         </div>
 
-        {{-- Last measurement (mt-auto = sejajar di bawah antar kartu) --}}
-        <div class="mt-auto bg-slate-50 border border-slate-100 rounded-xl p-3 grid grid-cols-2 gap-3">
+        {{-- Last measurement (mt-auto = sejajar di bawah antar kartu, flex justify-between agar angka tidak terpotong di HP) --}}
+        <div class="mt-auto bg-slate-50 border border-slate-100 rounded-xl p-2.5 sm:p-3 flex items-center justify-between gap-2">
             <div class="min-w-0">
-                <p class="flex items-center gap-1 text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">
-                    <x-icon name="calendar" weight="bold" class="text-[12px] shrink-0" /> Pengukuran
+                <p class="flex items-center gap-1 text-[10px] sm:text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">
+                    <x-icon name="calendar" weight="bold" class="text-[11px] sm:text-[12px] shrink-0" /> Pengukuran
                 </p>
-                <p class="text-[12.5px] font-bold text-slate-800 mt-1 truncate">{{ $balita['last_measure'] ?? 'Belum ada' }}</p>
+                <p class="text-[12px] sm:text-[12.5px] font-bold text-slate-800 mt-0.5 truncate">{{ $balita['last_measure'] ?? 'Belum ada' }}</p>
             </div>
-            <div class="min-w-0 text-right">
-                <p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">BB / TB</p>
-                <p class="text-[12.5px] font-bold text-slate-800 mt-1 tabular-nums truncate">{{ $balita['bb_tb'] ?? '—' }}</p>
+            <div class="min-w-0 text-right shrink-0">
+                <p class="text-[10px] sm:text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">BB / TB</p>
+                <p class="text-[12px] sm:text-[12.5px] font-bold text-slate-800 mt-0.5 tabular-nums">{{ $balita['bb_tb'] ?? '—' }}</p>
             </div>
         </div>
     </div>

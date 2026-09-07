@@ -32,7 +32,9 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
         
         $redirectUrl = RouteServiceProvider::HOME;
-        if ($user->role === 'puskesmas') {
+        if ($user->role === 'super_admin') {
+            $redirectUrl = route('super-admin.dashboard');
+        } elseif ($user->role === 'puskesmas') {
             $redirectUrl = route('puskesmas.dashboard');
         } elseif ($user->role === 'kader') {
             $redirectUrl = route('kader.dashboard');

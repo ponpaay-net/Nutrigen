@@ -3,7 +3,7 @@
 @section('page-title', 'Ukur Balita')
 
 @php
-    $inp = 'w-full h-11 sm:h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-[14px] sm:text-[15px] font-semibold text-slate-800 placeholder:text-slate-300 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all';
+    $inp = 'w-full h-11 sm:h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-base sm:text-sm font-semibold text-slate-800 placeholder:text-slate-300 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all';
     $lbl = 'block text-[12.5px] sm:text-[13px] font-semibold text-slate-700';
     $field = 'flex flex-col gap-1.5';
     $secHdr = 'flex items-center gap-3 mb-4 sm:mb-5 pb-4 border-b border-slate-100';
@@ -11,7 +11,7 @@
 
 @section('content')
 <div class="bg-slate-50 min-h-full">
-    <div class="max-w-3xl mx-auto w-full px-4 sm:px-6 py-5 sm:py-8">
+    <div class="max-w-3xl mx-auto w-full px-4 sm:px-6 pt-5 sm:pt-8 pb-28 sm:pb-12">
 
         {{-- Header --}}
         <div class="flex items-center gap-3 mb-4 sm:mb-6">

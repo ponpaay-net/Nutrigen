@@ -18,10 +18,12 @@
                 .periode-picker-overlay:hover { cursor: pointer; }
             </style>
             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Periode</label>
-            <div class="inline-flex items-center gap-2 h-11 px-4 rounded-xl border border-slate-200 bg-white shadow-sm">
-                <x-icon name="calendar-blank" weight="bold" class="text-[15px] text-slate-400" />
-                <span class="text-[14px] font-semibold text-slate-800">{{ $periode ?? '' }}</span>
-                <x-icon name="caret-down" weight="bold" class="text-[13px] text-slate-400" />
+            <div class="w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-2.5 h-11 px-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div class="inline-flex items-center gap-2 min-w-0">
+                    <x-icon name="calendar-blank" weight="bold" class="text-[15px] text-teal-600 shrink-0" />
+                    <span class="text-[13.5px] sm:text-[14px] font-semibold text-slate-800 truncate">{{ $periode ?? '' }}</span>
+                </div>
+                <x-icon name="caret-down" weight="bold" class="text-[13px] text-slate-400 shrink-0" />
             </div>
             <input type="month" name="periode" value="{{ $periodeValue }}" onchange="this.form.submit()" class="periode-picker-overlay absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Ubah Periode" aria-label="Ubah Periode">
         </form>
@@ -71,16 +73,16 @@
                     @php $ts = $toneStyles[$k['tone']]; @endphp
                     <div class="relative overflow-hidden bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex flex-col" title="{{ $k['def'] }}">
                         <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r {{ $ts['bar'] }}"></div>
-                        <div class="flex items-center justify-between">
-                            <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl {{ $ts['icon'] }} flex items-center justify-center shadow-sm"><x-icon name="{{ $k['icon'] }}" weight="fill" class="text-[17px] sm:text-[19px]" /></span>
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{{ $k['label'] }}</span>
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-xl {{ $ts['icon'] }} flex items-center justify-center shadow-sm"><x-icon name="{{ $k['icon'] }}" weight="fill" class="text-[16px] sm:text-[19px]" /></span>
+                            <span class="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wide truncate min-w-0 flex-1">{{ $k['label'] }}</span>
                         </div>
                         <div class="mt-2 flex items-end justify-between gap-2">
-                            <div class="min-w-0">
-                                <span class="text-[30px] sm:text-[34px] font-black text-slate-900 leading-none tracking-tight">{{ $k['count'] }}</span>
-                                <p class="text-[11.5px] font-medium {{ $ts['txt'] }} mt-1">{{ $k['note'] }}</p>
+                            <div class="min-w-0 flex-1">
+                                <span class="text-[26px] sm:text-[34px] font-black text-slate-900 leading-none tracking-tight">{{ $k['count'] }}</span>
+                                <p class="text-[11px] sm:text-[11.5px] font-medium {{ $ts['txt'] }} mt-1 truncate">{{ $k['note'] }}</p>
                             </div>
-                            <div id="kpi-spark-{{ $loop->index }}" data-spark="{{ $k['spark'] }}" data-color="{{ $ts['spark'] }}" class="kpi-spark shrink-0 w-[72px] h-9"></div>
+                            <div id="kpi-spark-{{ $loop->index }}" data-spark="{{ $k['spark'] }}" data-color="{{ $ts['spark'] }}" class="kpi-spark shrink-0 hidden sm:block w-[72px] h-9"></div>
                         </div>
                     </div>
                 @endforeach
@@ -95,41 +97,53 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
                 {{-- PDF --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col shadow-sm">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0">
-                            <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Laporan Resmi Posyandu (PDF)</h3>
-                            <p class="text-[12.5px] text-slate-500 mt-1.5 leading-relaxed">Dokumen lengkap siap cetak untuk diserahkan ke Puskesmas dan Kelurahan.</p>
+                <div class="bg-white border border-slate-200 hover:border-teal-300 rounded-2xl p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10.5px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200">PDF</span>
+                                <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Laporan Resmi Posyandu</h3>
+                            </div>
+                            <p class="text-[12.5px] text-slate-500 mt-1 leading-relaxed">Dokumen resmi lengkap siap cetak untuk diserahkan ke Puskesmas dan Kelurahan.</p>
                             <div class="flex flex-wrap gap-1.5 mt-3">
-                                <span class="text-[10.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md">Kop Surat</span>
-                                <span class="text-[10.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md">Tanda Tangan</span>
-                                <span class="text-[10.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md">A4 Landscape</span>
+                                <span class="text-[10.5px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">Kop Surat</span>
+                                <span class="text-[10.5px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">Tanda Tangan</span>
+                                <span class="text-[10.5px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">A4 Landscape</span>
                             </div>
                         </div>
-                        <span class="w-11 h-11 shrink-0 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="file-pdf" weight="fill" class="text-[20px]" /></span>
+                        <span class="w-11 h-11 shrink-0 rounded-xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shadow-xs"><x-icon name="file-pdf" weight="fill" class="text-[22px]" /></span>
                     </div>
-                    <form action="{{ route('laporan.generate') }}" method="POST" class="mt-auto pt-4">
+                    <form action="{{ route('laporan.generate') }}" method="POST" class="mt-auto pt-5">
                         @csrf
                         <input type="hidden" name="posyandu_id" value="{{ request('posyandu_id') }}">
                         <input type="hidden" name="periode" value="{{ $periodeValue }}">
-                        <button type="submit" class="w-full h-11 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[14px] font-semibold inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/15 transition-colors"><x-icon name="printer" weight="bold" class="text-[16px]" /> Cetak PDF Resmi</button>
+                        <button type="submit" class="w-full h-11 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white text-[13.5px] font-semibold inline-flex items-center justify-center gap-2 shadow-sm shadow-teal-600/20 active:scale-[0.99] transition-all">
+                            <x-icon name="printer" weight="bold" class="text-[16px]" /> Cetak PDF Resmi
+                        </button>
                     </form>
                 </div>
                 {{-- Excel --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col shadow-sm">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0">
-                            <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Data Tabel Pengukuran (Excel)</h3>
-                            <p class="text-[12.5px] text-slate-500 mt-1.5 leading-relaxed">Spreadsheet mentah untuk analisis data lebih lanjut atau rekapitulasi mandiri.</p>
+                <div class="bg-white border border-slate-200 hover:border-emerald-300 rounded-2xl p-5 sm:p-6 flex flex-col shadow-sm hover:shadow-md transition-all">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10.5px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">XLS</span>
+                                <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Data Tabel Pengukuran</h3>
+                            </div>
+                            <p class="text-[12.5px] text-slate-500 mt-1 leading-relaxed">Spreadsheet mentah untuk analisis data lebih lanjut atau rekapitulasi mandiri.</p>
                             <div class="flex flex-wrap gap-1.5 mt-3">
-                                <span class="text-[10.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md">16 Kolom Lengkap</span>
-                                <span class="text-[10.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md">Format Spreadsheet</span>
-                                <span class="text-[10.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-md">Arsip Digital</span>
+                                <span class="text-[10.5px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">16 Kolom Lengkap</span>
+                                <span class="text-[10.5px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">Format Spreadsheet</span>
+                                <span class="text-[10.5px] font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">Arsip Digital</span>
                             </div>
                         </div>
-                        <span class="w-11 h-11 shrink-0 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center"><x-icon name="file-xls" weight="fill" class="text-[20px]" /></span>
+                        <span class="w-11 h-11 shrink-0 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shadow-xs"><x-icon name="file-xls" weight="fill" class="text-[22px]" /></span>
                     </div>
-                    <a href="{{ route('laporan.export.excel', ['periode' => $periodeValue]) }}" class="mt-auto pt-4 w-full h-11 rounded-xl border border-transparent shadow-sm bg-[#217346] hover:bg-[#1a5c38] active:bg-[#157033] text-white text-[14px] font-semibold inline-flex items-center justify-center gap-2.5 leading-none transition-colors"><x-icon name="download-simple" weight="bold" class="text-[16px] shrink-0" /> Export ke Excel (.xls)</a>
+                    <div class="mt-auto pt-5">
+                        <a href="{{ route('laporan.export.excel', ['periode' => $periodeValue]) }}" class="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-[13.5px] font-semibold inline-flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20 active:scale-[0.99] transition-all">
+                            <x-icon name="download-simple" weight="bold" class="text-[16px]" /> Export ke Excel (.xls)
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -277,21 +291,25 @@
                     <span class="w-1 h-6 bg-teal-600 rounded-full"></span>
                     <h2 class="text-base font-bold text-slate-900">Pratinjau Data Penimbangan <span class="font-normal text-slate-500">({{ $periode ?? '' }})</span></h2>
                 </div>
-                <a href="{{ route('balita.index') }}" class="shrink-0 inline-flex items-center gap-1 text-[12.5px] font-semibold text-teal-600 hover:text-teal-700">Lihat Semua <x-icon name="arrow-right" weight="bold" /></a>
+                <div class="flex items-center gap-2">
+                    <span class="sm:hidden text-[11px] text-slate-400 font-medium">Geser &rarr;</span>
+                    <a href="{{ route('balita.index') }}" class="shrink-0 inline-flex items-center gap-1 text-[12.5px] font-semibold text-teal-600 hover:text-teal-700">Lihat Semua <x-icon name="arrow-right" weight="bold" /></a>
+                </div>
             </div>
 
             @if(isset($previewBalitas) && $previewBalitas->isNotEmpty())
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto hide-scrollbar">
                         <table class="w-full text-left border-collapse">
                             <thead class="bg-slate-50 border-b border-slate-200 text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
                                 <tr>
                                     <th class="py-3 px-4">Balita & NIK</th>
                                     <th class="py-3 px-4">Nama Ibu</th>
                                     <th class="py-3 px-4">Tgl Ukur</th>
-                                    <th class="py-3 px-4 text-center">BB (kg)</th>
-                                    <th class="py-3 px-4 text-center">TB (cm)</th>
+                                    <th class="py-3 px-4 text-center">BB / TB</th>
                                     <th class="py-3 px-4 text-center">KMS</th>
+                                    <th class="py-3 px-4 text-center">Z-Score (BB/U, TB/U, BB/TB)</th>
+                                    <th class="py-3 px-4 text-center">Rekomendasi PMT</th>
                                     <th class="py-3 px-4 text-center">Status / Diagnosa</th>
                                 </tr>
                             </thead>
@@ -312,15 +330,18 @@
                                             <div class="flex items-center gap-2.5">
                                                 <span class="w-9 h-9 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 text-[13px] font-bold border border-teal-100">{{ strtoupper(substr($b->nama, 0, 1)) }}</span>
                                                 <div class="min-w-0">
-                                                    <span class="block font-semibold text-slate-900 leading-tight truncate max-w-[200px]">{{ $b->nama }}</span>
+                                                    <span class="block font-semibold text-slate-900 leading-tight truncate max-w-[180px]">{{ $b->nama }}</span>
                                                     <span class="block text-[11.5px] text-slate-400 mt-0.5">{{ $b->nik ?? '-' }}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="py-3 px-4 text-slate-500">{{ $b->orangTua->nama_ibu ?? '-' }}</td>
+                                        <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ $b->orangTua->nama_ibu ?? '-' }}</td>
                                         <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ $m ? \Carbon\Carbon::parse($m->tanggal_ukur)->translatedFormat('d M Y') : '-' }}</td>
-                                        <td class="py-3 px-4 text-center {{ $isWarning ? 'font-semibold text-amber-600' : 'text-slate-600' }}">{{ $m ? number_format((float)$m->berat_badan, 1) : '-' }}</td>
-                                        <td class="py-3 px-4 text-center text-slate-600">{{ $m ? number_format((float)$m->tinggi_badan, 1) : '-' }}</td>
+                                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                                            <span class="font-bold text-slate-800">{{ $m ? number_format((float)$m->berat_badan, 1) : '-' }}</span> <span class="text-[11px] text-slate-400">kg</span>
+                                            <span class="text-slate-300 mx-1">/</span>
+                                            <span class="font-bold text-slate-800">{{ $m ? number_format((float)$m->tinggi_badan, 1) : '-' }}</span> <span class="text-[11px] text-slate-400">cm</span>
+                                        </td>
                                         <td class="py-3 px-4 text-center">
                                             @if($kms === 'N' || str_contains($kms, 'Naik'))
                                                 <x-icon name="trend-up" weight="bold" class="text-emerald-500 text-[15px] mx-auto" />
@@ -328,6 +349,36 @@
                                                 <x-icon name="arrow-right" weight="bold" class="text-slate-300 text-[15px] mx-auto" />
                                             @else
                                                 <x-icon name="trend-down" weight="bold" class="text-rose-500 text-[15px] mx-auto" />
+                                            @endif
+                                        </td>
+                                        <td class="py-3 px-4 text-center whitespace-nowrap text-[12px] font-mono">
+                                            @if($m)
+                                                <span title="BB/U" class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">{{ $m->z_score_bbu !== null ? number_format((float)$m->z_score_bbu, 1) : '-' }}</span>
+                                                <span title="TB/U" class="px-1.5 py-0.5 rounded {{ (float)$m->z_score_tbu < -2 ? 'bg-rose-100 text-rose-700 font-bold' : 'bg-slate-100 text-slate-700' }}">{{ $m->z_score_tbu !== null ? number_format((float)$m->z_score_tbu, 1) : '-' }}</span>
+                                                <span title="BB/TB" class="px-1.5 py-0.5 rounded {{ (float)$m->z_score_bbt < -2 ? 'bg-amber-100 text-amber-700 font-bold' : 'bg-slate-100 text-slate-700' }}">{{ $m->z_score_bbt !== null ? number_format((float)$m->z_score_bbt, 1) : '-' }}</span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                                            @if($m && $m->rekomendasi_pmt)
+                                                @php
+                                                    $pmt = $m->rekomendasi_pmt;
+                                                    $isPmtPemulihan = str_contains($pmt, 'Pemulihan');
+                                                    $isPmtPencegahan = str_contains($pmt, 'Pencegahan');
+                                                    $isPmtEvaluasi = str_contains($pmt, 'Evaluasi');
+                                                @endphp
+                                                @if($isPmtPemulihan)
+                                                    <span class="inline-flex px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-rose-50 text-rose-700 border border-rose-200">PMT Pemulihan</span>
+                                                @elseif($isPmtPencegahan)
+                                                    <span class="inline-flex px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">PMT Pencegahan</span>
+                                                @elseif($isPmtEvaluasi)
+                                                    <span class="inline-flex px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-purple-50 text-purple-700 border border-purple-200">Rujuk Puskesmas</span>
+                                                @else
+                                                    <span class="inline-flex px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-slate-50 text-slate-600 border border-slate-200">Rutin Posyandu</span>
+                                                @endif
+                                            @else
+                                                <span class="text-slate-400 text-[12px]">-</span>
                                             @endif
                                         </td>
                                         <td class="py-3 px-4 text-center">

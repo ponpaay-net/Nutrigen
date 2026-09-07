@@ -29,6 +29,7 @@ class OrangTua extends Model
         'no_kk' => 'encrypted',
         'nik_ayah' => 'encrypted',
         'nik_ibu' => 'encrypted',
+        'no_hp_whatsapp' => 'encrypted',
     ];
 
     public function user(): BelongsTo

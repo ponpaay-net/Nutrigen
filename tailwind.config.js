@@ -9,8 +9,8 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                // Design System v2 — Plus Jakarta Sans (bukan Inter)
-                sans: ['Plus Jakarta Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                // Design System v2 — Plus Jakarta Sans with modern fallbacks
+                sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
             },
         },
     },
