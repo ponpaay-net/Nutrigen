@@ -358,35 +358,45 @@
     {{-- =============================================
          SECTION 6: MEET THE TEAM
     ============================================== --}}
-    <section class="py-24 bg-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] -z-10"></div>
-        <div class="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-            <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-[11px] px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase shadow-sm">
+    <section class="py-24 relative overflow-hidden">
+        {{-- Vibrant Background Layer --}}
+        <div class="absolute inset-0 bg-slate-50 -z-30"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] -z-20"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-to-r from-emerald-200/40 to-teal-200/40 blur-[80px] rounded-full -z-10 pointer-events-none"></div>
+
+        <div class="max-w-4xl mx-auto px-6 lg:px-8 text-center relative z-10">
+            <div class="inline-flex items-center gap-2 bg-white border border-emerald-200 text-emerald-700 font-bold text-[11px] px-4 py-1.5 rounded-full mb-6 tracking-widest uppercase shadow-sm">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 Tim Pengembang
             </div>
             
-            <div class="bg-white rounded-[2rem] p-10 md:p-14 shadow-[0_20px_50px_-12px_rgba(16,185,129,0.15)] border border-emerald-100/60 relative z-10 transition-all duration-300 hover:shadow-[0_20px_50px_-12px_rgba(16,185,129,0.25)]">
-                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight mb-6">Built by <span class="text-emerald-600">Student Innovators</span></h2>
-                <p class="text-slate-500 leading-relaxed font-medium mb-8 max-w-2xl mx-auto">
-                    NutriGen dikembangkan oleh mahasiswa lintas universitas yang berkolaborasi dalam Hackathon Digdaya 2026 untuk menghadirkan solusi digital penanganan stunting berbasis Posyandu.
-                </p>
-                
-                <div class="flex flex-wrap justify-center gap-3 mb-10">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-slate-600 text-xs font-semibold border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Universitas Syiah Kuala</span>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-slate-600 text-xs font-semibold border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> UIN Ar-Raniry Banda Aceh</span>
-                </div>
+            <div class="bg-white rounded-[2.5rem] p-10 md:p-14 shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-slate-200 relative transition-all duration-300 hover:shadow-[0_20px_50px_-12px_rgba(16,185,129,0.15)] group overflow-hidden">
+                {{-- Decorative Card Elements --}}
+                <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-teal-50 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
 
-                <div class="flex justify-center -space-x-4 mb-10">
-                    <div class="w-16 h-16 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-sm z-40"><img src="https://ui-avatars.com/api/?name=M&background=0D8ABC&color=fff" alt="Team 1" class="w-full h-full object-cover"></div>
-                    <div class="w-16 h-16 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-sm z-30"><img src="https://ui-avatars.com/api/?name=A&background=10b981&color=fff" alt="Team 2" class="w-full h-full object-cover"></div>
-                    <div class="w-16 h-16 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-sm z-20"><img src="https://ui-avatars.com/api/?name=R&background=f59e0b&color=fff" alt="Team 3" class="w-full h-full object-cover"></div>
-                    <div class="w-16 h-16 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-sm z-10"><img src="https://ui-avatars.com/api/?name=F&background=8b5cf6&color=fff" alt="Team 4" class="w-full h-full object-cover"></div>
-                </div>
+                <div class="relative z-10">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-800 tracking-tight mb-6">Built by <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Student Innovators</span></h2>
+                    <p class="text-slate-600 leading-relaxed font-medium mb-10 max-w-2xl mx-auto">
+                        NutriGen dikembangkan oleh mahasiswa lintas universitas yang berkolaborasi dalam Hackathon Digdaya 2026 untuk menghadirkan solusi digital penanganan stunting berbasis Posyandu.
+                    </p>
+                    
+                    <div class="flex flex-wrap justify-center gap-3 mb-10">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 shadow-sm"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Universitas Syiah Kuala</span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 shadow-sm"><span class="w-2 h-2 rounded-full bg-blue-500"></span> UIN Ar-Raniry Banda Aceh</span>
+                    </div>
 
-                <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300 inline-flex items-center gap-2 text-sm shadow-lg shadow-slate-900/20">
-                    Kenali Tim Kami Lebih Dekat <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </button>
+                    <div class="flex justify-center -space-x-4 mb-10">
+                        <div class="w-16 h-16 rounded-full border-[3px] border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-md z-40 relative hover:-translate-y-1 hover:scale-110 transition-transform duration-300"><img src="{{ asset('images/team/member-1.png') }}" alt="Team 1" class="w-full h-full object-cover"></div>
+                        <div class="w-16 h-16 rounded-full border-[3px] border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-md z-30 relative hover:-translate-y-1 hover:scale-110 transition-transform duration-300"><img src="{{ asset('images/team/member-2.jpeg') }}" alt="Team 2" class="w-full h-full object-cover"></div>
+                        <div class="w-16 h-16 rounded-full border-[3px] border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-md z-20 relative hover:-translate-y-1 hover:scale-110 transition-transform duration-300"><img src="{{ asset('images/team/member-3.jpeg') }}" alt="Team 3" class="w-full h-full object-cover"></div>
+                        <div class="w-16 h-16 rounded-full border-[3px] border-white bg-slate-200 flex items-center justify-center overflow-hidden shadow-md z-10 relative hover:-translate-y-1 hover:scale-110 transition-transform duration-300"><img src="{{ asset('images/team/member-4.jpeg') }}" alt="Team 4" class="w-full h-full object-cover"></div>
+                    </div>
+
+                    <a href="{{ route('team') }}" class="bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black text-white font-bold py-3.5 px-8 rounded-full transition-all duration-300 inline-flex items-center gap-2 text-sm shadow-[0_8px_20px_rgba(15,23,42,0.2)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.25)] hover:-translate-y-0.5">
+                        Kenali Tim Kami Lebih Dekat <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
