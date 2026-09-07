@@ -212,13 +212,13 @@
                             <svg class="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.2L18.8 19H5.2L12 6.2zM11 11v4h2v-4h-2zm0 5v2h2v-2h-2z"/></svg>
                         </div>
                         <div class="text-xs font-bold text-emerald-50 uppercase tracking-[0.2em] mb-4">Statistik SSGI</div>
-                        <div class="text-7xl font-black mb-1 font-mono tracking-tighter text-white">19.8<span class="text-4xl font-bold text-teal-100">%</span></div>
+                        <div class="text-6xl sm:text-7xl font-black mb-1 font-mono tracking-tighter text-white">19.8<span class="text-4xl font-bold text-teal-100">%</span></div>
                         <div class="text-base font-semibold text-emerald-50 mb-6 border-b border-emerald-300/50 pb-6">Angka Stunting Nasional</div>
-                        <p class="text-sm text-emerald-50 leading-relaxed font-medium pr-24">Pemerintah menargetkan penurunan signifikan. NutriGen memangkas birokrasi agar intervensi lebih cepat.</p>
+                        <p class="text-sm text-emerald-50 leading-relaxed font-medium pr-0 sm:pr-24">Pemerintah menargetkan penurunan signifikan. NutriGen memangkas birokrasi agar intervensi lebih cepat.</p>
                     </div>
 
                     {{-- Floating overlay badge --}}
-                    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-white rounded-2xl flex flex-col items-center justify-center text-slate-800 shadow-xl shadow-emerald-500/10 border border-emerald-50 z-30 float-anim">
+                    <div class="absolute -bottom-4 right-0 sm:-bottom-6 sm:-right-6 w-32 h-32 bg-white rounded-2xl flex flex-col items-center justify-center text-slate-800 shadow-xl shadow-emerald-500/10 border border-emerald-50 z-30 float-anim">
                         <div class="text-4xl font-black text-emerald-500 mb-1">0</div>
                         <div class="text-[11px] font-bold text-center text-slate-500 uppercase tracking-wider">Toleransi<br>Error Data</div>
                     </div>
@@ -430,7 +430,7 @@
                 </h2>
                 <p class="text-slate-500 max-w-lg mx-auto leading-relaxed mb-10 text-base font-medium">Bergabunglah dengan ekosistem kesehatan modern. Akses sistem pelaporan dan validasi klinis stunting terintegrasi untuk wilayah Anda dengan sekali klik.</p>
                 <div class="flex justify-center">
-                    <a href="{{ route('login') }}" class="btn-primary-saas text-white font-bold px-12 py-5 rounded-2xl text-lg inline-flex items-center gap-3 shadow-[0_8px_30px_rgb(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgb(16,185,129,0.45)] ring-4 ring-emerald-50">
+                    <a href="{{ route('login') }}" class="btn-primary-saas text-white font-bold px-8 py-4 sm:px-12 sm:py-5 rounded-2xl flex-col sm:flex-row text-center sm:text-left text-base sm:text-lg inline-flex items-center gap-3 shadow-[0_8px_30px_rgb(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgb(16,185,129,0.45)] ring-4 ring-emerald-50">
                         Login ke Dashboard Utama
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </a>

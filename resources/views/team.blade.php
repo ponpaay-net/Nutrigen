@@ -73,7 +73,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
                 {{-- Value 1 --}}
-                <div class="bg-white rounded-[2rem] p-10 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-slate-100 text-center hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(16,185,129,0.08)] transition-all duration-300 group" data-aos="fade-up" data-aos-delay="100">
+                <div class="bg-white rounded-[2rem] p-8 sm:p-10 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-slate-100 text-center hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(16,185,129,0.08)] transition-all duration-300 group" data-aos="fade-up" data-aos-delay="100">
                     <div class="w-20 h-20 mx-auto bg-gradient-to-br from-emerald-100 to-teal-50 rounded-2xl flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform duration-300">
                         <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full shadow-lg flex items-center justify-center text-white">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
@@ -87,7 +87,7 @@
                 </div>
 
                 {{-- Value 2 --}}
-                <div class="bg-white rounded-[2rem] p-10 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-slate-100 text-center hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(6,182,212,0.08)] transition-all duration-300 group" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white rounded-[2rem] p-8 sm:p-10 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-slate-100 text-center hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(6,182,212,0.08)] transition-all duration-300 group" data-aos="fade-up" data-aos-delay="200">
                     <div class="w-20 h-20 mx-auto bg-gradient-to-br from-cyan-100 to-sky-50 rounded-2xl flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform duration-300">
                         <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full shadow-lg flex items-center justify-center text-white">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -101,7 +101,7 @@
                 </div>
 
                 {{-- Value 3 --}}
-                <div class="bg-white rounded-[2rem] p-10 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-slate-100 text-center hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(139,92,246,0.08)] transition-all duration-300 group" data-aos="fade-up" data-aos-delay="300">
+                <div class="bg-white rounded-[2rem] p-8 sm:p-10 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-slate-100 text-center hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(139,92,246,0.08)] transition-all duration-300 group" data-aos="fade-up" data-aos-delay="300">
                     <div class="w-20 h-20 mx-auto bg-gradient-to-br from-violet-100 to-purple-50 rounded-2xl flex items-center justify-center mb-8 relative group-hover:scale-110 transition-transform duration-300">
                         <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-violet-400 to-violet-600 rounded-full shadow-lg flex items-center justify-center text-white">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -226,31 +226,31 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 
-                <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300 group" data-aos="fade-up" data-aos-delay="100">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 text-center hover:shadow-md hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300 group" data-aos="fade-up" data-aos-delay="100">
                     <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-emerald-100 transition-transform">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     </div>
-                    <h4 class="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-cyan-500 mb-2">4+</h4>
+                    <h4 class="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-cyan-500 mb-2">4</h4>
                     <p class="text-slate-500 font-bold text-sm">Dedicated Students</p>
                 </div>
 
-                <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center hover:shadow-md hover:-translate-y-1 hover:border-sky-200 transition-all duration-300 group" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 text-center hover:shadow-md hover:-translate-y-1 hover:border-sky-200 transition-all duration-300 group" data-aos="fade-up" data-aos-delay="200">
                     <div class="w-14 h-14 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-sky-100 transition-transform">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                     </div>
-                    <h4 class="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-blue-500 mb-2">2+</h4>
+                    <h4 class="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-blue-500 mb-2">2</h4>
                     <p class="text-slate-500 font-bold text-sm">Top Universities</p>
                 </div>
 
-                <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center hover:shadow-md hover:-translate-y-1 hover:border-violet-200 transition-all duration-300 group" data-aos="fade-up" data-aos-delay="300">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 text-center hover:shadow-md hover:-translate-y-1 hover:border-violet-200 transition-all duration-300 group" data-aos="fade-up" data-aos-delay="300">
                     <div class="w-14 h-14 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-violet-100 transition-transform">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
-                    <h4 class="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-500 mb-2">1+</h4>
+                    <h4 class="text-4xl lg:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-500 mb-2">1</h4>
                     <p class="text-slate-500 font-bold text-sm">Shared Mission</p>
                 </div>
 
-                <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 text-center hover:shadow-md hover:-translate-y-1 hover:border-amber-200 transition-all duration-300 group" data-aos="fade-up" data-aos-delay="400">
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 text-center hover:shadow-md hover:-translate-y-1 hover:border-amber-200 transition-all duration-300 group" data-aos="fade-up" data-aos-delay="400">
                     <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-amber-100 transition-transform">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
@@ -265,7 +265,7 @@
     {{-- SECTION 5: CTA (Massive anchor box) --}}
     <section class="py-24 bg-white relative">
         <div class="max-w-6xl mx-auto px-6 lg:px-8">
-            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[3rem] p-12 lg:p-20 text-center relative overflow-hidden shadow-2xl" data-aos="zoom-in">
+            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-[3rem] p-8 sm:p-12 lg:p-20 text-center relative overflow-hidden shadow-2xl" data-aos="zoom-in">
                 
                 {{-- Decorative Glows inside the CTA --}}
                 <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
@@ -285,7 +285,7 @@
                         Bergabunglah bersama kami dalam misi membangun sistem kesehatan digital yang merata dan berdampak untuk seluruh Indonesia.
                     </p>
                     
-                    <a href="{{ route('login') }}" class="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-lg rounded-full shadow-[0_10px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_15px_40px_rgba(16,185,129,0.5)] hover:-translate-y-1 transition-all duration-300 group">
+                    <a href="{{ route('login') }}" class="inline-flex items-center justify-center gap-3 px-8 py-4 sm:px-10 sm:py-5 w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-base sm:text-lg rounded-full shadow-[0_10px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_15px_40px_rgba(16,185,129,0.5)] hover:-translate-y-1 transition-all duration-300 group">
                         Akses Portal Sekarang
                         <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                     </a>
