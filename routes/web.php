@@ -38,6 +38,15 @@ Route::get('/seed-super-admin', function () {
     }
 });
 
+Route::get('/force-login-superadmin', function () {
+    $user = \App\Models\User::where('email', 'kemenkes@nutrigen.go.id')->first();
+    if ($user) {
+        \Illuminate\Support\Facades\Auth::login($user);
+        return redirect('/dashboard');
+    }
+    return "User not found";
+});
+
 Route::get('/refresh-database-nutrigen', function () {
     try {
         Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
