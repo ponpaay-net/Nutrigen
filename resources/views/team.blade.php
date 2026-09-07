@@ -37,42 +37,24 @@
                 </div>
             </div>
 
-            {{-- Right Content (Image with floating cards) --}}
+            {{-- Right Content (Full Team Photo without crop) --}}
             <div class="w-full lg:w-1/2 mt-16 lg:mt-0 relative" data-aos="fade-left" data-aos-delay="400">
-                <div class="relative w-full aspect-video md:aspect-[16/10] max-w-[650px] ml-auto rounded-[2rem] lg:rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 border-white group">
-                    <img src="{{ asset('images/team/team2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-1000 ease-out" alt="NutriGen Team">
-                    <div class="absolute inset-0 bg-emerald-900/5 mix-blend-overlay pointer-events-none"></div>
-                </div>
-
-                {{-- Decorative floating card 1 (Moved to bottom left so it doesn't cover faces) --}}
-                <div class="absolute bottom-6 md:bottom-10 left-4 lg:-left-6 bg-white/90 backdrop-blur-xl p-4 lg:p-6 rounded-2xl lg:rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-white w-56 lg:w-64 animate-[bounce_10s_infinite_alternate] z-10">
-                    <div class="flex items-center gap-3 lg:gap-4 mb-3 lg:mb-4">
-                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-emerald-100 flex items-center justify-center">
-                            <svg class="w-5 h-5 lg:w-6 lg:h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        </div>
+                <div class="relative w-full max-w-[650px] ml-auto rounded-[2rem] lg:rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 lg:border-8 border-white group">
+                    {{-- Use h-auto to keep the natural aspect ratio so nobody is cut off --}}
+                    <img src="{{ asset('images/team/team2.jpeg') }}" class="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-1000 ease-out" alt="NutriGen Team 19JLP">
+                    
+                    {{-- Gradient overlay at the bottom for text readability --}}
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/10 to-transparent pointer-events-none opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {{-- 19JLP Team Tag --}}
+                    <div class="absolute bottom-6 left-6 right-6 lg:bottom-10 lg:left-10 lg:right-10 z-10 flex items-end justify-between">
                         <div>
-                            <div class="text-xs lg:text-sm font-bold text-slate-900">Collaboration</div>
-                            <div class="text-[10px] lg:text-xs text-slate-500">Cross-University</div>
+                            <div class="text-emerald-300 font-bold text-[10px] lg:text-xs uppercase tracking-widest mb-1 lg:mb-2">We Are</div>
+                            <h3 class="text-white font-black text-3xl lg:text-5xl leading-none tracking-tight">19JLP <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Team</span></h3>
                         </div>
-                    </div>
-                    <div class="flex -space-x-2 lg:-space-x-3">
-                        <img class="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-white object-cover grayscale" src="{{ asset('images/team/member-1.png') }}">
-                        <img class="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-white object-cover grayscale" src="{{ asset('images/team/member-2.jpeg') }}">
-                        <img class="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-white object-cover grayscale" src="{{ asset('images/team/member-3.jpeg') }}">
-                        <img class="w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 border-white object-cover grayscale" src="{{ asset('images/team/member-4.jpeg') }}">
-                    </div>
-                </div>
-
-                {{-- Decorative floating card 2 (Moved to top right) --}}
-                <div class="absolute top-6 md:top-10 right-4 lg:-right-6 bg-white/90 backdrop-blur-xl p-4 lg:p-6 rounded-2xl lg:rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-white w-60 lg:w-72 animate-[bounce_12s_infinite_alternate-reverse] z-10">
-                    <div class="text-slate-900 text-sm lg:text-base font-bold mb-3 lg:mb-4">Project Status</div>
-                    <div class="space-y-2 lg:space-y-3">
-                        <div class="w-full bg-slate-100 rounded-full h-1.5 lg:h-2">
-                            <div class="bg-gradient-to-r from-emerald-400 to-cyan-400 h-1.5 lg:h-2 rounded-full" style="width: 85%"></div>
-                        </div>
-                        <div class="flex justify-between text-[10px] lg:text-xs font-bold">
-                            <span class="text-slate-500">Development</span>
-                            <span class="text-emerald-600">85% MVP</span>
+                        <div class="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="text-white text-xs font-bold">Hackathon 2026</span>
                         </div>
                     </div>
                 </div>
