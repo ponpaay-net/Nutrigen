@@ -699,7 +699,7 @@ class KaderController extends Controller
         // 2. Simpan ke database
         $pengukuran = Pengukuran::create([
             'balita_id'        => $balita->id,
-            'kader_id'         => Auth::user()->kader->id,
+            'kader_id'         => Auth::user()->kader?->id,
             'tanggal_ukur'     => $request->tanggal_ukur,
             'umur_bulan'       => $calc['umur_bulan'],
             'berat_badan'      => $beratBadan,
@@ -1476,7 +1476,7 @@ class KaderController extends Controller
 
         $pengukuran = Pengukuran::with('balita')->findOrFail($id);
         $posyanduId = $this->getKaderPosyanduId();
-        if ($pengukuran->balita->posyandu_id !== $posyanduId) {
+        if ($pengukuran->balita?->posyandu_id !== $posyanduId) {
             abort(403, 'Akses ditolak: Data bukan milik Posyandu Anda.');
         }
 
@@ -1487,9 +1487,9 @@ class KaderController extends Controller
 
         // Panggil GrowthCalculationService (Pure Logic) untuk menghitung ulang Z-Score WHO
         $calc = $this->growthService->calculate(
-            Carbon::parse($pengukuran->balita->tanggal_lahir),
+            Carbon::parse($pengukuran->balita?->tanggal_lahir),
             Carbon::parse($request->tanggal_ukur),
-            $pengukuran->balita->jenis_kelamin,
+            $pengukuran->balita?->jenis_kelamin,
             $beratBadan,
             $tinggiBadan
         );
@@ -1524,7 +1524,7 @@ class KaderController extends Controller
         ]);
 
         return redirect()->route('kader.validasi-ulang')
-            ->with('success', 'Data pengukuran balita ' . $pengukuran->balita->nama . ' berhasil diukur/diinput ulang dan dikirimkan kembali ke Puskesmas.');
+            ->with('success', 'Data pengukuran balita ' . $pengukuran->balita?->nama . ' berhasil diukur/diinput ulang dan dikirimkan kembali ke Puskesmas.');
     }
 
     // =========================================================================
@@ -1587,7 +1587,7 @@ class KaderController extends Controller
                     'tahun' => $thisMonthYear,
                 ],
                 [
-                    'kader_id' => Auth::user()->kader->id,
+                    'kader_id' => Auth::user()->kader?->id,
                     'total_sasaran' => $totalSasaran,
                     'total_terukur' => $totalTerukur,
                     'total_absen' => max(0, $totalAbsen),

@@ -46,7 +46,7 @@
                 <div class="mt-4 flex flex-col sm:flex-row gap-3">
                     @php
                         // Cek apakah bulan ini sesi sudah dikirim
-                        $sesiAktif = \App\Models\SesiPosyandu::where('posyandu_id', Auth::user()->kader->posyandu_id)
+                        $sesiAktif = \App\Models\SesiPosyandu::where('posyandu_id', Auth::user()->kader?->posyandu_id)
                             ->where('bulan', \Carbon\Carbon::now()->month)
                             ->where('tahun', \Carbon\Carbon::now()->year)
                             ->first();

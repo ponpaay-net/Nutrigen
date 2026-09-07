@@ -519,7 +519,7 @@
                     <td class="text-center">{{ $b->jenis_kelamin }}</td>
                     <td class="text-center">{{ $b->tanggal_lahir ? \Carbon\Carbon::parse($b->tanggal_lahir)->format('d/m/Y') : '-' }}</td>
                     <td class="text-center">{{ $m ? $m->umur_bulan . ' bln' : '-' }}</td>
-                    <td>{{ $b->orangTua->nama_ibu ?? '-' }}</td>
+                    <td>{{ $b->orangTua?->nama_ibu ?? '-' }}</td>
                     <td class="text-center">{{ $m ? \Carbon\Carbon::parse($m->tanggal_ukur)->format('d/m/Y') : '-' }}</td>
                     <td class="text-center font-bold">{{ $m ? number_format((float)$m->berat_badan, 2) : '-' }}</td>
                     <td class="text-center font-bold">{{ $m ? number_format((float)$m->tinggi_badan, 1) : '-' }}</td>

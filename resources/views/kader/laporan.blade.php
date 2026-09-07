@@ -335,7 +335,7 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ $b->orangTua->nama_ibu ?? '-' }}</td>
+                                        <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ $b->orangTua?->nama_ibu ?? '-' }}</td>
                                         <td class="py-3 px-4 text-slate-500 whitespace-nowrap">{{ $m ? \Carbon\Carbon::parse($m->tanggal_ukur)->translatedFormat('d M Y') : '-' }}</td>
                                         <td class="py-3 px-4 text-center whitespace-nowrap">
                                             <span class="font-bold text-slate-800">{{ $m ? number_format((float)$m->berat_badan, 1) : '-' }}</span> <span class="text-[11px] text-slate-400">kg</span>

@@ -208,7 +208,7 @@ class SuperAdminController extends Controller
             $puskesmas = $m->balita?->posyandu?->puskesmas?->nama ?? '-';
             $posyandu  = $m->balita?->posyandu?->nama ?? '-';
             $nama      = $m->balita?->nama ?? '-';
-            $nik       = $m->balita?->nik ? "'" . $m->balita->nik : '-';
+            $nik       = $m->balita?->nik ? "'" . $m->balita?->nik : '-';
             
             fputcsv($handle, [
                 $no++,
@@ -270,7 +270,7 @@ class SuperAdminController extends Controller
             $puskesmas = htmlspecialchars($m->balita?->posyandu?->puskesmas?->nama ?? '-');
             $posyandu  = htmlspecialchars($m->balita?->posyandu?->nama ?? '-');
             $nama      = htmlspecialchars($m->balita?->nama ?? '-');
-            $nik       = htmlspecialchars($m->balita?->nik ? "'" . $m->balita->nik : '-');
+            $nik       = htmlspecialchars($m->balita?->nik ? "'" . $m->balita?->nik : '-');
             $status    = htmlspecialchars(ucfirst($m->status_gizi ?? '-'));
             $validasi  = htmlspecialchars(ucfirst($m->status_validasi ?? '-'));
 

@@ -112,7 +112,7 @@
                                     'kecamatan'        => $p->kecamatan,
                                     'kabupaten_kota'   => $p->kabupaten_kota,
                                     'provinsi'         => $p->provinsi,
-                                    'email'            => $p->user->email ?? '',
+                                    'email'            => $p->user?->email ?? '',
                                     'alamat'           => $p->alamat,
                                 ]) }})" class="inline-flex items-center justify-center p-2.5 rounded-xl bg-teal-50 text-teal-600 hover:bg-teal-100 transition-colors" title="Edit">
                                     <x-icon name="pencil-simple" weight="bold" class="w-5 h-5" />
@@ -341,7 +341,7 @@
                             kecamatan: '{{ addslashes($editTarget->kecamatan ?? '') }}',
                             kabupaten_kota: '{{ addslashes($editTarget->kabupaten_kota ?? '') }}',
                             provinsi: '{{ addslashes($editTarget->provinsi ?? '') }}',
-                            email: '{{ addslashes($editTarget->user->email ?? '') }}',
+                            email: '{{ addslashes($editTarget->user?->email ?? '') }}',
                             alamat: '{{ addslashes($editTarget->alamat ?? '') }}'
                         });
                     @endif

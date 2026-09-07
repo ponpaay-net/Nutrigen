@@ -495,12 +495,12 @@
                 <tr>
                     <td class="text-center font-bold">{{ $idx + 1 }}</td>
                     <td class="text-left">
-                        <strong style="color: #0f172a;">{{ $row->balita->nama ?? '-' }}</strong><br>
-                        <span style="font-size: 7.5pt; color: #64748b;">NIK: {{ $row->balita->nik ?? '-' }}</span>
+                        <strong style="color: #0f172a;">{{ $row->balita?->nama ?? '-' }}</strong><br>
+                        <span style="font-size: 7.5pt; color: #64748b;">NIK: {{ $row->balita?->nik ?? '-' }}</span>
                     </td>
-                    <td class="text-left" style="color: #334155;">{{ $row->balita->posyandu->nama ?? '-' }}</td>
+                    <td class="text-left" style="color: #334155;">{{ $row->balita?->posyandu?->nama ?? '-' }}</td>
                     <td class="text-left" style="color: #334155;">
-                        {{ $row->balita->orangTua->nama_ibu ?? ($row->balita->orangTua->nama_ayah ?? '-') }}
+                        {{ $row->balita?->orangTua?->nama_ibu ?? ($row->balita?->orangTua?->nama_ayah ?? '-') }}
                     </td>
                     <td class="text-center">{{ $row->umur_bulan }} Bln</td>
                     <td class="text-center font-bold">{{ number_format($row->berat_badan, 1) }}</td>

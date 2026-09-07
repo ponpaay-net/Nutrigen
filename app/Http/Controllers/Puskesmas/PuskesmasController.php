@@ -185,19 +185,19 @@ class PuskesmasController extends Controller
 
         $child = [
             'id' => $p->id,
-            'name' => $p->balita->nama,
-            'nik' => $p->balita->nik,
-            'gender' => $p->balita->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+            'name' => $p->balita?->nama,
+            'nik' => $p->balita?->nik,
+            'gender' => $p->balita?->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
             'age' => $p->umur_bulan . ' bln',
             'indicator' => $indicator,
             'value' => $valText,
-            'posyandu' => $p->balita->posyandu?->nama ?? '-',
-            'kader' => $p->kader->nama ?? $p->kader->user?->name ?? '-',
+            'posyandu' => $p->balita?->posyandu?->nama ?? '-',
+            'kader' => $p->kader?->nama ?? $p->kader?->user?->name ?? '-',
             'time' => \Carbon\Carbon::parse($p->tanggal_ukur)->format('H:i'),
             'date' => \Carbon\Carbon::parse($p->tanggal_ukur)->translatedFormat('d F Y'),
             'statusType' => $statusType,
             'statusLabel' => $statusLabel,
-            'parent' => $p->balita->orangTua?->nama_ibu ?? '-',
+            'parent' => $p->balita?->orangTua?->nama_ibu ?? '-',
             'bb' => $p->berat_badan,
             'tb' => $p->tinggi_badan,
             'catatan_kader' => $p->catatan_kader,
@@ -207,8 +207,8 @@ class PuskesmasController extends Controller
                 'TB (cm)' => ['val' => number_format((float)$p->tinggi_badan, 1), 'status' => 'Normal', 'color' => 'slate'],
                 'BB/U' => ['val' => number_format((float)$p->z_score_bbu, 2), 'status' => ((float)$p->z_score_bbu < -2 ? 'Kurang' : 'Normal'), 'color' => 'slate'],
                 'TB/U' => ['val' => number_format((float)$p->z_score_tbu, 2), 'status' => ((float)$p->z_score_tbu < -2 ? 'Pendek' : 'Normal'), 'color' => ((float)$p->z_score_tbu < -2 ? 'rose' : 'slate')],
-                'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'],
-                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
+                'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita?->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'],
+                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita?->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
             ],
             'history' => $history,
             'chartData' => $chartData,
@@ -283,7 +283,7 @@ class PuskesmasController extends Controller
             if ($filters['tab'] === 'berisiko' && !$isBerisiko) continue;
 
             // Load already-aware measurements from eager-loaded relation (no N+1)
-            $measurements = $p->balita->pengukurans->filter(fn($h) => $h->status_validasi !== 'draft')->sortByDesc('tanggal_ukur');
+            $measurements = $p->balita?->pengukurans->filter(fn($h) => $h->status_validasi !== 'draft')->sortByDesc('tanggal_ukur');
             $history = $measurements
                 ->filter(fn($h) => $h->tanggal_ukur < $p->tanggal_ukur)
                 ->take(3)
@@ -309,7 +309,7 @@ class PuskesmasController extends Controller
                 $valText .= ' (Pendek)';
             }
             // Use already-loaded measurements for the chart (ascending order)
-            $allMeasurements = $p->balita->pengukurans->filter(fn($h) => $h->status_validasi !== 'draft')->sortBy('tanggal_ukur');
+            $allMeasurements = $p->balita?->pengukurans->filter(fn($h) => $h->status_validasi !== 'draft')->sortBy('tanggal_ukur');
 
             $chartData = [
                 'labels' => [],
@@ -329,19 +329,19 @@ class PuskesmasController extends Controller
 
             $children[] = [
                 'id' => $p->id,
-                'name' => $p->balita->nama,
-                'nik' => $p->balita->nik,
-                'gender' => $p->balita->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                'name' => $p->balita?->nama,
+                'nik' => $p->balita?->nik,
+                'gender' => $p->balita?->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
                 'age' => $p->umur_bulan . ' bln',
                 'indicator' => $indicator,
                 'value' => $valText,
-                'posyandu' => $p->balita->posyandu?->nama ?? '-',
-                'kader' => $p->kader->nama ?? $p->kader->user?->name ?? '-',
+                'posyandu' => $p->balita?->posyandu?->nama ?? '-',
+                'kader' => $p->kader?->nama ?? $p->kader?->user?->name ?? '-',
                 'time' => Carbon::parse($p->tanggal_ukur)->format('H:i'),
                 'date' => Carbon::parse($p->tanggal_ukur)->translatedFormat('d F Y'),
                 'statusType' => $statusType,
                 'statusLabel' => $statusLabel,
-                'parent' => $p->balita->orangTua?->nama_ibu ?? '-',
+                'parent' => $p->balita?->orangTua?->nama_ibu ?? '-',
                 'bb' => $p->berat_badan,
                 'tb' => $p->tinggi_badan,
                 'catatan_kader' => $p->catatan_kader,
@@ -351,8 +351,8 @@ class PuskesmasController extends Controller
                     'TB (cm)' => ['val' => number_format((float)$p->tinggi_badan, 1), 'status' => 'Normal', 'color' => 'slate'],
                     'BB/U' => ['val' => number_format((float)$p->z_score_bbu, 2), 'status' => ((float)$p->z_score_bbu < -2 ? 'Kurang' : 'Normal'), 'color' => 'slate'],
                     'TB/U' => ['val' => number_format((float)$p->z_score_tbu, 2), 'status' => ((float)$p->z_score_tbu < -2 ? 'Pendek' : 'Normal'), 'color' => ((float)$p->z_score_tbu < -2 ? 'rose' : 'slate')],
-                    'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // IMT/U asli (BMI-for-age WHO)
-                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
+                    'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita?->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // IMT/U asli (BMI-for-age WHO)
+                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita?->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
                 ],
                 'history' => $history,
                 'chartData' => $chartData,
@@ -386,7 +386,7 @@ class PuskesmasController extends Controller
 
         return view('puskesmas.riwayat-validasi', [
             'child' => $currentMeasurement->balita,
-            'posyandu' => $currentMeasurement->balita->posyandu?->nama ?? '-',
+            'posyandu' => $currentMeasurement->balita?->posyandu?->nama ?? '-',
             'measurements' => $measurements,
         ]);
     }
@@ -414,11 +414,11 @@ class PuskesmasController extends Controller
         $signedUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
             'portal-ibu.home',
             now()->addDays($ttlDays),
-            ['balita' => $pengukuran->balita_id, 'orang_tua' => $pengukuran->balita->orang_tua_id]
+            ['balita' => $pengukuran->balita_id, 'orang_tua' => $pengukuran->balita?->orang_tua_id]
         );
 
         // TINGGI-02 (short-term): link wa.me dengan pesan berisi URL portal
-        $waDigits = preg_replace('/[^0-9]/', '', $pengukuran->balita->orangTua?->no_hp_whatsapp ?? '');
+        $waDigits = preg_replace('/[^0-9]/', '', $pengukuran->balita?->orangTua?->no_hp_whatsapp ?? '');
         if ($waDigits !== '') {
             if (!str_starts_with($waDigits, '62')) {
                 $waDigits = str_starts_with($waDigits, '0') ? '62' . substr($waDigits, 1) : '62' . $waDigits;
@@ -433,7 +433,7 @@ class PuskesmasController extends Controller
         $notification = null;
         if ($waDigits !== '') {
             $notification = $this->whatsAppService->send(
-                $pengukuran->balita->orang_tua_id,
+                $pengukuran->balita?->orang_tua_id,
                 $pengukuran->id,
                 $waDigits,
                 $waMessage
@@ -444,7 +444,7 @@ class PuskesmasController extends Controller
             'url' => $signedUrl,
             'ttl_days' => $ttlDays,
             'wa_url' => $waDigits !== '' ? 'https://wa.me/' . $waDigits . '?text=' . rawurlencode($waMessage) : null,
-            'child_name' => $pengukuran->balita->nama,
+            'child_name' => $pengukuran->balita?->nama,
             'notif_log_id' => $notification['log_id'] ?? null,
             'notif_status' => $notification['status'] ?? null,
         ];
@@ -863,11 +863,11 @@ class PuskesmasController extends Controller
             foreach ($pengukurans as $row) {
                 fputcsv($file, [
                     $no++,
-                    $row->balita->posyandu?->nama ?? '-',
-                    $row->balita->nik ?? '-',
-                    $row->balita->nama ?? '-',
+                    $row->balita?->posyandu?->nama ?? '-',
+                    $row->balita?->nik ?? '-',
+                    $row->balita?->nama ?? '-',
                     $row->umur_bulan,
-                    $row->balita->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                    $row->balita?->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
                     $row->berat_badan,
                     $row->tinggi_badan,
                     $row->z_score_bbu,
@@ -875,8 +875,8 @@ class PuskesmasController extends Controller
                     $row->z_score_bbt,
                     $row->rekomendasi_pmt,
                     $row->status_gizi,
-                    $row->balita->orangTua?->nama_ibu ?? '-',
-                    $row->balita->orangTua?->no_hp_whatsapp ?? '-'
+                    $row->balita?->orangTua?->nama_ibu ?? '-',
+                    $row->balita?->orangTua?->no_hp_whatsapp ?? '-'
                 ]);
             }
             fclose($file);
@@ -1034,7 +1034,7 @@ class PuskesmasController extends Controller
                 'updated_at' => $user->updated_at ? $user->updated_at->translatedFormat('d F Y, H:i') . ' WIB' : '-',
             ],
             'puskesmas' => [
-                'nama' => $user->puskesmas->nama ?? 'Puskesmas',
+                'nama' => $user->puskesmas?->nama ?? 'Puskesmas',
             ]
         ]);
     }
