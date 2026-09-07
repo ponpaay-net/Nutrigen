@@ -139,7 +139,7 @@
                 <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(16,185,129,0.08)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="100">
                     <div class="relative w-36 h-36 mb-8">
                         <div class="absolute inset-0 bg-emerald-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
-                        <img src="{{ asset('images/team/member-1.png') }}" class="absolute inset-0 w-full h-full object-cover rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Naufal">
+                        <img src="{{ asset('images/team/member-1.png') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Naufal">
                     </div>
                     <div class="inline-flex px-4 py-1.5 bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Frontend Developer</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">M. Naufal<br>Alifaturafif</h3>
@@ -159,7 +159,7 @@
                 <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(6,182,212,0.08)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="200">
                     <div class="relative w-36 h-36 mb-8">
                         <div class="absolute inset-0 bg-cyan-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
-                        <img src="{{ asset('images/team/member-2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-top rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Bintang">
+                        <img src="{{ asset('images/team/member-2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Bintang">
                     </div>
                     <div class="inline-flex px-4 py-1.5 bg-cyan-50 text-cyan-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Backend Developer</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">Bintang Naufal<br>Fayazzi</h3>
@@ -179,7 +179,7 @@
                 <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(139,92,246,0.08)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="300">
                     <div class="relative w-36 h-36 mb-8">
                         <div class="absolute inset-0 bg-violet-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
-                        <img src="{{ asset('images/team/member-3.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-top rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Riyan">
+                        <img src="{{ asset('images/team/member-3.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Riyan">
                     </div>
                     <div class="inline-flex px-4 py-1.5 bg-violet-50 text-violet-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Project Lead & UI/UX</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">Riyan Arya<br>Syahputra</h3>
@@ -199,7 +199,7 @@
                 <div class="bg-white rounded-[3rem] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-slate-100 hover:shadow-[0_40px_80px_rgba(245,158,11,0.08)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group" data-aos="fade-up" data-aos-delay="400">
                     <div class="relative w-36 h-36 mb-8">
                         <div class="absolute inset-0 bg-amber-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
-                        <img src="{{ asset('images/team/member-4.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-top rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Risky">
+                        <img src="{{ asset('images/team/member-4.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_10%] rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Risky">
                     </div>
                     <div class="inline-flex px-4 py-1.5 bg-amber-50 text-amber-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Business Analyst</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">Risky Husnaa<br>Mulyadi</h3>
