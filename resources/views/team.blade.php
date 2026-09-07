@@ -239,6 +239,40 @@
         </div>
     </section>
 
+    {{-- SECTION 3.5: FULL TEAM PHOTO (Cinematic Break) --}}
+    <section class="py-12 bg-white relative">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="relative w-full h-[500px] lg:h-[600px] rounded-[3rem] overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-slate-100" data-aos="zoom-in">
+                
+                {{-- Background Image --}}
+                <img src="{{ asset('images/team/team2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" alt="NutriGen Full Team">
+                
+                {{-- Deep Gradient Overlay for text readability --}}
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent"></div>
+                <div class="absolute inset-0 bg-emerald-900/10 mix-blend-overlay"></div>
+                
+                {{-- Content inside the photo --}}
+                <div class="absolute bottom-0 left-0 right-0 p-10 lg:p-16 flex flex-col justify-end h-full z-10 text-left">
+                    <div class="max-w-3xl">
+                        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-emerald-300 font-bold text-[10px] uppercase tracking-widest rounded-full mb-6">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Behind The Scenes
+                        </span>
+                        
+                        <h3 class="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6 leading-tight">
+                            Dari Ide Hackathon Menjadi <br class="hidden md:block">
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Solusi Nyata.</span>
+                        </h3>
+                        
+                        <p class="text-slate-300 font-medium text-base lg:text-lg leading-relaxed max-w-2xl">
+                            Kami percaya inovasi teknologi terbaik lahir dari empati. Melalui kolaborasi antar-universitas dan dedikasi penuh, tim kami bersatu untuk membangun ekosistem digital yang membawa dampak nyata bagi masa depan kesehatan anak Indonesia.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- SECTION 4: STATS (Floating Cards) --}}
     <section class="py-24 bg-slate-50 border-t border-slate-100">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
