@@ -40,8 +40,8 @@
             {{-- Right Content (Balanced Frame) --}}
             <div class="w-full lg:w-1/2 mt-12 lg:mt-0 relative" data-aos="fade-left" data-aos-delay="400">
                 <div class="relative w-full aspect-[4/3] lg:aspect-[5/4] xl:aspect-[4/3] max-h-[400px] lg:max-h-[500px] max-w-[550px] ml-auto rounded-[2rem] lg:rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 lg:border-8 border-white group">
-                    {{-- object-top ensures faces are kept in frame, cropping only the bottom part --}}
-                    <img src="{{ asset('images/team/team2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-1000 ease-out" alt="NutriGen Team 19JLP">
+                    {{-- object-bottom ensures faces at the bottom are kept in frame, cropping the empty space at the top --}}
+                    <img src="{{ asset('images/team/team2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-bottom group-hover:scale-105 transition-transform duration-1000 ease-out" alt="NutriGen Team 19JLP">
                     
                     {{-- Gradient overlay at the bottom for text readability --}}
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/10 to-transparent pointer-events-none opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
