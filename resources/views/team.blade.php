@@ -6,11 +6,6 @@
 
     {{-- SECTION 1: HERO (Clean, airy, with massive vibrant gradient shape like the reference) --}}
     <section class="relative pt-32 pb-24 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
-        {{-- Huge Gradient Shape bleeding off the right edge (Reference 1 style) --}}
-        <div class="absolute top-0 right-0 w-[600px] h-[600px] lg:w-[1000px] lg:h-[1000px] bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 rounded-full translate-x-1/3 -translate-y-1/4 opacity-90 hidden md:block"></div>
-        {{-- Mobile version of the shape --}}
-        <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 rounded-full translate-x-1/2 -translate-y-1/2 opacity-90 md:hidden"></div>
-        
         {{-- Subtle dot pattern --}}
         <div class="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] opacity-50 pointer-events-none"></div>
 
@@ -42,39 +37,42 @@
                 </div>
             </div>
 
-            {{-- Right Content (Floating Cards simulating the reference layout) --}}
+            {{-- Right Content (Image with floating cards) --}}
             <div class="w-full lg:w-1/2 mt-16 lg:mt-0 relative hidden lg:block" data-aos="fade-left" data-aos-delay="400">
-                <div class="relative w-full aspect-square max-w-[600px] ml-auto">
-                    {{-- Decorative floating card 1 --}}
-                    <div class="absolute top-10 left-10 bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-white w-64 animate-[bounce_10s_infinite_alternate]">
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold text-slate-900">Collaboration</div>
-                                <div class="text-xs text-slate-500">Cross-University</div>
-                            </div>
+                <div class="relative w-full aspect-[4/3] max-w-[650px] ml-auto rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 border-white group">
+                    <img src="{{ asset('images/team/team2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" alt="NutriGen Team">
+                    <div class="absolute inset-0 bg-emerald-900/5 mix-blend-overlay pointer-events-none"></div>
+                </div>
+
+                {{-- Decorative floating card 1 --}}
+                <div class="absolute top-10 -left-6 bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-white w-64 animate-[bounce_10s_infinite_alternate] z-10">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         </div>
-                        <div class="flex -space-x-3">
-                            <img class="w-10 h-10 rounded-full border-2 border-white object-cover" src="{{ asset('images/team/member-1.png') }}">
-                            <img class="w-10 h-10 rounded-full border-2 border-white object-cover" src="{{ asset('images/team/member-2.jpeg') }}">
-                            <img class="w-10 h-10 rounded-full border-2 border-white object-cover" src="{{ asset('images/team/member-3.jpeg') }}">
-                            <img class="w-10 h-10 rounded-full border-2 border-white object-cover" src="{{ asset('images/team/member-4.jpeg') }}">
+                        <div>
+                            <div class="text-sm font-bold text-slate-900">Collaboration</div>
+                            <div class="text-xs text-slate-500">Cross-University</div>
                         </div>
                     </div>
+                    <div class="flex -space-x-3">
+                        <img class="w-10 h-10 rounded-full border-2 border-white object-cover grayscale" src="{{ asset('images/team/member-1.png') }}">
+                        <img class="w-10 h-10 rounded-full border-2 border-white object-cover grayscale" src="{{ asset('images/team/member-2.jpeg') }}">
+                        <img class="w-10 h-10 rounded-full border-2 border-white object-cover grayscale" src="{{ asset('images/team/member-3.jpeg') }}">
+                        <img class="w-10 h-10 rounded-full border-2 border-white object-cover grayscale" src="{{ asset('images/team/member-4.jpeg') }}">
+                    </div>
+                </div>
 
-                    {{-- Decorative floating card 2 --}}
-                    <div class="absolute bottom-20 right-10 bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-white w-72 animate-[bounce_12s_infinite_alternate-reverse]">
-                        <div class="text-slate-900 font-bold mb-4">Project Status</div>
-                        <div class="space-y-3">
-                            <div class="w-full bg-slate-100 rounded-full h-2">
-                                <div class="bg-gradient-to-r from-emerald-400 to-cyan-400 h-2 rounded-full" style="width: 85%"></div>
-                            </div>
-                            <div class="flex justify-between text-xs font-bold">
-                                <span class="text-slate-500">Development</span>
-                                <span class="text-emerald-600">85% MVP</span>
-                            </div>
+                {{-- Decorative floating card 2 --}}
+                <div class="absolute bottom-10 -right-6 bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.08)] border border-white w-72 animate-[bounce_12s_infinite_alternate-reverse] z-10">
+                    <div class="text-slate-900 font-bold mb-4">Project Status</div>
+                    <div class="space-y-3">
+                        <div class="w-full bg-slate-100 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-emerald-400 to-cyan-400 h-2 rounded-full" style="width: 85%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs font-bold">
+                            <span class="text-slate-500">Development</span>
+                            <span class="text-emerald-600">85% MVP</span>
                         </div>
                     </div>
                 </div>
@@ -239,39 +237,7 @@
         </div>
     </section>
 
-    {{-- SECTION 3.5: FULL TEAM PHOTO (Cinematic Break) --}}
-    <section class="py-12 bg-white relative">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <div class="relative w-full h-[500px] lg:h-[600px] rounded-[3rem] overflow-hidden group shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-slate-100" data-aos="zoom-in">
-                
-                {{-- Background Image --}}
-                <img src="{{ asset('images/team/team2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" alt="NutriGen Full Team">
-                
-                {{-- Deep Gradient Overlay for text readability --}}
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent"></div>
-                <div class="absolute inset-0 bg-emerald-900/10 mix-blend-overlay"></div>
-                
-                {{-- Content inside the photo --}}
-                <div class="absolute bottom-0 left-0 right-0 p-10 lg:p-16 flex flex-col justify-end h-full z-10 text-left">
-                    <div class="max-w-3xl">
-                        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/20 text-emerald-300 font-bold text-[10px] uppercase tracking-widest rounded-full mb-6">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Behind The Scenes
-                        </span>
-                        
-                        <h3 class="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6 leading-tight">
-                            Dari Ide Hackathon Menjadi <br class="hidden md:block">
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Solusi Nyata.</span>
-                        </h3>
-                        
-                        <p class="text-slate-300 font-medium text-base lg:text-lg leading-relaxed max-w-2xl">
-                            Kami percaya inovasi teknologi terbaik lahir dari empati. Melalui kolaborasi antar-universitas dan dedikasi penuh, tim kami bersatu untuk membangun ekosistem digital yang membawa dampak nyata bagi masa depan kesehatan anak Indonesia.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+
 
     {{-- SECTION 4: STATS (Floating Cards) --}}
     <section class="py-24 bg-slate-50 border-t border-slate-100">
