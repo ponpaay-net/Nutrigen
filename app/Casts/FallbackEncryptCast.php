@@ -18,11 +18,10 @@ class FallbackEncryptCast implements CastsAttributes
         }
 
         try {
-            // Attempt to decrypt the payload
-            return decrypt($value);
-        } catch (DecryptException $e) {
-            // If decryption fails (e.g. it is plain text from old data, or APP_KEY changed),
-            // just return the raw string to prevent 500 error.
+            // decrypt($value, false) prevents it from trying to unserialize the plain text
+            return decrypt($value, false);
+        } catch (\Throwable $e) {
+            // Catch DecryptException or unserialize errors
             return $value;
         }
     }
@@ -36,6 +35,7 @@ class FallbackEncryptCast implements CastsAttributes
             return $value;
         }
 
-        return encrypt($value);
+        // encrypt($value, false) encrypts the string without serializing it
+        return encrypt($value, false);
     }
 }
