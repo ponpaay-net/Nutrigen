@@ -39,7 +39,7 @@
 
             {{-- Right Content (Perfect Frame for 4 People) --}}
             <div class="w-full lg:w-1/2 mt-12 lg:mt-0 relative" data-aos="fade-left" data-aos-delay="400">
-                <div class="relative w-full aspect-square lg:aspect-[4/5] xl:aspect-[3/4] max-h-[450px] lg:max-h-[600px] max-w-[480px] ml-auto rounded-[2rem] lg:rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 lg:border-8 border-white group">
+                <div class="relative w-full aspect-square lg:aspect-[4/5] xl:aspect-[3/4] max-h-[380px] lg:max-h-[500px] max-w-[420px] ml-auto rounded-[2rem] lg:rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 lg:border-8 border-white group">
                     {{-- object-[center_35%] optimally crops the image to show all 4 people's faces --}}
                     <img src="{{ asset('images/team/team2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-[center_35%] group-hover:scale-105 transition-transform duration-1000 ease-out" alt="NutriGen Team 19JLP">
                     
