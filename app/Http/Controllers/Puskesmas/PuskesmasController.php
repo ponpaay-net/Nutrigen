@@ -191,13 +191,13 @@ class PuskesmasController extends Controller
             'age' => $p->umur_bulan . ' bln',
             'indicator' => $indicator,
             'value' => $valText,
-            'posyandu' => $p->balita->posyandu->nama ?? '-',
-            'kader' => $p->kader->nama ?? $p->kader->user->name ?? '-',
+            'posyandu' => $p->balita->posyandu?->nama ?? '-',
+            'kader' => $p->kader->nama ?? $p->kader->user?->name ?? '-',
             'time' => \Carbon\Carbon::parse($p->tanggal_ukur)->format('H:i'),
             'date' => \Carbon\Carbon::parse($p->tanggal_ukur)->translatedFormat('d F Y'),
             'statusType' => $statusType,
             'statusLabel' => $statusLabel,
-            'parent' => $p->balita->orangTua->nama_ibu ?? '-',
+            'parent' => $p->balita->orangTua?->nama_ibu ?? '-',
             'bb' => $p->berat_badan,
             'tb' => $p->tinggi_badan,
             'catatan_kader' => $p->catatan_kader,
@@ -335,13 +335,13 @@ class PuskesmasController extends Controller
                 'age' => $p->umur_bulan . ' bln',
                 'indicator' => $indicator,
                 'value' => $valText,
-                'posyandu' => $p->balita->posyandu->nama ?? '-',
-                'kader' => $p->kader->nama ?? $p->kader->user->name ?? '-',
+                'posyandu' => $p->balita->posyandu?->nama ?? '-',
+                'kader' => $p->kader->nama ?? $p->kader->user?->name ?? '-',
                 'time' => Carbon::parse($p->tanggal_ukur)->format('H:i'),
                 'date' => Carbon::parse($p->tanggal_ukur)->translatedFormat('d F Y'),
                 'statusType' => $statusType,
                 'statusLabel' => $statusLabel,
-                'parent' => $p->balita->orangTua->nama_ibu ?? '-',
+                'parent' => $p->balita->orangTua?->nama_ibu ?? '-',
                 'bb' => $p->berat_badan,
                 'tb' => $p->tinggi_badan,
                 'catatan_kader' => $p->catatan_kader,
@@ -386,7 +386,7 @@ class PuskesmasController extends Controller
 
         return view('puskesmas.riwayat-validasi', [
             'child' => $currentMeasurement->balita,
-            'posyandu' => $currentMeasurement->balita->posyandu->nama ?? '-',
+            'posyandu' => $currentMeasurement->balita->posyandu?->nama ?? '-',
             'measurements' => $measurements,
         ]);
     }
@@ -418,7 +418,7 @@ class PuskesmasController extends Controller
         );
 
         // TINGGI-02 (short-term): link wa.me dengan pesan berisi URL portal
-        $waDigits = preg_replace('/[^0-9]/', '', $pengukuran->balita->orangTua->no_hp_whatsapp ?? '');
+        $waDigits = preg_replace('/[^0-9]/', '', $pengukuran->balita->orangTua?->no_hp_whatsapp ?? '');
         if ($waDigits !== '') {
             if (!str_starts_with($waDigits, '62')) {
                 $waDigits = str_starts_with($waDigits, '0') ? '62' . substr($waDigits, 1) : '62' . $waDigits;
@@ -537,7 +537,7 @@ class PuskesmasController extends Controller
         $balitas = $balitasQuery->paginate(20)->withQueryString();
 
         $balitas->getCollection()->transform(function($b) {
-            $posyanduName = $b->posyandu->nama ?? '-';
+            $posyanduName = $b->posyandu?->nama ?? '-';
 
             $formattedPengukurans = $b->pengukurans->sortByDesc('tanggal_ukur')->map(function($p) {
                 return [
@@ -571,7 +571,7 @@ class PuskesmasController extends Controller
                 'jenis_kelamin' => $b->jenis_kelamin,
                 'berat_lahir'   => $b->berat_lahir,
                 'tinggi_lahir'  => $b->panjang_lahir,
-                'ibu'           => ['nama' => $b->orangTua->nama_ibu ?? '-', 'no_hp_wa' => $b->orangTua->no_hp_whatsapp ?? '-'],
+                'ibu'           => ['nama' => $b->orangTua?->nama_ibu ?? '-', 'no_hp_wa' => $b->orangTua?->no_hp_whatsapp ?? '-'],
                 'posyandu'      => ['nama' => $posyanduName],
                 'pengukurans'   => $formattedPengukurans,
                 'statusLabel'   => $statusLabel,
@@ -616,8 +616,8 @@ class PuskesmasController extends Controller
             $kaders = $p->kaders->map(function($k) {
                 return [
                     'id' => $k->id,
-                    'nama' => $k->user->name ?? $k->nama,
-                    'email' => $k->user->email ?? '',
+                    'nama' => $k->user?->name ?? $k->nama,
+                    'email' => $k->user?->email ?? '',
                     'nik' => '-', // NIK Kader dihilangkan dari tabel V2
                     'no_hp' => $k->no_hp,
                     'aktivitas_bulan_ini' => $k->pengukurans()->whereMonth('tanggal_ukur', Carbon::now()->month)->count(),
@@ -721,7 +721,7 @@ class PuskesmasController extends Controller
                 if (!empty($validated['password'])) {
                     $userUpdate['password'] = Hash::make($validated['password']);
                 }
-                $kader->user->update($userUpdate);
+                $kader->user?->update($userUpdate);
             }
         });
 
@@ -863,7 +863,7 @@ class PuskesmasController extends Controller
             foreach ($pengukurans as $row) {
                 fputcsv($file, [
                     $no++,
-                    $row->balita->posyandu->nama ?? '-',
+                    $row->balita->posyandu?->nama ?? '-',
                     $row->balita->nik ?? '-',
                     $row->balita->nama ?? '-',
                     $row->umur_bulan,
@@ -875,8 +875,8 @@ class PuskesmasController extends Controller
                     $row->z_score_bbt,
                     $row->rekomendasi_pmt,
                     $row->status_gizi,
-                    $row->balita->orangTua->nama_ibu ?? '-',
-                    $row->balita->orangTua->no_hp_whatsapp ?? '-'
+                    $row->balita->orangTua?->nama_ibu ?? '-',
+                    $row->balita->orangTua?->no_hp_whatsapp ?? '-'
                 ]);
             }
             fclose($file);
@@ -1109,14 +1109,14 @@ class PuskesmasController extends Controller
 
         $latestMeasure = count($measurements) > 0 ? $measurements[0] : null;
 
-        $alamatRaw = $b->orangTua->alamat ?? '';
+        $alamatRaw = $b->orangTua?->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
             $desa = $alamatData['desa'] ?? '';
-            $kecamatan = $alamatData['kecamatan'] ?? ($b->orangTua->kecamatan ?? '');
+            $kecamatan = $alamatData['kecamatan'] ?? ($b->orangTua?->kecamatan ?? '');
         } else {
             $desa = $alamatRaw;
-            $kecamatan = $b->orangTua->kecamatan ?? '';
+            $kecamatan = $b->orangTua?->kecamatan ?? '';
         }
 
         $data = [
@@ -1130,15 +1130,15 @@ class PuskesmasController extends Controller
             'birthWeight'    => $b->berat_lahir,
             'birthLength'    => $b->panjang_lahir,
             'birthHeadCirc'  => $b->lingkar_kepala_lahir,
-            'noKk'           => $b->orangTua->no_kk ?? null,
-            'motherName'     => $b->orangTua->nama_ibu ?? '-',
-            'motherNik'      => $b->orangTua->nik_ibu ?? null,
-            'motherJob'      => $b->orangTua->pekerjaan_ibu ?? null,
-            'motherPhone'    => $b->orangTua->no_hp_whatsapp ?? '-',
-            'fatherName'     => $b->orangTua->nama_ayah ?? null,
-            'fatherNik'      => $b->orangTua->nik_ayah ?? null,
-            'fatherJob'      => $b->orangTua->pekerjaan_ayah ?? null,
-            'posyanduName'   => $b->posyandu->nama ?? '-',
+            'noKk'           => $b->orangTua?->no_kk ?? null,
+            'motherName'     => $b->orangTua?->nama_ibu ?? '-',
+            'motherNik'      => $b->orangTua?->nik_ibu ?? null,
+            'motherJob'      => $b->orangTua?->pekerjaan_ibu ?? null,
+            'motherPhone'    => $b->orangTua?->no_hp_whatsapp ?? '-',
+            'fatherName'     => $b->orangTua?->nama_ayah ?? null,
+            'fatherNik'      => $b->orangTua?->nik_ayah ?? null,
+            'fatherJob'      => $b->orangTua?->pekerjaan_ayah ?? null,
+            'posyanduName'   => $b->posyandu?->nama ?? '-',
             'address'        => $desa ?: '-',
             'addressSub'     => $kecamatan ?: null,
             'status'         => $latestMeasure ? ucwords($latestMeasure['status']) : 'Belum Ada',

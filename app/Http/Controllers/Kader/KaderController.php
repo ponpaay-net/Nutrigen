@@ -115,7 +115,7 @@ class KaderController extends Controller
                 'id' => $b->id,
                 'name' => $b->nama,
                 'gender' => $b->jenis_kelamin,
-                'mother' => $b->orangTua->nama_ibu ?? '-',
+                'mother' => $b->orangTua?->nama_ibu ?? '-',
                 'avatar' => null,
                 'age' => $age->y . ' Thn ' . $age->m . ' Bln',
                 'status' => $this->formatDisplayStatus($status, $statusValidasi),
@@ -220,7 +220,7 @@ class KaderController extends Controller
             'gender_label' => $genderLabel,
             'nik' => $b->nik,
             'masked_nik' => $maskedNik,
-            'mother' => $b->orangTua->nama_ibu ?? '-',
+            'mother' => $b->orangTua?->nama_ibu ?? '-',
             'last_measure' => $latest ? Carbon::parse($latest->tanggal_ukur)->translatedFormat('d M Y') : 'Belum Ada',
             'bb_tb' => $bbTbText,
             'status' => $this->formatDisplayStatus($status, $status_validasi),
@@ -411,7 +411,7 @@ class KaderController extends Controller
         $posyanduId = $this->getKaderPosyanduId();
         $balita = Balita::with('orangTua')->where('posyandu_id', $posyanduId)->findOrFail($id);
         
-        $alamatRaw = $balita->orangTua->alamat ?? '';
+        $alamatRaw = $balita->orangTua?->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
             $desa = $alamatData['desa'] ?? '';
@@ -432,17 +432,17 @@ class KaderController extends Controller
             'birthWeight'      => $balita->berat_lahir,
             'birthLength'      => $balita->panjang_lahir,
             'birthHeadCirc'    => $balita->lingkar_kepala_lahir,
-            'noKk'             => $balita->orangTua->no_kk ?? '',
-            'motherName'       => $balita->orangTua->nama_ibu ?? '',
-            'motherNik'        => $balita->orangTua->nik_ibu ?? $balita->orangTua->user->nik ?? '',
-            'motherJob'        => $balita->orangTua->pekerjaan_ibu ?? '',
-            'motherPhone'      => $balita->orangTua->no_hp_whatsapp ?? '',
-            'fatherName'       => $balita->orangTua->nama_ayah ?? '',
-            'fatherNik'        => $balita->orangTua->nik_ayah ?? '',
-            'fatherJob'        => $balita->orangTua->pekerjaan_ayah ?? '',
+            'noKk'             => $balita->orangTua?->no_kk ?? '',
+            'motherName'       => $balita->orangTua?->nama_ibu ?? '',
+            'motherNik'        => $balita->orangTua?->nik_ibu ?? $balita->orangTua?->user?->nik ?? '',
+            'motherJob'        => $balita->orangTua?->pekerjaan_ibu ?? '',
+            'motherPhone'      => $balita->orangTua?->no_hp_whatsapp ?? '',
+            'fatherName'       => $balita->orangTua?->nama_ayah ?? '',
+            'fatherNik'        => $balita->orangTua?->nik_ayah ?? '',
+            'fatherJob'        => $balita->orangTua?->pekerjaan_ayah ?? '',
             'address'          => $desa,
             'addressSub'       => $kecamatan,
-            'posyanduName'     => $balita->posyandu->nama ?? 'Posyandu'
+            'posyanduName'     => $balita->posyandu?->nama ?? 'Posyandu'
         ]);
     }
 
@@ -468,7 +468,7 @@ class KaderController extends Controller
         ]);
 
         if ($balita->orangTua) {
-            $balita->orangTua->update([
+            $balita->orangTua?->update([
                 'no_kk'          => $request->no_kk,
                 'nama_ibu'       => $request->nama_ibu,
                 'no_hp_whatsapp' => $request->no_hp,
@@ -480,8 +480,8 @@ class KaderController extends Controller
                 'alamat'         => $alamatJson,
             ]);
             
-            if ($balita->orangTua->user) {
-                $balita->orangTua->user->update([
+            if ($balita->orangTua?->user) {
+                $balita->orangTua?->user?->update([
                     'name' => $request->nama_ibu,
                 ]);
             }
@@ -592,14 +592,14 @@ class KaderController extends Controller
 
         $latestMeasure = count($measurements) > 0 ? $measurements[0] : null;
 
-        $alamatRaw = $b->orangTua->alamat ?? '';
+        $alamatRaw = $b->orangTua?->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
             $desa = $alamatData['desa'] ?? '';
-            $kecamatan = $alamatData['kecamatan'] ?? ($b->orangTua->kecamatan ?? '');
+            $kecamatan = $alamatData['kecamatan'] ?? ($b->orangTua?->kecamatan ?? '');
         } else {
             $desa = $alamatRaw;
-            $kecamatan = $b->orangTua->kecamatan ?? '';
+            $kecamatan = $b->orangTua?->kecamatan ?? '';
         }
 
         $data = [
@@ -614,15 +614,15 @@ class KaderController extends Controller
             'birthWeight'    => $b->berat_lahir,
             'birthLength'    => $b->panjang_lahir,
             'birthHeadCirc'  => $b->lingkar_kepala_lahir,
-            'noKk'           => $b->orangTua->no_kk ?? null,
-            'motherName'     => $b->orangTua->nama_ibu ?? '-',
-            'motherNik'      => $b->orangTua->nik_ibu ?? null,
-            'motherJob'      => $b->orangTua->pekerjaan_ibu ?? null,
-            'motherPhone'    => $b->orangTua->no_hp_whatsapp ?? '-',
-            'fatherName'     => $b->orangTua->nama_ayah ?? null,
-            'fatherNik'      => $b->orangTua->nik_ayah ?? null,
-            'fatherJob'      => $b->orangTua->pekerjaan_ayah ?? null,
-            'posyanduName'   => $b->posyandu->nama ?? '-',
+            'noKk'           => $b->orangTua?->no_kk ?? null,
+            'motherName'     => $b->orangTua?->nama_ibu ?? '-',
+            'motherNik'      => $b->orangTua?->nik_ibu ?? null,
+            'motherJob'      => $b->orangTua?->pekerjaan_ibu ?? null,
+            'motherPhone'    => $b->orangTua?->no_hp_whatsapp ?? '-',
+            'fatherName'     => $b->orangTua?->nama_ayah ?? null,
+            'fatherNik'      => $b->orangTua?->nik_ayah ?? null,
+            'fatherJob'      => $b->orangTua?->pekerjaan_ayah ?? null,
+            'posyanduName'   => $b->posyandu?->nama ?? '-',
             'address'        => $desa ?: '-',
             'addressSub'     => $kecamatan ?: null,
             'status'         => $latestMeasure ? $latestMeasure['status'] : 'Belum Ada',
@@ -1216,8 +1216,8 @@ class KaderController extends Controller
                     $jk = $b->jenis_kelamin;
                     $tglLahir = $b->tanggal_lahir ? Carbon::parse($b->tanggal_lahir)->format('d/m/Y') : '-';
                     $umur = $m ? ($m->umur_bulan . ' bln') : '-';
-                    $ibu = htmlspecialchars($b->orangTua->nama_ibu ?? '-');
-                    $kk = $b->orangTua->no_kk ?? '-';
+                    $ibu = htmlspecialchars($b->orangTua?->nama_ibu ?? '-');
+                    $kk = $b->orangTua?->no_kk ?? '-';
                     $tglUkur = $m ? Carbon::parse($m->tanggal_ukur)->format('d/m/Y') : '-';
                     $bb = $m ? number_format((float)$m->berat_badan, 2) : '-';
                     $tb = $m ? number_format((float)$m->tinggi_badan, 1) : '-';
@@ -1418,8 +1418,8 @@ class KaderController extends Controller
                 'child_nik' => $b->nik,
                 'gender' => $b->jenis_kelamin,
                 'birth_date' => Carbon::parse($b->tanggal_lahir)->translatedFormat('d M Y'),
-                'mother_name' => $b->orangTua->nama_ibu ?? '-',
-                'phone' => $b->orangTua->no_hp_whatsapp ?? '-',
+                'mother_name' => $b->orangTua?->nama_ibu ?? '-',
+                'phone' => $b->orangTua?->no_hp_whatsapp ?? '-',
                 'age_at_measure' => $p->umur_bulan ? $p->umur_bulan . ' Bulan' : $ageStr,
                 'tanggal_ukur' => $p->tanggal_ukur,
                 'formatted_tanggal_ukur' => Carbon::parse($p->tanggal_ukur)->translatedFormat('d F Y'),

@@ -102,10 +102,10 @@ class PortalIbuController extends Controller
 
         // Fetch live upcoming Posyandu schedule created by Kader
         $upcomingJadwal = null;
-        $posyanduName = $balita->posyandu->nama ?? 'Posyandu';
+        $posyanduName = $balita->posyandu?->nama ?? 'Posyandu';
         $scheduleText = 'Sesuai info Kader';
         $countdownText = 'Menunggu Jadwal';
-        $location = $balita->posyandu->alamat ?? 'Balai Posyandu';
+        $location = $balita->posyandu?->alamat ?? 'Balai Posyandu';
         $notes = null;
 
         if ($balita && $balita->posyandu_id) {
@@ -291,7 +291,7 @@ class PortalIbuController extends Controller
                 $countdown = $tgl->isToday() ? 'Hari Ini' : ($diffDays > 0 ? $diffDays . ' Hari Lagi' : 'Segera');
                 
                 $scheduleData = [
-                    'posyanduName' => $balita->posyandu->nama,
+                    'posyanduName' => $balita->posyandu?->nama,
                     'title' => $upcomingJadwal->judul,
                     'date' => $tgl->translatedFormat('l, d F Y'),
                     'time' => substr($upcomingJadwal->waktu_mulai, 0, 5) . ' - ' . substr($upcomingJadwal->waktu_selesai, 0, 5) . ' WIB',
@@ -301,12 +301,12 @@ class PortalIbuController extends Controller
                 ];
             } else {
                 $scheduleData = [
-                    'posyanduName' => $balita->posyandu->nama,
+                    'posyanduName' => $balita->posyandu?->nama,
                     'title' => 'Layanan Rutin Posyandu',
                     'date' => 'Menunggu jadwal kader',
                     'time' => 'Sesuai Jadwal',
                     'countdown' => '-',
-                    'address' => $balita->posyandu->alamat ?? '-',
+                    'address' => $balita->posyandu?->alamat ?? '-',
                     'notes' => null
                 ];
             }
@@ -325,7 +325,7 @@ class PortalIbuController extends Controller
             ] : null,
             'schedule' => $scheduleData,
             'kader' => $kader ? [
-                'name' => $kader->user->name ?? $kader->nama,
+                'name' => $kader->user?->name ?? $kader->nama,
                 'role' => 'Kader Posyandu',
                 // wa.me butuh format internasional (62...); fallback hanya jika kader belum punya nomor
                 'whatsapp_url' => 'https://wa.me/' . (function () use ($kader) {
