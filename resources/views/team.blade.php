@@ -161,10 +161,10 @@
                         <div class="absolute inset-0 bg-emerald-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
                         <img src="{{ asset('images/team/member-1.png') }}" class="absolute inset-0 w-full h-full object-cover rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Naufal">
                     </div>
-                    <div class="inline-flex px-4 py-1.5 bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Backend Developer</div>
+                    <div class="inline-flex px-4 py-1.5 bg-emerald-50 text-emerald-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Frontend Developer</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">M. Naufal<br>Alifaturafif</h3>
                     <p class="text-slate-500 font-medium text-sm leading-relaxed mb-8 flex-grow">
-                        Arsitek di balik ketahanan sistem. Merancang struktur database dan API berkinerja tinggi.
+                        Mengubah kompleksitas menjadi antarmuka yang indah, responsif, dan mudah dipahami.
                     </p>
                     <div class="flex items-center gap-3 pt-6 border-t border-slate-100 w-full justify-center">
                         <img src="{{ asset('images/universities/uin-arraniry.svg') }}" class="w-8 h-8 object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500">
@@ -181,10 +181,10 @@
                         <div class="absolute inset-0 bg-cyan-100 rounded-full scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50"></div>
                         <img src="{{ asset('images/team/member-2.jpeg') }}" class="absolute inset-0 w-full h-full object-cover object-top rounded-full border-4 border-white shadow-lg filter grayscale group-hover:grayscale-0 transition-all duration-500" alt="Bintang">
                     </div>
-                    <div class="inline-flex px-4 py-1.5 bg-cyan-50 text-cyan-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Frontend Developer</div>
+                    <div class="inline-flex px-4 py-1.5 bg-cyan-50 text-cyan-600 font-bold text-[10px] uppercase tracking-widest rounded-full mb-5">Backend Developer</div>
                     <h3 class="text-xl font-black text-slate-900 mb-3 leading-tight">Bintang Naufal<br>Fayazzi</h3>
                     <p class="text-slate-500 font-medium text-sm leading-relaxed mb-8 flex-grow">
-                        Mengubah kompleksitas menjadi antarmuka yang indah, responsif, dan mudah dipahami.
+                        Arsitek di balik ketahanan sistem. Merancang struktur database dan API berkinerja tinggi.
                     </p>
                     <div class="flex items-center gap-3 pt-6 border-t border-slate-100 w-full justify-center">
                         <img src="{{ asset('images/universities/usk.svg') }}" class="w-8 h-8 object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500">
