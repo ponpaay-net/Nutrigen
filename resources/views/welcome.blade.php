@@ -429,10 +429,10 @@
                     Beralih ke <span class="gradient-text">NutriGen</span> Sekarang
                 </h2>
                 <p class="text-slate-500 max-w-lg mx-auto leading-relaxed mb-10 text-base font-medium">Bergabunglah dengan ekosistem kesehatan modern. Akses sistem pelaporan dan validasi klinis stunting terintegrasi untuk wilayah Anda dengan sekali klik.</p>
-                <div class="flex justify-center">
-                    <a href="{{ route('login') }}" class="btn-primary-saas text-white font-bold px-8 py-4 sm:px-12 sm:py-5 rounded-2xl flex-col sm:flex-row text-center sm:text-left text-base sm:text-lg inline-flex items-center gap-3 shadow-[0_8px_30px_rgb(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgb(16,185,129,0.45)] ring-4 ring-emerald-50">
+                <div class="flex justify-center w-full px-4 sm:px-0">
+                    <a href="{{ route('login') }}" class="btn-primary-saas text-white font-bold px-6 py-4 sm:px-12 sm:py-5 w-full sm:w-auto rounded-2xl text-center text-sm sm:text-lg inline-flex items-center justify-center gap-2 sm:gap-3 shadow-[0_8px_30px_rgb(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgb(16,185,129,0.45)] ring-4 ring-emerald-50">
                         Login ke Dashboard Utama
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </a>
                 </div>
             </div>
