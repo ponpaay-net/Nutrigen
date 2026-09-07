@@ -226,7 +226,7 @@
                         </div>
                         <div class="flex items-center justify-end gap-2 mt-2.5">
                             @if(($m['status_validasi'] ?? '') === 'draft' && isset($m['id']))
-                                <form action="{{ route('pengukuran.hapus-draft', $m['id']) }}" method="POST" class="inline-block" @click.stop onsubmit="return confirm('Hapus data pengukuran ini?');">
+                                <form action="{{ route('pengukuran.draft.destroy', $m['id']) }}" method="POST" class="inline-block" @click.stop onsubmit="return confirm('Hapus data pengukuran ini?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 text-[11px] font-semibold transition-colors">
@@ -263,7 +263,7 @@
                                     <div class="flex items-center justify-end gap-2">
                                         <button type="button" @click.stop="active = {{ $i }}" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-700 text-[12px] font-semibold transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
                                         @if(($m['status_validasi'] ?? '') === 'draft' && isset($m['id']))
-                                            <form action="{{ route('pengukuran.hapus-draft', $m['id']) }}" method="POST" class="inline-block" @click.stop onsubmit="return confirm('Hapus data pengukuran ini?');">
+                                            <form action="{{ route('pengukuran.draft.destroy', $m['id']) }}" method="POST" class="inline-block" @click.stop onsubmit="return confirm('Hapus data pengukuran ini?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 text-[12px] font-semibold transition-colors">
