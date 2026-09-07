@@ -509,7 +509,7 @@
 
             <div class="pt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div class="text-slate-400 text-sm font-medium text-center md:text-left">
-                    &copy; 2026 <span class="text-emerald-600 font-bold">NutriGen MVP</span><br class="md:hidden"> 
+                    &copy; 2026 <span class="text-emerald-600 font-bold">NutriGen 19JLP Team</span><br class="md:hidden"> 
                     <span class="hidden md:inline"> &bull; </span>Hackathon Digdaya 2026
                 </div>
                 <div class="flex items-center gap-4">
