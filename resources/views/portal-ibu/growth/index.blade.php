@@ -75,11 +75,104 @@
                     />
                 @endif
 
-                <!-- 3. MEDICAL CHART PLACEHOLDER -->
+                <!-- 3. WHO GROWTH CURVE (SVG, gaya puskesmas — zona SD + titik pengukuran asli) -->
                 <div class="mt-8">
                     <x-ui.section-title title="Kurva Pertumbuhan WHO" subtitle="Jejak pertumbuhan si Kecil dari waktu ke waktu." />
-                    <x-ui.card padding="p-2" class="bg-white border border-slate-100 shadow-sm mt-3 relative overflow-hidden">
-                        <div id="growthChart" class="w-full h-72 z-10 relative"></div>
+                    <x-ui.card padding="p-4" class="bg-white border border-slate-100 shadow-sm mt-3 relative overflow-hidden">
+                        @if(count($chartPoints ?? []) >= 2)
+                            @php
+                                // Skala grafik: X = umur (bulan), Y = berat (kg).
+                                // Rentang Y mencakup kurva WHO + data anak, agar
+                                // kurva referensi tidak terpotong di tepi.
+                                $ages   = array_column($chartPoints, 0);
+                                $bbs    = array_column($chartPoints, 1);
+                                $allBbs = $bbs;
+                                if (!empty($whoCurve)) {
+                                    foreach (['neg2','median','pos2'] as $k) {
+                                        $allBbs = array_merge($allBbs, array_column($whoCurve[$k], 1));
+                                    }
+                                }
+                                $minAge = min($ages);
+                                $maxAge = max($ages);
+                                $minBb  = min($allBbs);
+                                $maxBb  = max($allBbs);
+                                // Padding sumbu: 1 bulan kiri/kanan, 0.5 kg bawah/atas
+                                $x0 = $minAge - 1;
+                                $x1 = max($maxAge + 1, $minAge + 2);
+                                $y0 = max(0, $minBb - 0.5);
+                                $y1 = $maxBb + 0.5;
+                                $W = 100; $H = 60; // viewBox
+                                $sx = function($age) use ($x0, $x1, $W) {
+                                    return round(($age - $x0) / ($x1 - $x0) * $W, 2);
+                                };
+                                $sy = function($bb) use ($y0, $y1, $H) {
+                                    return round($H - ($bb - $y0) / ($y1 - $y0) * $H, 2);
+                                };
+                                $pathOf = function(array $series) use ($sx, $sy) {
+                                    return collect($series)->map(fn($p, $i) => ($i === 0 ? 'M' : 'L') . $sx($p[0]) . ',' . $sy($p[1]))->implode(' ');
+                                };
+                                $ptCoords = [];
+                                foreach ($chartPoints as $pt) {
+                                    $ptCoords[] = ['x' => $sx($pt[0]), 'y' => $sy($pt[1]), 'age' => $pt[0], 'bb' => $pt[1]];
+                                }
+                                $firstPt = $ptCoords[0];
+                                $lastPt  = $ptCoords[count($ptCoords) - 1];
+                                $linePath = $pathOf($chartPoints);
+                                $areaPath = $linePath . ' L' . $lastPt['x'] . ',' . $H . ' L' . $firstPt['x'] . ',' . $H . ' Z';
+                                // Kurva WHO (jika tersedia)
+                                $hasWho = !empty($whoCurve) && isset($whoCurve['neg2'], $whoCurve['median'], $whoCurve['pos2']);
+                            @endphp
+                            <div class="relative w-full bg-slate-50 border border-slate-100 rounded-lg overflow-hidden" style="aspect-ratio: 5/3;">
+                                <svg class="w-full h-full" viewBox="0 0 100 60" preserveAspectRatio="none">
+                                    <!-- Zona SD (gaya KIA) -->
+                                    <rect x="0" y="0" width="100" height="20" fill="#f0fdf4" />
+                                    <rect x="0" y="20" width="100" height="20" fill="#fffbeb" />
+                                    <rect x="0" y="40" width="100" height="20" fill="#fff1f2" />
+                                    <!-- Grid horizontal -->
+                                    <line x1="0" y1="20" x2="100" y2="20" stroke="#e2e8f0" stroke-width="0.4" stroke-dasharray="2 2" />
+                                    <line x1="0" y1="40" x2="100" y2="40" stroke="#e2e8f0" stroke-width="0.4" stroke-dasharray="2 2" />
+                                    @if($hasWho)
+                                        <!-- Kurva referensi WHO BB/U (standar WHO 2006) -->
+                                        <path d="{{ $pathOf($whoCurve['pos2']) }}" fill="none" stroke="#f59e0b" stroke-width="0.9" stroke-dasharray="3 2" stroke-linecap="round" />
+                                        <path d="{{ $pathOf($whoCurve['median']) }}" fill="none" stroke="#10b981" stroke-width="1" stroke-dasharray="4 2.5" stroke-linecap="round" />
+                                        <path d="{{ $pathOf($whoCurve['neg2']) }}" fill="none" stroke="#ef4444" stroke-width="0.9" stroke-dasharray="3 2" stroke-linecap="round" />
+                                    @endif
+                                    <!-- Area + garis pengukuran anak -->
+                                    <path d="{{ $areaPath }}" fill="rgba(14,165,233,0.12)" />
+                                    <path d="{{ $linePath }}" fill="none" stroke="#0ea5e9" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
+                                    @foreach($ptCoords as $p)
+                                        <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="1.6" fill="#0ea5e9" stroke="#fff" stroke-width="0.6" />
+                                    @endforeach
+                                </svg>
+                                <!-- Label SD kiri (overlay) -->
+                                <div class="absolute left-1.5 top-0 bottom-0 flex flex-col text-[9px] font-bold tracking-wider text-slate-400 pointer-events-none" aria-hidden="true">
+                                    <span class="flex-1 flex items-center">+2 SD</span>
+                                    <span class="flex-1 flex items-center">0 SD</span>
+                                    <span class="flex-1 flex items-center">-2 SD</span>
+                                </div>
+                                <!-- Legend -->
+                                @if($hasWho)
+                                    <div class="absolute top-1.5 left-7 flex items-center gap-2.5 text-[8.5px] font-bold text-slate-500 bg-white/70 backdrop-blur-sm px-1.5 py-0.5 rounded pointer-events-none">
+                                        <span class="inline-flex items-center gap-0.5"><span class="w-3 h-0.5 rounded bg-[#10b981]"></span>Median WHO</span>
+                                        <span class="inline-flex items-center gap-0.5"><span class="w-3 border-t border-dashed border-[#f59e0b]"></span>+2SD</span>
+                                        <span class="inline-flex items-center gap-0.5"><span class="w-3 border-t border-dashed border-[#ef4444]"></span>−2SD</span>
+                                    </div>
+                                @endif
+                                <!-- Label sumbu -->
+                                <div class="absolute bottom-1 right-2 text-[9px] font-bold text-slate-400">Umur (bulan)</div>
+                                <div class="absolute top-2 right-2 text-[9px] font-bold text-slate-400">Berat (kg)</div>
+                            </div>
+                            <div class="mt-2 flex items-center justify-between text-[10px] font-bold text-slate-400 px-1">
+                                <span>{{ $firstPt['age'] }} bln ({{ $firstPt['bb'] }} kg)</span>
+                                <span class="text-sky-600">{{ $lastPt['age'] }} bln ({{ $lastPt['bb'] }} kg)</span>
+                            </div>
+                        @else
+                            <div class="h-48 flex flex-col items-center justify-center text-center gap-1.5">
+                                <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                                <p class="text-[12.5px] font-bold text-slate-400">Belum ada cukup data pengukuran.</p>
+                                <p class="text-[11px] font-medium text-slate-400">Kurva muncul setelah ada minimal dua pengukuran tervalidasi.</p>
+                            </div>
+                        @endif
                     </x-ui.card>
                 </div>
 
@@ -114,103 +207,5 @@
     </div>
 
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var rawData = {!! $chartData ?? '[]' !!};
-            
-            var options = {
-                series: [{
-                    name: 'Berat Badan (kg)',
-                    data: rawData
-                }],
-                chart: {
-                    type: 'area',
-                    height: 280,
-                    toolbar: { show: false },
-                    zoom: { enabled: false },
-                    fontFamily: 'Nunito, sans-serif',
-                    parentHeightOffset: 0
-                },
-                colors: ['#10B981'],
-                dataLabels: {
-                    enabled: true,
-                    formatter: function(val) {
-                        return val + ' kg';
-                    },
-                    offsetY: -5,
-                    style: {
-                        fontSize: '10px',
-                        colors: ['#047857']
-                    },
-                    background: {
-                        enabled: true,
-                        foreColor: '#fff',
-                        borderRadius: 4,
-                        padding: 4,
-                        borderWidth: 0,
-                    }
-                },
-                stroke: {
-                    curve: 'smooth',
-                    width: 3
-                },
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.4,
-                        opacityTo: 0.05,
-                        stops: [0, 100]
-                    }
-                },
-                xaxis: {
-                    type: 'numeric',
-                    title: {
-                        text: 'Umur (Bulan)',
-                        style: { color: '#9CA3AF', fontSize: '11px', fontWeight: 700 }
-                    },
-                    labels: {
-                        formatter: function (val) {
-                            return val + ' bln';
-                        }
-                    },
-                    tickAmount: rawData.length > 5 ? 5 : rawData.length
-                },
-                yaxis: {
-                    title: {
-                        text: 'Berat (kg)',
-                        style: { color: '#9CA3AF', fontSize: '11px', fontWeight: 700 }
-                    },
-                    min: function(min) { return min > 2 ? min - 2 : 0; },
-                    max: function(max) { return max + 2; }
-                },
-                grid: {
-                    borderColor: '#F3F4F6',
-                    strokeDashArray: 4,
-                    padding: { top: 10, right: 10, bottom: 0, left: 15 }
-                },
-                theme: {
-                    mode: 'light'
-                },
-                markers: {
-                    size: 5,
-                    colors: ['#fff'],
-                    strokeColors: '#10B981',
-                    strokeWidth: 3,
-                    hover: { size: 7 }
-                }
-            };
-
-            if (document.getElementById('growthChart')) {
-                if (rawData.length > 0) {
-                    var chart = new ApexCharts(document.querySelector("#growthChart"), options);
-                    chart.render();
-                } else {
-                    document.getElementById('growthChart').innerHTML = '<div class="h-full flex items-center justify-center text-sm text-slate-400 font-bold">Belum ada cukup data pengukuran.</div>';
-                }
-            }
-        });
-    </script>
     @endpush
 </x-layout.mobile-shell>

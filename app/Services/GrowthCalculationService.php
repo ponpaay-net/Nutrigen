@@ -62,6 +62,39 @@ class GrowthCalculationService
     }
 
     /**
+     * Kurva referensi WHO BB/U (weight-for-age) untuk grafik Portal Ibu.
+     * Menghasilkan 3 seri — [-2SD, median, +2SD] — dari tabel LMS WHO asli
+     * (WhoLmsData.php), dipotong ke rentang umur data pengukuran anak.
+     * Output: ['neg2' => [[umur, kg], ...], 'median' => ..., 'pos2' => ...]
+     */
+    public function bbuWhoCurve(int $umurMinBulan, int $umurMaxBulan, string $jenisKelamin): array
+    {
+        $sex = strtoupper($jenisKelamin) === 'P' ? 'P' : 'L';
+        // Ekspansi rentang ±2 bulan agar kurva bernapas di kedua ujung
+        $from = max(0, min($umurMinBulan, $umurMaxBulan) - 2);
+        $to   = max(0, min(60, max($umurMinBulan, $umurMaxBulan) + 2));
+
+        $table = $this->whoData['bbu_' . $sex] ?? null;
+        if (!$table) {
+            return [];
+        }
+
+        $neg2 = $median = $pos2 = [];
+        for ($m = $from; $m <= $to; $m++) {
+            $row = $this->interpolateRow('bbu_' . $sex, $m);
+            if (!$row) {
+                continue;
+            }
+            // Format baris: [L, M, S, -3SD, -2SD, median, +2SD, +3SD]
+            $neg2[]   = [$m, (float) $row[4]];
+            $median[] = [$m, (float) $row[5]];
+            $pos2[]   = [$m, (float) $row[6]];
+        }
+
+        return ['neg2' => $neg2, 'median' => $median, 'pos2' => $pos2];
+    }
+
+    /**
      * Z-Score IMT/U (BMI-for-age) — indeks massa tubuh per umur, standar WHO 2006.
      * BMI = berat(kg) / tinggi(m)^2. Lalu Box-Cox vs referensi imtu (bmifa).
      */

@@ -15,7 +15,8 @@ use Carbon\Carbon;
 class PortalIbuController extends Controller
 {
     public function __construct(
-        protected RecommendationService $recommendationService
+        protected RecommendationService $recommendationService,
+        protected \App\Services\GrowthCalculationService $growthCalculationService
     ) {}
 
     /**
@@ -198,6 +199,18 @@ class PortalIbuController extends Controller
             return [$p->umur_bulan, (float) $p->berat_badan];
         })->reverse()->values()->toArray();
 
+        // Kurva referensi WHO BB/U (standar WHO 2006, tabel LMS asli) sesuai
+        // jenis kelamin anak, dipotong ke rentang umur data pengukuran.
+        $whoCurve = [];
+        if ($balita && count($points) >= 2) {
+            $ages = array_column($points, 0);
+            $whoCurve = $this->growthCalculationService->bbuWhoCurve(
+                (int) min($ages),
+                (int) max($ages),
+                (string) $balita->jenis_kelamin
+            );
+        }
+
         $latest = $pengukurans->first();
         $recommendation = null;
         $pageState = 'normal';
@@ -230,7 +243,8 @@ class PortalIbuController extends Controller
                 'icon' => '💡',
                 'message' => 'Grafik di bawah ini disusun berdasarkan panduan kurva pertumbuhan resmi dari WHO.'
             ],
-            'chartData' => json_encode(['points' => $points]),
+            'chartPoints' => $points,
+            'whoCurve' => $whoCurve,
             'timeline' => $timeline
         ];
 
