@@ -1,0 +1,56 @@
+{
+  "inputs": [
+    {
+      "id": "github_token",
+      "type": "promptString",
+      "description": "GitHub Personal Access Token (ghp_...)",
+      "password": true
+    }
+  ],
+  "servers": {
+    "codebase-memory": {
+      "type": "stdio",
+      "command": "C:/Users/Naufal/AppData/Local/codebase-memory-mcp/codebase-memory-mcp.exe"
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "desktop-commander": {
+      "type": "stdio",
+      "command": "C:/Users/Naufal/AppData/Roaming/npm/desktop-commander.cmd"
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp",
+      "disabled": true
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
+      }
+    },
+    "graphify": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "graphify.serve", "C:/Users/Naufal/.graphify/global-graph.json"],
+      "disabled": true
+    },
+    "mysql": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@benborla29/mcp-server-mysql"],
+      "disabled": true,
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "root",
+        "MYSQL_PASS": "",
+        "MYSQL_DB": ""
+      }
+    }
+  }
+}

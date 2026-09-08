@@ -29,11 +29,11 @@
     ];
 @endphp
 
-<div class="mt-6 flex flex-wrap gap-1.5 p-1.5 bg-black/20 backdrop-blur-md rounded-2xl border border-white/15 max-w-max shadow-inner">
+<div class="mt-6 flex overflow-x-auto hide-scrollbar gap-1.5 p-1.5 bg-black/20 backdrop-blur-md rounded-2xl border border-white/15 w-full md:w-max shadow-inner">
     @foreach($tabs as $tab)
         @php $isActive = $active === $tab['id']; @endphp
         <a href="{{ route($tab['route']) }}"
-           class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-bold transition-all {{ $isActive ? 'bg-white text-teal-900 shadow-sm' : 'text-teal-50 hover:text-white hover:bg-white/10' }}">
+           class="inline-flex items-center shrink-0 whitespace-nowrap gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-[12px] sm:text-[13px] font-bold transition-all {{ $isActive ? 'bg-white text-teal-900 shadow-sm' : 'text-teal-50 hover:text-white hover:bg-white/10' }}">
             <i class="{{ $tab['icon'] }} text-base {{ $isActive ? 'text-teal-600' : 'text-teal-100' }}"></i>
             <span>{{ $tab['label'] }}</span>
         </a>

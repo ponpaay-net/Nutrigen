@@ -207,20 +207,20 @@
                 <div x-show="shown" x-transition:enter="transition duration-900 delay-100" x-transition:enter-start="opacity-0 -translate-x-8" x-transition:enter-end="opacity-100 translate-x-0"
                      class="relative w-full max-w-sm">
                     {{-- Main card - Softened Gradient --}}
-                    <div class="bg-gradient-to-br from-teal-400 to-emerald-500 rounded-3xl p-10 text-white shadow-[0_20px_50px_-12px_rgba(16,185,129,0.25)] relative z-20">
+                    <div class="bg-gradient-to-br from-teal-400 to-emerald-500 rounded-3xl p-6 sm:p-10 text-white shadow-[0_20px_50px_-12px_rgba(16,185,129,0.25)] relative z-20">
                         <div class="absolute top-0 right-0 p-6 opacity-20">
-                            <svg class="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.2L18.8 19H5.2L12 6.2zM11 11v4h2v-4h-2zm0 5v2h2v-2h-2z"/></svg>
+                            <svg class="w-20 h-20 sm:w-24 sm:h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.2L18.8 19H5.2L12 6.2zM11 11v4h2v-4h-2zm0 5v2h2v-2h-2z"/></svg>
                         </div>
-                        <div class="text-xs font-bold text-emerald-50 uppercase tracking-[0.2em] mb-4">Statistik SSGI</div>
-                        <div class="text-6xl sm:text-7xl font-black mb-1 font-mono tracking-tighter text-white">19.8<span class="text-4xl font-bold text-teal-100">%</span></div>
-                        <div class="text-base font-semibold text-emerald-50 mb-6 border-b border-emerald-300/50 pb-6">Angka Stunting Nasional</div>
+                        <div class="text-[10px] sm:text-xs font-bold text-emerald-50 uppercase tracking-[0.2em] mb-4">Statistik SSGI</div>
+                        <div class="text-5xl sm:text-7xl font-black mb-1 font-mono tracking-tighter text-white">19.8<span class="text-3xl sm:text-4xl font-bold text-teal-100">%</span></div>
+                        <div class="text-sm sm:text-base font-semibold text-emerald-50 mb-4 sm:mb-6 border-b border-emerald-300/50 pb-4 sm:pb-6">Angka Stunting Nasional</div>
                         <p class="text-sm text-emerald-50 leading-relaxed font-medium pr-0 sm:pr-24">Pemerintah menargetkan penurunan signifikan. NutriGen memangkas birokrasi agar intervensi lebih cepat.</p>
                     </div>
 
                     {{-- Floating overlay badge --}}
-                    <div class="absolute -bottom-4 right-0 sm:-bottom-6 sm:-right-6 w-32 h-32 bg-white rounded-2xl flex flex-col items-center justify-center text-slate-800 shadow-xl shadow-emerald-500/10 border border-emerald-50 z-30 float-anim">
-                        <div class="text-4xl font-black text-emerald-500 mb-1">0</div>
-                        <div class="text-[11px] font-bold text-center text-slate-500 uppercase tracking-wider">Toleransi<br>Error Data</div>
+                    <div class="absolute -bottom-2 right-0 sm:-bottom-6 sm:-right-6 w-16 h-16 sm:w-32 sm:h-32 bg-white rounded-2xl flex flex-col items-center justify-center text-slate-800 shadow-xl shadow-emerald-500/10 border border-emerald-50 z-30 float-anim">
+                        <div class="text-xl sm:text-4xl font-black text-emerald-500 mb-0 sm:mb-1">0</div>
+                        <div class="text-[6px] sm:text-[11px] font-bold text-center text-slate-500 uppercase tracking-wider leading-tight">Toleransi<br>Error Data</div>
                     </div>
                 </div>
             </div>

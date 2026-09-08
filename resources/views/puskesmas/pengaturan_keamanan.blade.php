@@ -34,7 +34,7 @@
         </div>
 
         <div class="flex-1 p-6 sm:px-10 py-8 relative">
-            <div class="max-w-4xl w-full mx-auto relative z-10 -mt-10">
+            <div class="max-w-4xl w-full mx-auto relative z-10 mt-0 lg:-mt-10">
                 @if (session('success'))
                     <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 flex items-center gap-3.5 shadow-sm">
                         <div class="w-10 h-10 rounded-lg bg-white border border-emerald-100 flex items-center justify-center shrink-0 text-emerald-600 shadow-sm">

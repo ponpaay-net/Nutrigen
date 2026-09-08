@@ -185,7 +185,6 @@
                 </button>
 
                 {{-- Modal Konfirmasi Hapus --}}
-                <template x-teleport="body">
                     <div x-show="confirmDelete" x-cloak class="fixed inset-0 z-[70] flex items-center justify-center p-4" x-transition.opacity>
                         <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="confirmDelete = false"></div>
                         <div x-show="confirmDelete" x-transition.scale.origin.center class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6">
@@ -200,14 +199,13 @@
                             </div>
                         </div>
                     </div>
-                </template>
             </div>
         </div>
     </div>
 
     {{-- TAB: RIWAYAT (table + modal) --}}
     <div x-show="tab === 'riwayat'" x-cloak>
-        <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6" x-data='{ active: null, items: @json($measurements, 15) }'>
+        <section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6" x-data='{ active: null, items: @json($measurements, 15), confirmDelId: null }'>
             <div class="flex items-center justify-between mb-4"><div><h4 class="text-[15px] font-bold text-slate-900">Riwayat Pengukuran</h4><p class="text-[12px] text-slate-500 mt-0.5">{{ count($measurements) }} kali, terbaru di atas</p></div></div>
             @if(count($measurements) > 0)
             {{-- Mobile: card list (stack, no scroll) --}}
@@ -226,13 +224,11 @@
                         </div>
                         <div class="flex items-center justify-end gap-2 mt-2.5">
                             @if(($m['status_validasi'] ?? '') === 'draft' && isset($m['id']))
-                                <form action="{{ route('pengukuran.draft.destroy', $m['id']) }}" method="POST" class="inline-block" @click.stop onsubmit="return confirm('Hapus data pengukuran ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 text-[11px] font-semibold transition-colors">
+                                <div class="inline-block" @click.stop>
+                                    <button type="button" @click="confirmDelId = {{ $m['id'] }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 text-[11px] font-semibold transition-colors">
                                         <x-icon name="trash" weight="bold" class="text-[12px]" /> Hapus
                                     </button>
-                                </form>
+                                </div>
                             @endif
                             <div class="flex items-center gap-1 text-[12px] font-semibold text-teal-600"><x-icon name="eye" weight="bold" class="text-[13px]" /> Lihat Detail</div>
                         </div>
@@ -263,13 +259,11 @@
                                     <div class="flex items-center justify-end gap-2">
                                         <button type="button" @click.stop="active = {{ $i }}" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-700 text-[12px] font-semibold transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
                                         @if(($m['status_validasi'] ?? '') === 'draft' && isset($m['id']))
-                                            <form action="{{ route('pengukuran.draft.destroy', $m['id']) }}" method="POST" class="inline-block" @click.stop onsubmit="return confirm('Hapus data pengukuran ini?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 text-[12px] font-semibold transition-colors">
+                                            <div class="inline-block" @click.stop>
+                                                <button type="button" @click="confirmDelId = {{ $m['id'] }}" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 text-[12px] font-semibold transition-colors">
                                                     <x-icon name="trash" weight="bold" class="text-[13px]" /> Hapus
                                                 </button>
-                                            </form>
+                                            </div>
                                         @endif
                                     </div>
                                 </td>
@@ -278,39 +272,58 @@
                     </tbody>
                 </table>
             </div>
-            <template x-teleport="body">
-                <div x-show="active !== null" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6" @click.self="active = null">
+            <div>
+                <div>
+                    {{-- Modal Detail Pengukuran --}}
+                    <div x-show="active !== null" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6" @click.self="active = null">
                     <div x-show="active !== null" x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" @click.stop class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
                     <div x-show="active !== null" x-transition:enter="transition ease-out duration-250" x-transition:enter-start="opacity-0 scale-95 translate-y-3" x-transition:enter-end="opacity-100 scale-100 translate-y-0" @click.stop class="relative w-full max-w-[560px] max-h-[88vh] bg-white rounded-2xl border border-slate-100 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col">
-                        <template x-if="active !== null">
-                            <div>
-                                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
-                                    <div class="flex items-center gap-2.5 min-w-0"><span class="w-2.5 h-2.5 rounded-full shrink-0" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'bg-rose-500' : (items[active]?.status_validasi === 'pending' ? 'bg-amber-400' : 'bg-emerald-500')"></span><span class="text-[16px] font-bold text-slate-900" x-text="items[active]?.date"></span><span class="text-[12.5px] text-slate-400" x-text="'· ' + (items[active]?.age_at_measure || '')"></span></div>
-                                    <button type="button" @click="active = null" aria-label="Tutup" class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors shrink-0"><x-icon name="x" weight="bold" class="text-lg" /></button>
-                                </div>
-                                <div class="px-6 py-5 flex flex-col gap-5 overflow-y-auto">
-                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5">
-                                        <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Berat Badan</p><p class="text-[16px] font-bold text-slate-900 tabular-nums mt-1" x-text="items[active]?.weight ? items[active].weight + ' kg' : '—'"></p></div>
-                                        <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Tinggi Badan</p><p class="text-[16px] font-bold text-slate-900 tabular-nums mt-1" x-text="items[active]?.height ? items[active].height + ' cm' : '—'"></p></div>
-                                        <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">L. Kepala</p><p class="text-[16px] font-bold text-slate-900 tabular-nums mt-1" x-text="items[active]?.head_circ ? items[active].head_circ + ' cm' : '—'"></p></div>
-                                        <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Z-BB/U</p><p class="text-[16px] font-bold tabular-nums mt-1" x-bind:class="items[active]?.z_score_bbu !== null ? (items[active].z_score_bbu < -2 ? 'text-rose-600' : items[active].z_score_bbu < -1 ? 'text-amber-600' : 'text-emerald-600') : 'text-slate-400'" x-text="items[active]?.z_score_bbu !== null ? items[active].z_score_bbu + ' SD' : '—'"></p></div>
-                                        <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Z-TB/U</p><p class="text-[16px] font-bold tabular-nums mt-1" x-bind:class="items[active]?.z_score_tbu !== null ? (items[active].z_score_tbu < -2 ? 'text-rose-600' : items[active].z_score_tbu < -1 ? 'text-amber-600' : 'text-emerald-600') : 'text-slate-400'" x-text="items[active]?.z_score_tbu !== null ? items[active].z_score_tbu + ' SD' : '—'"></p></div>
-                                        <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Validasi</p><p class="text-[16px] font-bold mt-1" x-text="items[active]?.status_validasi === 'approved' ? 'Tervalidasi' : (items[active]?.status_validasi === 'rejected' ? 'Validasi Ulang' : 'Menunggu')"></p></div>
-                                    </div>
-                                    <div class="flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl"><span class="text-[11px] font-semibold uppercase tracking-wide text-slate-500 shrink-0">Status</span><span class="inline-flex items-center gap-1.5 text-[13px] font-bold text-right" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'text-amber-700' : (items[active]?.status_validasi === 'pending' ? 'text-slate-600' : 'text-emerald-600')"><span class="w-1.5 h-1.5 rounded-full" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'bg-amber-500' : (items[active]?.status_validasi === 'pending' ? 'bg-slate-400' : 'bg-emerald-500')"></span><span x-text="items[active]?.status"></span></span></div>
-                                    <template x-if="items[active]?.status_validasi === 'rejected' && items[active]?.catatan_validator">
-                                        <div class="border border-amber-200 rounded-xl p-4 flex items-start gap-3 bg-amber-50/70"><x-icon name="chat-circle-text" weight="fill" class="text-amber-600 text-[20px] shrink-0 mt-0.5" /><div class="min-w-0"><p class="text-[11px] font-bold text-amber-800 uppercase tracking-wide">Catatan Anomali dari Puskesmas</p><p class="text-[13.5px] text-slate-800 mt-1.5 leading-relaxed" x-text="items[active]?.catatan_validator"></p></div></div>
-                                    </template>
-                                </div>
-                                <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2 shrink-0">
-                                    <button type="button" @click="active = null" class="h-10 px-5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors">Tutup</button>
-                                    <template x-if="items[active]?.status_validasi === 'rejected'"><a :href="'{{ route('kader.validasi-ulang') }}'" class="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[13px] font-bold transition-colors shadow-xs"><x-icon name="arrows-counter-clockwise" weight="bold" class="text-[14px]" /> Validasi Ulang</a></template>
-                                </div>
+                        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+                            <div class="flex items-center gap-2.5 min-w-0"><span class="w-2.5 h-2.5 rounded-full shrink-0" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'bg-rose-500' : (items[active]?.status_validasi === 'pending' ? 'bg-amber-400' : 'bg-emerald-500')"></span><span class="text-[16px] font-bold text-slate-900" x-text="items[active]?.date"></span><span class="text-[12.5px] text-slate-400" x-text="'· ' + (items[active]?.age_at_measure || '')"></span></div>
+                            <button type="button" @click="active = null" aria-label="Tutup" class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors shrink-0"><x-icon name="x" weight="bold" class="text-lg" /></button>
+                        </div>
+                        <div class="px-6 py-5 flex flex-col gap-5 overflow-y-auto">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5">
+                                <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Berat Badan</p><p class="text-[16px] font-bold text-slate-900 tabular-nums mt-1" x-text="items[active]?.weight ? items[active].weight + ' kg' : '—'"></p></div>
+                                <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Tinggi Badan</p><p class="text-[16px] font-bold text-slate-900 tabular-nums mt-1" x-text="items[active]?.height ? items[active].height + ' cm' : '—'"></p></div>
+                                <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">L. Kepala</p><p class="text-[16px] font-bold text-slate-900 tabular-nums mt-1" x-text="items[active]?.head_circ ? items[active].head_circ + ' cm' : '—'"></p></div>
+                                <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Z-BB/U</p><p class="text-[16px] font-bold tabular-nums mt-1" x-bind:class="items[active]?.z_score_bbu !== null ? (items[active].z_score_bbu < -2 ? 'text-rose-600' : items[active].z_score_bbu < -1 ? 'text-amber-600' : 'text-emerald-600') : 'text-slate-400'" x-text="items[active]?.z_score_bbu !== null ? items[active].z_score_bbu + ' SD' : '—'"></p></div>
+                                <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Z-TB/U</p><p class="text-[16px] font-bold tabular-nums mt-1" x-bind:class="items[active]?.z_score_tbu !== null ? (items[active].z_score_tbu < -2 ? 'text-rose-600' : items[active].z_score_tbu < -1 ? 'text-amber-600' : 'text-emerald-600') : 'text-slate-400'" x-text="items[active]?.z_score_tbu !== null ? items[active].z_score_tbu + ' SD' : '—'"></p></div>
+                                <div><p class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-wide">Validasi</p><p class="text-[16px] font-bold mt-1" x-text="items[active]?.status_validasi === 'approved' ? 'Tervalidasi' : (items[active]?.status_validasi === 'rejected' ? 'Validasi Ulang' : 'Menunggu')"></p></div>
                             </div>
-                        </template>
+                            <div class="flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl"><span class="text-[11px] font-semibold uppercase tracking-wide text-slate-500 shrink-0">Status</span><span class="inline-flex items-center gap-1.5 text-[13px] font-bold text-right" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'text-amber-700' : (items[active]?.status_validasi === 'pending' ? 'text-slate-600' : 'text-emerald-600')"><span class="w-1.5 h-1.5 rounded-full" x-bind:class="items[active]?.status_validasi === 'rejected' ? 'bg-amber-500' : (items[active]?.status_validasi === 'pending' ? 'bg-slate-400' : 'bg-emerald-500')"></span><span x-text="items[active]?.status"></span></span></div>
+                            <template x-if="items[active]?.status_validasi === 'rejected' && items[active]?.catatan_validator">
+                                <div class="border border-amber-200 rounded-xl p-4 flex items-start gap-3 bg-amber-50/70"><x-icon name="chat-circle-text" weight="fill" class="text-amber-600 text-[20px] shrink-0 mt-0.5" /><div class="min-w-0"><p class="text-[11px] font-bold text-amber-800 uppercase tracking-wide">Catatan Anomali dari Puskesmas</p><p class="text-[13.5px] text-slate-800 mt-1.5 leading-relaxed" x-text="items[active]?.catatan_validator"></p></div></div>
+                            </template>
+                        </div>
+                        <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-2 shrink-0">
+                            <button type="button" @click="active = null" class="h-10 px-5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-[13px] font-semibold transition-colors">Tutup</button>
+                            <template x-if="items[active]?.status_validasi === 'rejected'"><a :href="'{{ route('kader.validasi-ulang') }}'" class="inline-flex items-center gap-1.5 h-10 px-5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[13px] font-bold transition-colors shadow-xs"><x-icon name="arrows-counter-clockwise" weight="bold" class="text-[14px]" /> Validasi Ulang</a></template>
+                        </div>
                     </div>
+                    </div>
+                    
+                    {{-- Modal Konfirmasi Hapus Riwayat Pengukuran --}}
+                    <div x-show="confirmDelId !== null" x-cloak class="fixed inset-0 z-[130] flex items-center justify-center p-4" x-transition.opacity>
+                        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" @click="confirmDelId = null"></div>
+                        <div x-show="confirmDelId !== null" x-transition.scale.origin.center class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6">
+                            <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+                                <x-icon name="warning" weight="fill" class="text-[22px]" />
+                            </div>
+                            <h3 class="text-center text-[16px] font-bold text-slate-900 mt-3">Hapus Data Pengukuran?</h3>
+                            <p class="text-center text-[13px] text-slate-500 mt-1.5 leading-relaxed">Data pengukuran ini akan dihapus secara permanen dan tidak dapat dikembalikan.</p>
+                            <div class="grid grid-cols-2 gap-2.5 mt-5">
+                                <button type="button" @click="confirmDelId = null" class="h-11 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors">Batal</button>
+                                <form x-bind:action="`{{ url('pengukuran/draft') }}/${confirmDelId}`" method="POST" class="inline-block m-0 p-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-full h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[13.5px] font-semibold transition-colors inline-flex items-center justify-center gap-2"><x-icon name="trash" weight="bold" class="text-[15px]" /> Ya, Hapus</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-            </template>
             @else
                 <div class="py-12 text-center text-[13px] text-slate-400">Belum ada data pengukuran.</div>
             @endif

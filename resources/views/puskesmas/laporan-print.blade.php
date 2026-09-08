@@ -166,7 +166,7 @@
         /* KPI Metric Grid */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             margin-bottom: 18px;
         }
@@ -197,6 +197,11 @@
         .kpi-card.kpi-rose {
             border-left-color: #e11d48;
             background-color: #fff1f2;
+        }
+
+        .kpi-card.kpi-purple {
+            border-left-color: #9333ea;
+            background-color: #faf5ff;
         }
 
         .kpi-label {
@@ -392,24 +397,29 @@
     <!-- KPI SUMMARY GRID -->
     <div class="kpi-grid">
         <div class="kpi-card kpi-teal">
-            <div class="kpi-label">Total Sasaran Diukur</div>
+            <div class="kpi-label">Sasaran Diukur</div>
             <div class="kpi-value">{{ number_format($stats['total_balita']) }}</div>
             <div class="kpi-sub">Balita terverifikasi</div>
         </div>
         <div class="kpi-card kpi-emerald">
-            <div class="kpi-label">Status Gizi Normal</div>
+            <div class="kpi-label">Normal (All)</div>
             <div class="kpi-value">{{ number_format($stats['normal']) }}</div>
-            <div class="kpi-sub">{{ $stats['total_balita'] > 0 ? round(($stats['normal'] / $stats['total_balita']) * 100, 1) : 0 }}% dari total sasaran</div>
+            <div class="kpi-sub">Sehat 3 Indeks</div>
         </div>
         <div class="kpi-card kpi-amber">
-            <div class="kpi-label">Berisiko Stunting</div>
-            <div class="kpi-value">{{ number_format($stats['risiko']) }}</div>
-            <div class="kpi-sub">Perlu intervensi gizi</div>
+            <div class="kpi-label">Underweight</div>
+            <div class="kpi-value">{{ number_format($stats['underweight']) }}</div>
+            <div class="kpi-sub">BB Kurang/Sangat Kurang</div>
         </div>
         <div class="kpi-card kpi-rose">
-            <div class="kpi-label">Kasus Stunting</div>
+            <div class="kpi-label">Stunting</div>
             <div class="kpi-value">{{ number_format($stats['stunting']) }}</div>
-            <div class="kpi-sub">Prevalensi: <strong>{{ $stats['prevalence'] }}%</strong></div>
+            <div class="kpi-sub">Pendek/Sangat Pendek</div>
+        </div>
+        <div class="kpi-card kpi-purple">
+            <div class="kpi-label">Wasting</div>
+            <div class="kpi-value">{{ number_format($stats['wasting']) }}</div>
+            <div class="kpi-sub">Gizi Kurang/Buruk</div>
         </div>
     </div>
 
@@ -424,10 +434,11 @@
                 <th style="width: 5%;">No</th>
                 <th style="width: 25%; text-align: left;">Nama Posyandu</th>
                 <th style="width: 22%; text-align: left;">Desa / Kelurahan</th>
-                <th style="width: 12%;">Sasaran Diukur</th>
-                <th style="width: 12%;">Gizi Normal</th>
-                <th style="width: 12%;">Berisiko</th>
-                <th style="width: 12%;">Stunting</th>
+                <th style="width: 10%;">Diukur</th>
+                <th style="width: 9%;">Normal</th>
+                <th style="width: 9%;">Underweight</th>
+                <th style="width: 10%;">Stunting</th>
+                <th style="width: 10%;">Wasting</th>
             </tr>
         </thead>
         <tbody>
@@ -438,17 +449,18 @@
                     <td class="text-left" style="color: #475569;">{{ $row['desa'] }}</td>
                     <td class="text-center font-bold">{{ number_format($row['total']) }}</td>
                     <td class="text-center" style="color: #15803d; font-weight: 600;">{{ number_format($row['normal']) }}</td>
-                    <td class="text-center" style="color: #b45309; font-weight: 600;">{{ number_format($row['risiko']) }}</td>
+                    <td class="text-center" style="color: #b45309; font-weight: 600;">{{ number_format($row['underweight']) }}</td>
                     <td class="text-center font-bold" style="color: {{ $row['stunting'] > 0 ? '#be123c' : '#15803d' }};">
                         {{ number_format($row['stunting']) }}
                         @if($row['total'] > 0)
                             <span style="font-size: 7.5pt; font-weight: normal; color: #64748b;">({{ $row['prevalence'] }}%)</span>
                         @endif
                     </td>
+                    <td class="text-center" style="color: #9333ea; font-weight: 600;">{{ number_format($row['wasting']) }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center" style="padding: 16px; color: #64748b;">Belum ada data posyandu terdaftar.</td>
+                    <td colspan="8" class="text-center" style="padding: 16px; color: #64748b;">Belum ada data posyandu terdaftar.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -457,8 +469,9 @@
                 <td colspan="3" class="text-right" style="padding-right: 12px;">TOTAL KESELURUHAN PUSKESMAS:</td>
                 <td class="text-center">{{ number_format($stats['total_balita']) }}</td>
                 <td class="text-center" style="color: #15803d;">{{ number_format($stats['normal']) }}</td>
-                <td class="text-center" style="color: #b45309;">{{ number_format($stats['risiko']) }}</td>
-                <td class="text-center" style="color: #be123c;">{{ number_format($stats['stunting']) }} ({{ $stats['prevalence'] }}%)</td>
+                <td class="text-center" style="color: #b45309;">{{ number_format($stats['underweight']) }}</td>
+                <td class="text-center" style="color: #be123c;">{{ number_format($stats['stunting']) }} ({{ $stats['prevalence'] ?? 0 }}%)</td>
+                <td class="text-center" style="color: #9333ea;">{{ number_format($stats['wasting']) }}</td>
             </tr>
         </tfoot>
     </table>

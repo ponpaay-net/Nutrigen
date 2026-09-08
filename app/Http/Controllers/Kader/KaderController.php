@@ -1148,7 +1148,7 @@ class KaderController extends Controller
                 .font-bold { font-weight: bold; }
             </style></head><body>";
 
-            echo "<table>";
+            echo "<table border='1'>";
             // KOP SURAT RESMI DINAS & POSYANDU
             echo "<tr><td colspan='20' class='kop-instansi'>KEMENTERIAN KESEHATAN REPUBLIK INDONESIA</td></tr>";
             echo "<tr><td colspan='20' class='kop-dinas'>DINAS KESEHATAN " . strtoupper($kabupatenKota) . "</td></tr>";

@@ -156,7 +156,7 @@
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5">
                 {{-- Line chart: tren kunjungan --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm min-w-0">
                     <div class="flex items-start justify-between gap-3 mb-4">
                         <div class="min-w-0">
                             <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Tren Kunjungan Penimbangan</h3>
@@ -167,7 +167,7 @@
                     <div id="chart-tren" class="w-full"></div>
                 </div>
                 {{-- Donut chart: komposisi status gizi --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm min-w-0">
                     <div class="flex items-start justify-between gap-3 mb-4">
                         <div class="min-w-0">
                             <h3 class="text-[15px] font-bold text-slate-900 leading-snug">Komposisi Status Gizi</h3>
@@ -298,9 +298,9 @@
             </div>
 
             @if(isset($previewBalitas) && $previewBalitas->isNotEmpty())
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto hide-scrollbar">
-                        <table class="w-full text-left border-collapse">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden w-full">
+                    <div class="overflow-x-auto hide-scrollbar w-full">
+                        <table class="w-full min-w-[960px] text-left border-collapse">
                             <thead class="bg-slate-50 border-b border-slate-200 text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
                                 <tr>
                                     <th class="py-3 px-4">Balita & NIK</th>

@@ -11,7 +11,8 @@
     $inp = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-base sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 focus:bg-white transition-all';
     $lbl = 'block text-[13px] font-semibold text-slate-700';
     $field = 'flex flex-col gap-1.5';
-    @endphp
+    /** @var \Illuminate\Support\ViewErrorBag $errors */
+@endphp
 
 @section('content')
 <div class="bg-slate-50 min-h-full" x-data="editForm()">

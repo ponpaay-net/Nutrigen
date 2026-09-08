@@ -78,34 +78,56 @@
         </div>
 
         <!-- KPI SUMMARY CARDS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl border border-slate-200 border-l-4 border-l-slate-400 p-6 flex flex-col">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Total Sasaran</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 lg:gap-6 mb-8">
+            <div class="bg-white rounded-xl border border-slate-200 border-l-4 border-l-slate-400 p-5 lg:p-6 flex flex-col">
+                <span class="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Total Sasaran</span>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-4xl font-bold font-mono text-slate-900 tracking-tight">{{ number_format($stats['total_balita']) }}</span>
-                    <span class="text-sm font-semibold text-slate-500">Balita</span>
+                    <span class="text-3xl lg:text-4xl font-bold font-mono text-slate-900 tracking-tight">{{ number_format($stats['total_balita']) }}</span>
+                    <span class="text-xs lg:text-sm font-semibold text-slate-500">Balita</span>
                 </div>
             </div>
             
-            <div class="bg-white rounded-xl border border-slate-200 border-l-4 border-l-emerald-500 p-6 flex flex-col">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Gizi Normal</span>
+            <div class="bg-white rounded-xl border border-slate-200 border-l-4 border-l-emerald-500 p-5 lg:p-6 flex flex-col">
+                <span class="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Gizi Normal</span>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-4xl font-bold font-mono text-slate-900 tracking-tight">{{ number_format($stats['normal']) }}</span>
-                    <span class="text-sm font-semibold text-slate-500">Balita</span>
+                    <span class="text-3xl lg:text-4xl font-bold font-mono text-slate-900 tracking-tight">{{ number_format($stats['normal']) }}</span>
+                    <span class="text-xs lg:text-sm font-semibold text-slate-500">Balita</span>
                 </div>
-                <div class="mt-4 pt-4 border-t border-slate-100">
-                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md">STATUS SEHAT</span>
+                <div class="mt-auto pt-4 border-t border-slate-100">
+                    <span class="text-[9px] lg:text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md">STATUS SEHAT</span>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl border border-slate-200 border-l-4 border-l-rose-500 p-6 flex flex-col">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Berisiko & Stunting</span>
+            <div class="bg-white rounded-xl border border-slate-200 border-l-4 border-l-amber-500 p-5 lg:p-6 flex flex-col">
+                <span class="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Underweight (BB/U)</span>
                 <div class="flex items-baseline gap-2">
-                    <span class="text-4xl font-bold font-mono text-rose-600 tracking-tight">{{ number_format($stats['berisiko']) }}</span>
-                    <span class="text-sm font-semibold text-slate-500">Balita</span>
+                    <span class="text-3xl lg:text-4xl font-bold font-mono text-amber-600 tracking-tight">{{ number_format($stats['underweight']) }}</span>
+                    <span class="text-xs lg:text-sm font-semibold text-slate-500">Balita</span>
                 </div>
-                <div class="mt-4 pt-4 border-t border-slate-100">
-                    <span class="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1 rounded-md">BUTUH INTERVENSI</span>
+                <div class="mt-auto pt-4 border-t border-slate-100">
+                    <span class="text-[9px] lg:text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-md">BB KURANG</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 border-l-4 border-l-rose-500 p-5 lg:p-6 flex flex-col">
+                <span class="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Stunting (TB/U)</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl lg:text-4xl font-bold font-mono text-rose-600 tracking-tight">{{ number_format($stats['stunting']) }}</span>
+                    <span class="text-xs lg:text-sm font-semibold text-slate-500">Balita</span>
+                </div>
+                <div class="mt-auto pt-4 border-t border-slate-100">
+                    <span class="text-[9px] lg:text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-1 rounded-md">PENDEK</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 border-l-4 border-l-purple-500 p-5 lg:p-6 flex flex-col">
+                <span class="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Wasting (BB/TB)</span>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl lg:text-4xl font-bold font-mono text-purple-600 tracking-tight">{{ number_format($stats['wasting']) }}</span>
+                    <span class="text-xs lg:text-sm font-semibold text-slate-500">Balita</span>
+                </div>
+                <div class="mt-auto pt-4 border-t border-slate-100">
+                    <span class="text-[9px] lg:text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-1 rounded-md">GIZI KURANG</span>
                 </div>
             </div>
 
@@ -136,14 +158,16 @@
                 </div>
                 
                 <div class="hidden md:block overflow-x-auto">
-                    <table class="w-full text-left min-w-[750px]">
+                    <table class="w-full text-left min-w-[900px]">
                         <thead class="bg-slate-100/80 border-b border-slate-200">
                             <tr>
                                 <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">Nama Posyandu</th>
                                 <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Sasaran</th>
                                 <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Diukur</th>
                                 <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Normal</th>
-                                <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Risiko</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Underweight</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Stunting</th>
+                                <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">Wasting</th>
                                 <th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-right">Kehadiran</th>
                             </tr>
                         </thead>
@@ -164,8 +188,18 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-5 align-middle text-center">
+                                        <span class="inline-flex px-2 py-1 bg-amber-50 text-amber-700 font-bold text-[13px] rounded-md border border-amber-200">
+                                            {{ number_format($row['underweight']) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-5 align-middle text-center">
                                         <span class="inline-flex px-2 py-1 bg-rose-50 text-rose-700 font-bold text-[13px] rounded-md border border-rose-200">
-                                            {{ number_format($row['berisiko']) }}
+                                            {{ number_format($row['stunting']) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-5 align-middle text-center">
+                                        <span class="inline-flex px-2 py-1 bg-purple-50 text-purple-700 font-bold text-[13px] rounded-md border border-purple-200">
+                                            {{ number_format($row['wasting']) }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-5 align-middle text-right">
@@ -217,14 +251,22 @@
                                     <div class="text-sm font-black text-slate-800">{{ number_format($row['sasaran']) }} <span class="text-slate-400 mx-1">/</span> <span class="text-indigo-700">{{ number_format($row['diukur']) }}</span></div>
                                 </div>
                                 <div>
-                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Normal / Risiko</div>
-                                    <div class="flex items-center gap-2">
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nor / Udw / Stn / Wst</div>
+                                    <div class="flex items-center gap-1">
                                         <span class="inline-flex px-1.5 py-0.5 bg-emerald-50 text-emerald-700 font-bold text-xs rounded border border-emerald-200">
                                             {{ number_format($row['normal']) }}
                                         </span>
                                         <span class="text-slate-300 font-bold">/</span>
+                                        <span class="inline-flex px-1.5 py-0.5 bg-amber-50 text-amber-700 font-bold text-xs rounded border border-amber-200">
+                                            {{ number_format($row['underweight']) }}
+                                        </span>
+                                        <span class="text-slate-300 font-bold">/</span>
                                         <span class="inline-flex px-1.5 py-0.5 bg-rose-50 text-rose-700 font-bold text-xs rounded border border-rose-200">
-                                            {{ number_format($row['berisiko']) }}
+                                            {{ number_format($row['stunting']) }}
+                                        </span>
+                                        <span class="text-slate-300 font-bold">/</span>
+                                        <span class="inline-flex px-1.5 py-0.5 bg-purple-50 text-purple-700 font-bold text-xs rounded border border-purple-200">
+                                            {{ number_format($row['wasting']) }}
                                         </span>
                                     </div>
                                 </div>

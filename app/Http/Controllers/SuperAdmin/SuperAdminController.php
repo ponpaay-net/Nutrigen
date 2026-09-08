@@ -260,7 +260,7 @@ class SuperAdminController extends Controller
         $output .= '</style></head><body>';
         $output .= '<div class="title">REKAPITULASI PENGUKURAN GIZI BALITA NASIONAL</div>';
         $output .= '<div class="subtitle">Periode: ' . $monthLabel . ' ' . $currentYear . ' | Sumber: NutriGen Kemenkes</div><br>';
-        $output .= '<table>';
+        $output .= '<table border="1">';
         $output .= '<thead><tr>';
         $output .= '<th>No</th><th>Puskesmas</th><th>Posyandu</th><th>Nama Balita</th><th>NIK</th><th>Tanggal Ukur</th><th>Berat (kg)</th><th>Tinggi (cm)</th><th>Status Gizi</th><th>Status Validasi</th>';
         $output .= '</tr></thead><tbody>';

@@ -7,7 +7,8 @@
     $lbl = 'block text-[12.5px] sm:text-[13px] font-semibold text-slate-700';
     $field = 'flex flex-col gap-1.5';
     $secHdr = 'flex items-center gap-3 mb-4 sm:mb-5 pb-4 border-b border-slate-100';
-    @endphp
+    /** @var \Illuminate\Support\ViewErrorBag $errors */
+@endphp
 
 @section('content')
 <div class="bg-slate-50 min-h-full">
@@ -154,11 +155,11 @@
             </div>
 
             {{-- Action row --}}
-            <div class="border-t border-slate-100 px-5 sm:px-6 py-4 flex items-center justify-end gap-2.5 sm:gap-3 bg-slate-50/50">
-                <a href="{{ route('balita.show', $balitaId) }}" class="h-11 sm:h-12 px-5 rounded-xl border border-slate-300 bg-white text-slate-700 text-[13.5px] sm:text-[14px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
+            <div class="border-t border-slate-100 px-5 sm:px-6 py-5 sm:py-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 bg-slate-50/50">
+                <a href="{{ route('balita.show', $balitaId) }}" class="h-12 sm:h-12 px-6 rounded-xl border border-slate-300 bg-white text-slate-700 text-[14px] font-semibold hover:bg-slate-50 transition-colors inline-flex items-center justify-center">Batal</a>
                 <button type="submit" id="btn-submit"
-                    class="flex-1 sm:flex-none h-11 sm:h-12 px-7 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-[13.5px] sm:text-[14px] font-bold transition-all inline-flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 active:scale-[0.99]">
-                    <span id="btn-submit-icon" class="inline-flex items-center"><x-icon name="check" weight="bold" class="text-[15px] sm:text-[16px]" /></span>
+                    class="h-12 sm:h-12 px-8 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-[14px] font-bold transition-all inline-flex items-center justify-center gap-2.5 shadow-md shadow-teal-600/20 active:scale-[0.99]">
+                    <span id="btn-submit-icon" class="inline-flex items-center"><x-icon name="check" weight="bold" class="text-[16px]" /></span>
                     <span id="btn-submit-text">Simpan Pengukuran</span>
                 </button>
             </div>

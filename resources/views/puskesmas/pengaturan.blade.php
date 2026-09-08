@@ -38,7 +38,7 @@
         </div>
 
         <div class="flex-1 p-6 sm:px-10 py-8 relative">
-            <div class="max-w-4xl w-full mx-auto relative z-10 -mt-10">
+            <div class="max-w-4xl w-full mx-auto relative z-10 mt-0 lg:-mt-10">
                 @if (session('success'))
                     <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-4 flex items-center gap-3.5 shadow-sm">
                         <div class="w-10 h-10 rounded-lg bg-white border border-emerald-100 flex items-center justify-center shrink-0 text-emerald-600 shadow-sm">
@@ -208,7 +208,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
                 <!-- SECTION: Tentang Puskesmas -->
                 <div class="mt-4 bg-white border border-slate-200 rounded-2xl p-6 lg:p-8 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
@@ -248,6 +247,7 @@
             </form>
         </div>
     </div>
+</div>
 </div>
 
 @endsection
