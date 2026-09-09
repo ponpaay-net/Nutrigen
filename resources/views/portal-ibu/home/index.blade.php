@@ -170,8 +170,8 @@
                     <div class="w-11 h-11 rounded-full bg-[#FFC107] flex items-center justify-center shadow-[0_4px_12px_rgba(255,193,7,0.35)] mb-3">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
                     </div>
-                    <h3 class="text-[17px] font-black text-[#3E2723] mb-1.5 tracking-tight">Butuh ide bekal bergizi?</h3>
-                    <p class="text-[12px] font-medium text-[#8D6E63] leading-relaxed mb-4">Temukan resep bernutrisi yang dirancang khusus untuk mendukung masa emas si Kecil.</p>
+                    <h3 class="text-[17px] font-black text-[#3E2723] mb-1.5 tracking-tight">Rekomendasi Menu Gizi</h3>
+                    <p class="text-[12px] font-medium text-[#8D6E63] leading-relaxed mb-4">Disusun &amp; ditinjau Tenaga Gizi Puskesmas/Posyandu sesuai kebutuhan si Kecil. Bukan keputusan AI yang berlepas tangan.</p>
                     <button class="inline-flex items-center gap-2 bg-[#FF9800] active:bg-[#F57C00] text-white font-extrabold pl-4 pr-3 py-3 rounded-full shadow-[0_6px_16px_rgba(255,152,0,0.35)] transition-colors text-[13px] focus:outline-none"
                             x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.nutrition', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
@@ -195,8 +195,8 @@
                     </div>
                     <!-- Riwayat Pengukuran -->
                     <div class="bg-white rounded-2xl p-4 flex flex-col items-center gap-2.5 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform"
-                         x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.growth', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
-                        <div class="w-12 h-12 rounded-full bg-[#2196F3] flex items-center justify-center shadow-[0_4px_12px_rgba(33,150,243,0.3)]">
+                         x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.growth', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}#riwayat'">
+                        <div class="w-12 h-12 rounded-full bg-[#4CAF50] flex items-center justify-center shadow-[0_4px_12px_rgba(76,175,80,0.3)]">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                         </div>
                         <span class="text-[12px] font-bold text-slate-600 text-center leading-tight">Riwayat<br>Pengukuran</span>
@@ -204,18 +204,18 @@
                     <!-- Edukasi Gizi -->
                     <div class="bg-white rounded-2xl p-4 flex flex-col items-center gap-2.5 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform"
                          x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.nutrition', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
-                        <div class="w-12 h-12 rounded-full bg-[#9C27B0] flex items-center justify-center shadow-[0_4px_12px_rgba(156,39,176,0.3)]">
+                        <div class="w-12 h-12 rounded-full bg-[#FF9800] flex items-center justify-center shadow-[0_4px_12px_rgba(255,152,0,0.3)]">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
                         <span class="text-[12px] font-bold text-slate-600 text-center leading-tight">Edukasi<br>Gizi</span>
                     </div>
-                    <!-- Tanya Ahli -->
+                    <!-- Hubungi Kader -->
                     <div class="bg-white rounded-2xl p-4 flex flex-col items-center gap-2.5 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform"
                          x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.posyandu', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
-                        <div class="w-12 h-12 rounded-full bg-[#E91E63] flex items-center justify-center shadow-[0_4px_12px_rgba(233,30,99,0.3)]">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        <div class="w-12 h-12 rounded-full bg-[#FF9800] flex items-center justify-center shadow-[0_4px_12px_rgba(255,152,0,0.3)]">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                         </div>
-                        <span class="text-[12px] font-bold text-slate-600 text-center leading-tight">Tanya<br>Ahli</span>
+                        <span class="text-[12px] font-bold text-slate-600 text-center leading-tight">Hubungi<br>Kader</span>
                     </div>
                 </div>
             </div>

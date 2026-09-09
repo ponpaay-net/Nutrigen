@@ -67,6 +67,29 @@ class WhatsAppService
         ];
     }
 
+    /**
+     * Cegah pengiriman berulang ke nomor yang sama dalam 1 hari (cooldown).
+     * Mencegah WA/Fonnte mendeteksi pola spam ke penerima yang sama.
+     *
+     * Catatan: kolom `payload` adalah TEXT, jadi gunakan LIKE (bukan
+     * whereJsonContains) untuk mencocokkan string JSON sederhana.
+     */
+    public function alreadySentToday(string $phone): bool
+    {
+        $max = (int) config('services.wa.throttle.max_per_number_per_day', 1);
+        if ($max <= 0) {
+            return false;
+        }
+
+        $count = NotificationLog::where('channel', 'whatsapp')
+            ->where('status', 'sent')
+            ->where('created_at', '>=', now()->startOfDay())
+            ->where('payload', 'like', '%"to":"'.$phone.'"%')
+            ->count();
+
+        return $count >= $max;
+    }
+
     /** Driver default: tidak kirim ke mana pun, hanya catat (demo-safe). */
     private function viaLog(string $phone, string $message): array
     {
@@ -75,19 +98,29 @@ class WhatsAppService
         return ['status' => 'sent', 'message' => 'simulated (log driver)'];
     }
 
-    /** Gateway Fonnte (https://fonnte.com) — gratis untuk kuota kecil. */
+    /**
+     * Gateway Fonnte (https://fonnte.com) — gratis untuk kuota kecil.
+     *
+     * Fonnte versi terkini mengharuskan token di header `Authorization`
+     * TANPA prefix "Bearer". Mengirim `token=...` di body form akan
+     * dibalas {"reason":"invalid token"}. Normalisasi nomor juga
+     * ditangani Fonnte (08xxxx -> 628xxxx).
+     */
     private function viaFonnte(string $phone, string $message): array
     {
         $token = config('services.wa.fonnte_token');
-        $response = Http::asForm()->timeout(15)->post('https://api.fonnte.com/send', [
-            'token'   => $token,
-            'target'  => $phone,
-            'message' => $message,
-        ]);
+        $response = Http::withHeaders(['Authorization' => $token])
+            ->asForm()
+            ->timeout(15)
+            ->post('https://api.fonnte.com/send', [
+                'target'  => $phone,
+                'message' => $message,
+            ]);
         $body = $response->body();
         $json = $response->json() ?: [];
-        $ok = $response->successful()
-            && (($json['status'] ?? null) === 'true' || ($json['status'] ?? null) === true);
+        $ok = ($json['status'] ?? null) === true
+            && (($json['detail'] ?? null) === 'success! message in queue'
+                || $response->successful());
 
         return ['status' => $ok ? 'sent' : 'failed', 'message' => $body];
     }

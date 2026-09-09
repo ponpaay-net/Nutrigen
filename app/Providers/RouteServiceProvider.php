@@ -28,6 +28,13 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Rate limit Portal Ibu (akses tanpa login via signed link).
+        // Per-IP maks 20 req/menit — cukup untuk ibu yang membuka beberapa
+        // halaman portal, tapi mencegah brute-force signature / crawling.
+        RateLimiter::for('portal-ibu', function (Request $request) {
+            return Limit::perMinute(20)->by($request->ip());
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

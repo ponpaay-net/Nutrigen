@@ -60,24 +60,44 @@
 
     {{-- Banner Link Portal Sukses (Clean Floating Notification) --}}
     @if(session('portal_link'))
-        @php $portalLink = session('portal_link'); @endphp
-        <div x-data="{ copied: false, show: true }" 
-             x-show="show" 
-             class="p-4 bg-emerald-50/90 border border-emerald-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        @php
+            $portalLink = session('portal_link');
+            // wa_sent=true  -> banner hijau, sub-teks "otomatis terkirim"
+            // wa_sent=false -> banner amber, sub-teks "harus dikirim manual"
+            $waSent = session('wa_info') !== null;
+            $bannerBg     = $waSent ? 'bg-emerald-50/90' : 'bg-amber-50/90';
+            $bannerBorder = $waSent ? 'border-emerald-200' : 'border-amber-200';
+            $bannerIcon   = $waSent ? 'bg-emerald-600' : 'bg-amber-500';
+            $bannerTitle  = $waSent ? 'Validasi Pengukuran Berhasil Disimpan' : 'Validasi Berhasil — WhatsApp Belum Terkirim';
+            $bannerSub    = $waSent
+                ? "Portal link otomatis terkirim ke WhatsApp Ibunda {$portalLink['child_name']}."
+                : (session('wa_warning') ?: "Portal link perlu diteruskan manual ke Ibunda {$portalLink['child_name']}.");
+            $titleColor   = $waSent ? 'text-emerald-950' : 'text-amber-950';
+            $subColor     = $waSent ? 'text-emerald-800' : 'text-amber-800';
+            $inputBorder  = $waSent ? 'border-emerald-300' : 'border-amber-300';
+            $btnSecondary = $waSent
+                ? 'bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-100'
+                : 'bg-white border border-amber-300 text-amber-800 hover:bg-amber-100';
+            $copiedColor  = $waSent ? 'bg-emerald-700 text-white' : 'bg-amber-700 text-white';
+            $closeColor   = $waSent ? 'text-emerald-600 hover:text-emerald-800' : 'text-amber-600 hover:text-amber-800';
+        @endphp
+        <div x-data="{ copied: false, show: true }"
+             x-show="show"
+             class="p-4 {{ $bannerBg }} border {{ $bannerBorder }} rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                    <i class="ph-bold ph-check text-base"></i>
+                <div class="w-8 h-8 rounded-lg {{ $bannerIcon }} text-white flex items-center justify-center shrink-0">
+                    <i class="ph-bold {{ $waSent ? 'ph-check' : 'ph-warning' }} text-base"></i>
                 </div>
                 <div>
-                    <h3 class="text-xs font-bold text-emerald-950">Validasi Pengukuran Berhasil Disimpan</h3>
-                    <p class="text-xs text-emerald-800 mt-0.5">Tautan buku KIA digital siap dikirim ke Ibunda {{ $portalLink['child_name'] }}.</p>
+                    <h3 class="text-xs font-bold {{ $titleColor }}">{{ $bannerTitle }}</h3>
+                    <p class="text-xs {{ $subColor }} mt-0.5">{{ $bannerSub }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <input type="text" readonly value="{{ $portalLink['url'] }}" x-ref="portalUrl" class="w-56 text-xs bg-white border border-emerald-300 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none font-mono">
-                <button @click="navigator.clipboard.writeText($refs.portalUrl.value); copied = true; setTimeout(() => copied = false, 2000)" 
+                <input type="text" readonly value="{{ $portalLink['url'] }}" x-ref="portalUrl" class="w-56 text-xs bg-white border {{ $inputBorder }} rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none font-mono">
+                <button @click="navigator.clipboard.writeText($refs.portalUrl.value); copied = true; setTimeout(() => copied = false, 2000)"
                         class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                        :class="copied ? 'bg-emerald-700 text-white' : 'bg-white border border-emerald-300 text-emerald-800 hover:bg-emerald-100'">
+                        :class="copied ? '{{ $copiedColor }}' : '{{ $btnSecondary }}'">
                     <span x-text="copied ? 'Tersalin' : 'Salin'">Salin</span>
                 </button>
                 @if(!empty($portalLink['wa_url']))
@@ -86,7 +106,7 @@
                         <span>Kirim WA</span>
                     </a>
                 @endif
-                <button @click="show = false" class="p-1 text-emerald-600 hover:text-emerald-800">
+                <button @click="show = false" class="p-1 {{ $closeColor }}">
                     <i class="ph-bold ph-x text-sm"></i>
                 </button>
             </div>
