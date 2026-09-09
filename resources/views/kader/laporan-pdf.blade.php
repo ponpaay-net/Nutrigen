@@ -3,231 +3,359 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan_Hasil_Pengukuran_Posyandu_{{ str_replace(' ', '_', $periode) }}.pdf</title>
+    <title>Laporan_Hasil_Pengukuran_Posyandu_{{ str_replace(' ', '_', $cleanPosyanduName ?? 'Posyandu') }}_{{ str_replace(' ', '_', $periode) }}.pdf</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
         @page {
             size: A4 landscape;
-            margin: 10mm 12mm 12mm 12mm;
+            margin: 8mm 10mm 10mm 10mm;
         }
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #0f172a;
-            line-height: 1.35;
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 8px;
-            background-color: #fff;
-            font-size: 10.5px;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #0f172a;
+            background-color: #ffffff;
+            font-size: 9pt;
+            line-height: 1.35;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-        }
-        
-        /* Official Kop Surat Dinas Kesehatan */
-        .kop-container {
-            display: table;
-            width: 100%;
-            border-bottom: 3px double #0f172a;
-            padding-bottom: 10px;
-            margin-bottom: 12px;
-        }
-        .kop-logo {
-            display: table-cell;
-            width: 70px;
-            vertical-align: middle;
-            text-align: center;
-        }
-        .kop-text {
-            display: table-cell;
-            text-align: center;
-            vertical-align: middle;
-            padding: 0 15px;
-        }
-        .kop-instansi-1 {
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: #0f172a;
-            margin: 0;
-        }
-        .kop-instansi-2 {
-            font-size: 15px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: #0f766e;
-            margin: 2px 0;
-        }
-        .kop-unit {
-            font-size: 14px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #0f172a;
-            margin: 0;
-        }
-        .kop-alamat {
-            font-size: 9.5px;
-            color: #475569;
-            margin-top: 3px;
-            margin-bottom: 0;
+            padding: 14px;
         }
 
-        /* Title Area */
-        .report-title-box {
-            text-align: center;
-            margin: 10px 0 14px;
-        }
-        .report-title {
-            font-size: 13.5px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: #0f172a;
-            margin: 0;
-        }
-        .report-subtitle {
-            font-size: 10.5px;
-            color: #334155;
-            margin-top: 3px;
-            font-weight: 600;
-        }
-
-        /* Summary Stats Ribbon */
-        .summary-ribbon {
-            display: table;
-            width: 100%;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            background-color: #f8fafc;
-            margin-bottom: 14px;
-            table-layout: fixed;
-        }
-        .summary-cell {
-            display: table-cell;
-            padding: 6px 10px;
-            text-align: center;
-            border-right: 1px solid #e2e8f0;
-            vertical-align: middle;
-        }
-        .summary-cell:last-child {
-            border-right: none;
-        }
-        .summary-num {
-            font-size: 15px;
-            font-weight: 800;
-            display: block;
-            color: #0f172a;
-        }
-        .summary-label {
-            font-size: 8.5px;
-            font-weight: 700;
-            color: #475569;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        /* Main Data Table */
-        table.data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 9.5px;
-            margin-top: 4px;
-        }
-        table.data-table th, table.data-table td {
-            border: 1px solid #94a3b8;
-            padding: 5px 6px;
-            vertical-align: middle;
-        }
-        table.data-table th {
-            background-color: #f1f5f9;
-            color: #0f172a;
-            font-weight: 800;
-            text-transform: uppercase;
-            font-size: 9px;
-            text-align: center;
-            letter-spacing: 0.02em;
-        }
-        table.data-table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .font-bold { font-weight: 700; }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 2px 5px;
-            border-radius: 4px;
-            font-weight: 700;
-            font-size: 8.5px;
-        }
-        .status-normal { background: #dcfce7; color: #166534; }
-        .status-warning { background: #fef3c7; color: #92400e; }
-        .status-danger { background: #fee2e2; color: #991b1b; }
-
-        /* Signatures Section */
-        .signature-section {
-            margin-top: 24px;
-            width: 100%;
-            display: table;
-            table-layout: fixed;
-            page-break-inside: avoid;
-        }
-        .signature-col {
-            display: table-cell;
-            width: 50%;
-            text-align: center;
-            vertical-align: top;
-        }
-        .sign-space {
-            height: 50px;
-        }
-        .sign-name {
-            font-weight: 800;
-            font-size: 10.5px;
-            text-decoration: underline;
-            color: #0f172a;
-            margin-bottom: 2px;
-        }
-        .sign-role {
-            font-size: 9.5px;
-            color: #475569;
-            margin: 0;
-        }
-
-        /* Screen Header Bar */
-        .action-bar {
-            background: #0f172a;
-            color: #fff;
-            padding: 10px 18px;
+        /* Screen Action Toolbar (Hidden during Print) */
+        .no-print {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 8px;
-            margin-bottom: 14px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
-        .btn-action {
-            color: #fff;
-            border: none;
-            padding: 7px 16px;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 11.5px;
-            text-decoration: none;
+
+        .btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-        }
-        .btn-print { background: #0f766e; }
-        .btn-excel { background: #15803d; }
-        .btn-back {
-            color: #94a3b8;
+            gap: 7px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 11.5px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s ease;
         }
-        .btn-back:hover { color: #fff; }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .btn-excel {
+            background-color: #059669;
+            color: #ffffff;
+        }
+        .btn-excel:hover {
+            background-color: #047857;
+        }
+
+        .btn-primary {
+            background-color: #0d9488;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #0f766e;
+        }
+
+        /* Kop Surat Resmi Dinas & Posyandu */
+        .kop-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .kop-logo {
+            width: 62px;
+            height: 62px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .kop-text {
+            text-align: center;
+            flex: 1;
+        }
+
+        .kop-instansi {
+            font-size: 10.5pt;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: #0f172a;
+            text-transform: uppercase;
+        }
+
+        .kop-dinas {
+            font-size: 11.5pt;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #0f172a;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        .kop-puskesmas {
+            font-size: 12.5pt;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            color: #0d9488;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        .kop-posyandu {
+            font-size: 11pt;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #0f172a;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        .kop-detail {
+            font-size: 8pt;
+            color: #475569;
+            line-height: 1.35;
+            margin-top: 3px;
+        }
+
+        .kop-line-double {
+            border-top: 2.5px solid #0f172a;
+            border-bottom: 1px solid #0f172a;
+            height: 3px;
+            margin-top: 6px;
+            margin-bottom: 14px;
+        }
+
+        /* Document Title Block */
+        .doc-title-box {
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .doc-title {
+            font-size: 12.5pt;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .doc-period {
+            font-size: 10pt;
+            font-weight: 700;
+            color: #0d9488;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+
+        .doc-meta {
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 3px;
+        }
+
+        /* KPI Summary Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .kpi-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            padding: 7px 10px;
+            background-color: #f8fafc;
+            border-left: 3.5px solid #94a3b8;
+        }
+
+        .kpi-card.kpi-teal {
+            border-left-color: #0d9488;
+            background-color: #f0fdfa;
+        }
+
+        .kpi-card.kpi-emerald {
+            border-left-color: #10b981;
+            background-color: #f0fdf4;
+        }
+
+        .kpi-card.kpi-blue {
+            border-left-color: #0284c7;
+            background-color: #f0f9ff;
+        }
+
+        .kpi-card.kpi-amber {
+            border-left-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+
+        .kpi-card.kpi-rose {
+            border-left-color: #e11d48;
+            background-color: #fff1f2;
+        }
+
+        .kpi-label {
+            font-size: 7pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #64748b;
+        }
+
+        .kpi-value {
+            font-size: 13pt;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 1px;
+            line-height: 1.1;
+        }
+
+        .kpi-sub {
+            font-size: 7.5pt;
+            color: #64748b;
+            margin-top: 1px;
+        }
+
+        /* Main Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt;
+            margin-bottom: 18px;
+        }
+
+        .data-table th, 
+        .data-table td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 6px;
+            vertical-align: middle;
+        }
+
+        .data-table th {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: 700;
+            text-align: center;
+            font-size: 7.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-left { text-align: left; }
+        .font-bold { font-weight: 700; }
+
+        /* Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 7.2pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+        .status-normal { background-color: #dcfce7; color: #15803d; }
+        .status-warning { background-color: #fef3c7; color: #b45309; }
+        .status-danger  { background-color: #ffe4e6; color: #be123c; }
+
+        /* Signatures Section */
+        .signature-section {
+            margin-top: 22px;
+            display: flex;
+            justify-content: space-between;
+            page-break-inside: avoid;
+        }
+
+        .signature-box {
+            text-align: center;
+            width: 250px;
+        }
+
+        .signature-title {
+            font-size: 8.5pt;
+            color: #475569;
+            margin-bottom: 3px;
+        }
+
+        .signature-role {
+            font-size: 9pt;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0;
+        }
+
+        .signature-name {
+            font-size: 9.5pt;
+            font-weight: 800;
+            color: #0f172a;
+            border-bottom: 1.5px solid #0f172a;
+            padding-bottom: 2px;
+            display: inline-block;
+            min-width: 180px;
+        }
+
+        .signature-name-plain {
+            font-size: 9.5pt;
+            font-weight: 700;
+            color: #0f172a;
+            display: inline-block;
+            min-width: 180px;
+        }
+
+        .signature-nip {
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 3px;
+        }
+
+        /* Document Footer */
+        .doc-footer {
+            margin-top: 18px;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 5px;
+            font-size: 7pt;
+            color: #94a3b8;
+            display: flex;
+            justify-content: space-between;
+        }
 
         @media print {
             .no-print {
@@ -241,96 +369,117 @@
 </head>
 <body>
 
-    <!-- Screen Navigation Bar (Hidden during Print) -->
-    <div class="action-bar no-print">
-        <div>
-            <strong>Laporan Resmi Posyandu</strong> &bull; {{ $posyanduName }} &bull; Periode {{ $periode }}
+    <!-- ACTION TOOLBAR (Hidden during print) -->
+    <div class="no-print">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="{{ route('laporan.index') }}" class="btn btn-secondary">
+                &larr; Kembali ke Portal
+            </a>
+            <div>
+                <p style="font-size: 13px; font-weight: 700; color: #0f172a;">Pratinjau Cetak Laporan Posyandu</p>
+                <p style="font-size: 11px; color: #64748b;">Posyandu {{ $cleanPosyanduName }} &bull; Periode {{ $periode }} &bull; Format A4 Landscape Resmi</p>
+            </div>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <a href="{{ route('laporan.index') }}" class="btn-back">&larr; Kembali ke Portal</a>
-            <a href="{{ route('laporan.export.excel', ['periode' => request('periode')]) }}" class="btn-action btn-excel">Export Excel (.xls)</a>
-            <button onclick="window.print()" class="btn-action btn-print">Cetak Laporan (PDF)</button>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <a href="{{ route('laporan.export.excel', ['periode' => request('periode')]) }}" class="btn btn-excel">
+                &#128196; Export Excel (.xls)
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                &#128438; Cetak / Simpan PDF
+            </button>
         </div>
     </div>
 
-    <!-- Official Kop Surat -->
-    <div class="kop-container">
-        <div class="kop-logo">
-            <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#0f766e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-        </div>
+    <!-- KOP SURAT RESMI DINAS & POSYANDU -->
+    <div class="kop-header">
+        <img src="{{ asset('images/kemenkes_logo.png') }}" alt="Logo Kemenkes" class="kop-logo" onerror="this.src='/images/kemenkes_logo.png'">
         <div class="kop-text">
-            <p class="kop-instansi-1">PEMERINTAH KABUPATEN / KOTA</p>
-            <p class="kop-instansi-2">DINAS KESEHATAN &bull; {{ strtoupper($puskesmasName) }}</p>
-            <p class="kop-unit">{{ strtoupper($posyanduName) }} &bull; DESA/KEL. {{ strtoupper($desa) }}</p>
-            <p class="kop-alamat">Alamat: {{ $alamat }} &bull; Format Standar Buku KIA / KMS Terintegrasi NutriGen</p>
+            <div class="kop-instansi">KEMENTERIAN KESEHATAN REPUBLIK INDONESIA</div>
+            <div class="kop-dinas">DINAS KESEHATAN {{ strtoupper($kabupatenKota ?? 'KOTA BANDA ACEH') }}</div>
+            <div class="kop-puskesmas">UPTD PUSKESMAS {{ strtoupper($cleanPuskesmasName) }}</div>
+            <div class="kop-posyandu">POSYANDU {{ strtoupper($cleanPosyanduName) }} &bull; DESA/KEL. {{ strtoupper($desa) }}</div>
+            <div class="kop-detail">
+                Alamat: {{ $alamat }} &bull; Telp: {{ $puskesmasTelp ?? '-' }} &bull; Format Standar Pelaporan Buku KIA / KMS Terintegrasi NutriGen
+            </div>
         </div>
-        <div class="kop-logo" style="width: 70px;"></div>
+        <img src="{{ asset('images/logo/logo-nutrigen.png') }}" alt="Logo NutriGen" class="kop-logo" onerror="this.src='/images/logo/logo-nutrigen.png'">
     </div>
+    <div class="kop-line-double"></div>
 
-    <!-- Report Title -->
-    <div class="report-title-box">
-        <h1 class="report-title">LAPORAN HASIL PENIMBANGAN & PEMANTAUAN TUMBUH KEMBANG BALITA</h1>
-        <p class="report-subtitle">Periode Pelaksanaan: {{ $periode }} &bull; Tempat: {{ $posyanduName }}</p>
-    </div>
-
-    <!-- Summary Stats Ribbon -->
-    <div class="summary-ribbon">
-        <div class="summary-cell">
-            <span class="summary-num">{{ $totalBalita }}</span>
-            <span class="summary-label">Total Balita (S)</span>
-        </div>
-        <div class="summary-cell">
-            <span class="summary-num" style="color: #0f766e;">{{ $sudahDiukur }}</span>
-            <span class="summary-label">Balita Terukur (D)</span>
-        </div>
-        <div class="summary-cell">
-            <span class="summary-num" style="color: #0284c7;">{{ $persentase }}%</span>
-            <span class="summary-label">Cakupan (D/S)</span>
-        </div>
-        <div class="summary-cell">
-            <span class="summary-num" style="color: #d97706;">{{ $perluPerhatian }}</span>
-            <span class="summary-label">Pantauan Gizi</span>
-        </div>
-        <div class="summary-cell">
-            <span class="summary-num" style="color: #be123c;">{{ $berisiko }}</span>
-            <span class="summary-label">Konfirmasi Puskesmas</span>
+    <!-- TITLE BOX -->
+    <div class="doc-title-box">
+        <h1 class="doc-title">LAPORAN HASIL PENIMBANGAN & PEMANTAUAN TUMBUH KEMBANG BALITA</h1>
+        <div class="doc-period">PERIODE PELAKSANAAN: {{ strtoupper($periode) }}</div>
+        <div class="doc-meta">
+            Tempat: Posyandu {{ $cleanPosyanduName }} &bull; Wilayah Binaan: UPTD Puskesmas {{ $cleanPuskesmasName }} &bull; Waktu Cetak: {{ now()->translatedFormat('d F Y, H:i') }} WIB
         </div>
     </div>
 
-    <!-- Main Data Table -->
+    <!-- KPI SUMMARY GRID -->
+    <div class="kpi-grid">
+        <div class="kpi-card kpi-teal">
+            <div class="kpi-label">Total Sasaran (S)</div>
+            <div class="kpi-value">{{ $totalBalita }}</div>
+            <div class="kpi-sub">Balita terdaftar di Posyandu</div>
+        </div>
+        <div class="kpi-card kpi-emerald">
+            <div class="kpi-label">Balita Terukur (D)</div>
+            <div class="kpi-value">{{ $sudahDiukur }}</div>
+            <div class="kpi-sub">{{ $persentase }}% cakupan penimbangan (D/S)</div>
+        </div>
+        <div class="kpi-card kpi-blue">
+            <div class="kpi-label">Status Gizi Normal</div>
+            <div class="kpi-value">{{ $stats['normal'] ?? 0 }}</div>
+            <div class="kpi-sub">Sesuai kurva pertumbuhan baku</div>
+        </div>
+        <div class="kpi-card kpi-amber">
+            <div class="kpi-label">Pantauan Gizi</div>
+            <div class="kpi-value">{{ $perluPerhatian }}</div>
+            <div class="kpi-sub">Gizi kurang & risiko stunting</div>
+        </div>
+        <div class="kpi-card kpi-rose">
+            <div class="kpi-label">Konfirmasi Puskesmas</div>
+            <div class="kpi-value">{{ $berisiko }}</div>
+            <div class="kpi-sub">Stunting & rujukan medis</div>
+        </div>
+    </div>
+
+    <!-- MAIN DATA TABLE -->
     <table class="data-table">
         <thead>
             <tr>
                 <th style="width: 25px;">No</th>
-                <th style="width: 105px;">NIK Balita</th>
+                <th style="width: 110px;">NIK Balita</th>
                 <th>Nama Balita</th>
-                <th style="width: 30px;">L/P</th>
-                <th style="width: 65px;">Tgl Lahir</th>
-                <th style="width: 45px;">Umur</th>
+                <th style="width: 32px;">L/P</th>
+                <th style="width: 68px;">Tgl Lahir</th>
+                <th style="width: 48px;">Umur</th>
                 <th>Nama Ibu / Ortu</th>
-                <th style="width: 65px;">Tgl Ukur</th>
-                <th style="width: 45px;">BB (kg)</th>
-                <th style="width: 45px;">TB (cm)</th>
-                <th style="width: 45px;">LK (cm)</th>
-                <th style="width: 35px;">ASI</th>
-                <th style="width: 35px;">KMS</th>
-                <th style="width: 110px;">Status / Diagnosa</th>
-                <th style="width: 110px;">Catatan</th>
+                <th style="width: 68px;">Tgl Ukur</th>
+                <th style="width: 46px;">BB (kg)</th>
+                <th style="width: 46px;">TB (cm)</th>
+                <th style="width: 46px;">LK (cm)</th>
+                <th style="width: 34px;">ASI</th>
+                <th style="width: 38px;">KMS</th>
+                <th style="width: 48px;">Z-Score BB/U</th>
+                <th style="width: 48px;">Z-Score TB/U</th>
+                <th style="width: 48px;">Z-Score BB/TB</th>
+                <th style="width: 90px;">Rekomendasi PMT</th>
+                <th style="width: 115px;">Status / Diagnosa</th>
+                <th style="width: 90px;">Catatan</th>
             </tr>
         </thead>
         <tbody>
             @forelse($balitas as $index => $b)
-                @php 
+                @php
                     $m = $b->pengukurans->first();
-                    $statusGizi = $m ? $m->status_gizi : '-';
-                    $statusValidasi = $m ? $m->status_validasi : null;
+                    $displayStatus = 'Belum Diukur';
+                    $badgeClass = 'status-warning';
                     
-                    // Medical protocol formatting
-                    $displayStatus = '-';
-                    $badgeClass = 'status-normal';
                     if ($m) {
+                        $statusValidasi = $m->status_validasi;
+                        $statusGizi = $m->status_gizi;
+                        
                         if ($statusValidasi === 'approved') {
                             $displayStatus = match(strtolower($statusGizi)) {
                                 'stunting' => 'Stunting',
@@ -349,8 +498,8 @@
                             $badgeClass = 'status-danger';
                         } else {
                             $displayStatus = match(strtolower($statusGizi)) {
-                                'stunting', 'pendek' => 'TB Rendah (Menunggu Validasi)',
-                                'risiko', 'kurang' => 'Pantauan (Menunggu Validasi)',
+                                'stunting', 'pendek' => 'TB Rendah (Menunggu)',
+                                'risiko', 'kurang' => 'Pantauan (Menunggu)',
                                 'normal', 'gizi baik' => 'Gizi Baik (KMS)',
                                 default => 'Menunggu Validasi'
                             };
@@ -365,18 +514,22 @@
                 @endphp
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="text-center font-bold">{{ $b->nik ?? '-' }}</td>
+                    <td class="text-center font-bold" style="letter-spacing: 0.2px;">{{ $b->nik ?? '-' }}</td>
                     <td class="font-bold">{{ $b->nama }}</td>
                     <td class="text-center">{{ $b->jenis_kelamin }}</td>
                     <td class="text-center">{{ $b->tanggal_lahir ? \Carbon\Carbon::parse($b->tanggal_lahir)->format('d/m/Y') : '-' }}</td>
                     <td class="text-center">{{ $m ? $m->umur_bulan . ' bln' : '-' }}</td>
-                    <td>{{ $b->orangTua->nama_ibu ?? '-' }}</td>
+                    <td>{{ $b->orangTua?->nama_ibu ?? '-' }}</td>
                     <td class="text-center">{{ $m ? \Carbon\Carbon::parse($m->tanggal_ukur)->format('d/m/Y') : '-' }}</td>
                     <td class="text-center font-bold">{{ $m ? number_format((float)$m->berat_badan, 2) : '-' }}</td>
                     <td class="text-center font-bold">{{ $m ? number_format((float)$m->tinggi_badan, 1) : '-' }}</td>
                     <td class="text-center">{{ ($m && $m->lingkar_kepala) ? number_format((float)$m->lingkar_kepala, 1) : '-' }}</td>
                     <td class="text-center">{{ $m ? ($m->asi_eksklusif ? 'Ya' : 'Tdk') : '-' }}</td>
                     <td class="text-center font-bold">{{ $m ? ($m->status_kenaikan ?? '-') : '-' }}</td>
+                    <td class="text-center font-bold">{{ $m && $m->z_score_bbu !== null ? number_format((float)$m->z_score_bbu, 2) : '-' }}</td>
+                    <td class="text-center font-bold">{{ $m && $m->z_score_tbu !== null ? number_format((float)$m->z_score_tbu, 2) : '-' }}</td>
+                    <td class="text-center font-bold">{{ $m && $m->z_score_bbt !== null ? number_format((float)$m->z_score_bbt, 2) : '-' }}</td>
+                    <td class="text-center font-bold">{{ $m ? ($m->rekomendasi_pmt ?? '-') : '-' }}</td>
                     <td class="text-center">
                         <span class="status-badge {{ $badgeClass }}">{{ $displayStatus }}</span>
                     </td>
@@ -384,7 +537,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="15" class="text-center" style="padding: 18px; color: #64748b;">
+                    <td colspan="19" class="text-center" style="padding: 18px; color: #64748b;">
                         Tidak ada data balita yang diukur pada periode {{ $periode }}.
                     </td>
                 </tr>
@@ -392,22 +545,28 @@
         </tbody>
     </table>
 
-    <!-- Official Dual Signatures Section -->
+    <!-- OFFICIAL DUAL SIGNATURES SECTION -->
     <div class="signature-section">
-        <div class="signature-col">
-            <p>Mengetahui,</p>
-            <p class="sign-role">Petugas Gizi / Bidan Pembina {{ $puskesmasName }}</p>
-            <div class="sign-space"></div>
-            <p class="sign-name">( .................................................... )</p>
-            <p class="sign-role">NIP. .............................................</p>
+        <div class="signature-box">
+            <p class="signature-title">Mengetahui,</p>
+            <p class="signature-role">Petugas Gizi / Bidan Pembina {{ $puskesmasName }}</p>
+            <div style="height: 48px;"></div>
+            <div class="signature-name-plain">( .................................................... )</div>
+            <p class="signature-nip">NIP. .............................................</p>
         </div>
-        <div class="signature-col">
-            <p>{{ $desa }}, {{ now()->translatedFormat('d F Y') }}</p>
-            <p class="sign-role">Pelaksana Kader {{ $posyanduName }}</p>
-            <div class="sign-space"></div>
-            <p class="sign-name"><strong><u>{{ $kaderName }}</u></strong></p>
-            <p class="sign-role">Kader Penanggung Jawab</p>
+        <div class="signature-box">
+            <p class="signature-title">{{ $desa }}, {{ now()->translatedFormat('d F Y') }}</p>
+            <p class="signature-role">Pelaksana Kader Posyandu {{ $cleanPosyanduName }}</p>
+            <div style="height: 48px;"></div>
+            <div class="signature-name">{{ $kaderName }}</div>
+            <p class="signature-nip">Kader Penanggung Jawab</p>
         </div>
+    </div>
+
+    <!-- DOCUMENT FOOTER -->
+    <div class="doc-footer">
+        <span>NutriGen Digital Posyandu System &bull; Dokumen Sah Pelaporan Posyandu &bull; Format Terintegrasi KMS / KIA</span>
+        <span>Dicetak otomatis pada {{ now()->translatedFormat('d F Y, H:i') }} WIB</span>
     </div>
 
 </body>

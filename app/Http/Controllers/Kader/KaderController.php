@@ -44,14 +44,14 @@ class KaderController extends Controller
 
     private function formatDisplayStatus(?string $status, ?string $statusValidasi = null): string
     {
-        if (!$status || strtolower($status) === 'belum ada') {
+        if (!$status || strtolower((string) $status) === 'belum ada') {
             return 'Belum Diukur';
         }
 
         // Jika BELUM divalidasi oleh Puskesmas (status_validasi == 'pending'):
         // Sesuai standar Buku KIA / KMS, kader belum mengeluarkan vonis medis klinis
         if ($statusValidasi === 'pending' || $statusValidasi === null) {
-            return match(strtolower($status)) {
+            return match(strtolower((string) $status)) {
                 'stunting', 'pendek', 'sangat pendek' => 'Perlu Konfirmasi Gizi (TB Rendah)',
                 'risiko', 'kurang', 'gizi kurang' => 'Garis Kuning (Perlu Pemantauan)',
                 'normal', 'gizi baik' => 'Gizi Baik (Sesuai KMS)',
@@ -60,12 +60,12 @@ class KaderController extends Controller
         }
 
         if ($statusValidasi === 'rejected') {
-            return 'Perlu Revisi Kader';
+            return 'Perlu Validasi Ulang';
         }
 
         // Jika SUDAH divalidasi oleh Dokter/Ahli Gizi Puskesmas (status_validasi == 'approved'):
         // Tampilkan diagnosa klinis resmi
-        return match(strtolower($status)) {
+        return match(strtolower((string) $status)) {
             'stunting' => 'Stunting',
             'risiko' => 'Risiko Stunting',
             'kurang', 'gizi kurang' => 'Gizi Kurang',
@@ -97,14 +97,14 @@ class KaderController extends Controller
             
             $status = $latest ? $latest->status_gizi : 'Belum Ada';
             $statusValidasi = $latest ? $latest->status_validasi : null;
-            $statusType = match(strtolower($status)) {
+            $statusType = match(strtolower((string) $status)) {
                 'stunting' => 'danger',
                 'risiko', 'kurang' => 'warning',
                 'normal' => 'success',
                 default => 'warning'
             };
 
-            $shortStatus = match(strtolower($status)) {
+            $shortStatus = match(strtolower((string) $status)) {
                 'stunting', 'pendek' => 'Konfirmasi TB',
                 'risiko', 'kurang' => 'Pantauan Gizi',
                 'normal' => 'Gizi Baik',
@@ -115,7 +115,7 @@ class KaderController extends Controller
                 'id' => $b->id,
                 'name' => $b->nama,
                 'gender' => $b->jenis_kelamin,
-                'mother' => $b->orangTua->nama_ibu ?? '-',
+                'mother' => $b->orangTua?->nama_ibu ?? '-',
                 'avatar' => null,
                 'age' => $age->y . ' Thn ' . $age->m . ' Bln',
                 'status' => $this->formatDisplayStatus($status, $statusValidasi),
@@ -168,7 +168,9 @@ class KaderController extends Controller
             'statSudah' => $ds['bulan_ini'],
             'statBelum' => max(0, $ds['total_balita'] - $ds['bulan_ini']),
             'statPerlu' => count($priorityChildren),
-            'statRevisi' => $ds['perlu_revisi'] ?? 0,
+            'statRevisi' => Pengukuran::whereHas('balita', function ($q) use ($posyanduId) {
+                $q->where('posyandu_id', $posyanduId);
+            })->where('status_validasi', 'rejected')->count(),
             'priorityChildren' => $priorityChildren,
             'jadwalTerdekat' => $jadwalTerdekat,
             'activityName' => $jadwalTerdekat['judul'] ?? 'Belum ada jadwal',
@@ -185,7 +187,7 @@ class KaderController extends Controller
         $latest = $b->latestPengukuran;
         $age = Carbon::parse($b->tanggal_lahir)->diff(Carbon::now());
         $status = $latest ? $latest->status_gizi : 'Belum Ada';
-        $statusType = match (strtolower($status)) {
+        $statusType = match (strtolower((string) $status)) {
             'stunting' => 'danger',
             'risiko', 'kurang' => 'warning',
             'normal' => 'success',
@@ -194,9 +196,9 @@ class KaderController extends Controller
         $rejectedMeasurement = $b->pengukurans->where('status_validasi', 'rejected')->first();
         $status_validasi = $rejectedMeasurement ? 'rejected' : ($latest ? $latest->status_validasi : 'pending');
         if ($rejectedMeasurement) {
-            $statusType = 'danger';
+            $statusType = 'warning';
         }
-        $isGirl = in_array(strtolower($b->jenis_kelamin ?? ''), ['p', 'perempuan', 'female']);
+        $isGirl = in_array(strtolower((string) $b->jenis_kelamin ?? ''), ['p', 'perempuan', 'female']);
         $genderLabel = $isGirl ? 'Perempuan' : 'Laki-laki';
         $maskedNik = $b->nik;
         if ($b->nik && strlen($b->nik) >= 12) {
@@ -218,7 +220,7 @@ class KaderController extends Controller
             'gender_label' => $genderLabel,
             'nik' => $b->nik,
             'masked_nik' => $maskedNik,
-            'mother' => $b->orangTua->nama_ibu ?? '-',
+            'mother' => $b->orangTua?->nama_ibu ?? '-',
             'last_measure' => $latest ? Carbon::parse($latest->tanggal_ukur)->translatedFormat('d M Y') : 'Belum Ada',
             'bb_tb' => $bbTbText,
             'status' => $this->formatDisplayStatus($status, $status_validasi),
@@ -232,7 +234,7 @@ class KaderController extends Controller
     {
         $posyanduId = $this->getKaderPosyanduId();
         
-        $q = $request->input('q');
+        $q = $request->input('q') ?? $request->input('search');
         $statusGizi = $request->input('status_gizi');
         $filter = $request->input('filter');
 
@@ -253,7 +255,7 @@ class KaderController extends Controller
                     'kurang' => 'Risiko',
                     'stunting' => 'Stunting'
                 ];
-                $expected = $statusMap[strtolower($statusGizi)] ?? $statusGizi;
+                $expected = $statusMap[strtolower((string) $statusGizi)] ?? $statusGizi;
                 $subq->where('status_gizi', $expected);
             });
         }
@@ -283,7 +285,7 @@ class KaderController extends Controller
                     $subq->whereMonth('tanggal_ukur', $thisMonth)
                          ->whereYear('tanggal_ukur', $thisMonthYear);
                 });
-            } elseif ($filter === 'ditolak' || $filter === 'revisi') {
+            } elseif ($filter === 'ditolak' || $filter === 'revisi' || $filter === 'validasi_ulang') {
                 $query->whereHas('pengukurans', function ($subq) {
                     $subq->where('status_validasi', 'rejected');
                 });
@@ -409,7 +411,7 @@ class KaderController extends Controller
         $posyanduId = $this->getKaderPosyanduId();
         $balita = Balita::with('orangTua')->where('posyandu_id', $posyanduId)->findOrFail($id);
         
-        $alamatRaw = $balita->orangTua->alamat ?? '';
+        $alamatRaw = $balita->orangTua?->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
             $desa = $alamatData['desa'] ?? '';
@@ -430,17 +432,17 @@ class KaderController extends Controller
             'birthWeight'      => $balita->berat_lahir,
             'birthLength'      => $balita->panjang_lahir,
             'birthHeadCirc'    => $balita->lingkar_kepala_lahir,
-            'noKk'             => $balita->orangTua->no_kk ?? '',
-            'motherName'       => $balita->orangTua->nama_ibu ?? '',
-            'motherNik'        => $balita->orangTua->nik_ibu ?? $balita->orangTua->user->nik ?? '',
-            'motherJob'        => $balita->orangTua->pekerjaan_ibu ?? '',
-            'motherPhone'      => $balita->orangTua->no_hp_whatsapp ?? '',
-            'fatherName'       => $balita->orangTua->nama_ayah ?? '',
-            'fatherNik'        => $balita->orangTua->nik_ayah ?? '',
-            'fatherJob'        => $balita->orangTua->pekerjaan_ayah ?? '',
+            'noKk'             => $balita->orangTua?->no_kk ?? '',
+            'motherName'       => $balita->orangTua?->nama_ibu ?? '',
+            'motherNik'        => $balita->orangTua?->nik_ibu ?? $balita->orangTua?->user?->nik ?? '',
+            'motherJob'        => $balita->orangTua?->pekerjaan_ibu ?? '',
+            'motherPhone'      => $balita->orangTua?->no_hp_whatsapp ?? '',
+            'fatherName'       => $balita->orangTua?->nama_ayah ?? '',
+            'fatherNik'        => $balita->orangTua?->nik_ayah ?? '',
+            'fatherJob'        => $balita->orangTua?->pekerjaan_ayah ?? '',
             'address'          => $desa,
             'addressSub'       => $kecamatan,
-            'posyanduName'     => $balita->posyandu->nama ?? 'Posyandu'
+            'posyanduName'     => $balita->posyandu?->nama ?? 'Posyandu'
         ]);
     }
 
@@ -466,7 +468,7 @@ class KaderController extends Controller
         ]);
 
         if ($balita->orangTua) {
-            $balita->orangTua->update([
+            $balita->orangTua?->update([
                 'no_kk'          => $request->no_kk,
                 'nama_ibu'       => $request->nama_ibu,
                 'no_hp_whatsapp' => $request->no_hp,
@@ -478,8 +480,8 @@ class KaderController extends Controller
                 'alamat'         => $alamatJson,
             ]);
             
-            if ($balita->orangTua->user) {
-                $balita->orangTua->user->update([
+            if ($balita->orangTua?->user) {
+                $balita->orangTua?->user?->update([
                     'name' => $request->nama_ibu,
                 ]);
             }
@@ -538,7 +540,7 @@ class KaderController extends Controller
         $totalMeasures = $measurementsList->count();
 
         $measurements = $measurementsList->map(function($p, $index) use ($measurementsList, $totalMeasures, $b) {
-            $statusType = match(strtolower($p->status_gizi)) {
+            $statusType = match(strtolower((string) $p->status_gizi)) {
                 'normal' => 'success',
                 'risiko' => 'warning',
                 'stunting' => 'danger',
@@ -590,14 +592,14 @@ class KaderController extends Controller
 
         $latestMeasure = count($measurements) > 0 ? $measurements[0] : null;
 
-        $alamatRaw = $b->orangTua->alamat ?? '';
+        $alamatRaw = $b->orangTua?->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
             $desa = $alamatData['desa'] ?? '';
-            $kecamatan = $alamatData['kecamatan'] ?? ($b->orangTua->kecamatan ?? '');
+            $kecamatan = $alamatData['kecamatan'] ?? ($b->orangTua?->kecamatan ?? '');
         } else {
             $desa = $alamatRaw;
-            $kecamatan = $b->orangTua->kecamatan ?? '';
+            $kecamatan = $b->orangTua?->kecamatan ?? '';
         }
 
         $data = [
@@ -612,15 +614,15 @@ class KaderController extends Controller
             'birthWeight'    => $b->berat_lahir,
             'birthLength'    => $b->panjang_lahir,
             'birthHeadCirc'  => $b->lingkar_kepala_lahir,
-            'noKk'           => $b->orangTua->no_kk ?? null,
-            'motherName'     => $b->orangTua->nama_ibu ?? '-',
-            'motherNik'      => $b->orangTua->nik_ibu ?? null,
-            'motherJob'      => $b->orangTua->pekerjaan_ibu ?? null,
-            'motherPhone'    => $b->orangTua->no_hp_whatsapp ?? '-',
-            'fatherName'     => $b->orangTua->nama_ayah ?? null,
-            'fatherNik'      => $b->orangTua->nik_ayah ?? null,
-            'fatherJob'      => $b->orangTua->pekerjaan_ayah ?? null,
-            'posyanduName'   => $b->posyandu->nama ?? '-',
+            'noKk'           => $b->orangTua?->no_kk ?? null,
+            'motherName'     => $b->orangTua?->nama_ibu ?? '-',
+            'motherNik'      => $b->orangTua?->nik_ibu ?? null,
+            'motherJob'      => $b->orangTua?->pekerjaan_ibu ?? null,
+            'motherPhone'    => $b->orangTua?->no_hp_whatsapp ?? '-',
+            'fatherName'     => $b->orangTua?->nama_ayah ?? null,
+            'fatherNik'      => $b->orangTua?->nik_ayah ?? null,
+            'fatherJob'      => $b->orangTua?->pekerjaan_ayah ?? null,
+            'posyanduName'   => $b->posyandu?->nama ?? '-',
             'address'        => $desa ?: '-',
             'addressSub'     => $kecamatan ?: null,
             'status'         => $latestMeasure ? $latestMeasure['status'] : 'Belum Ada',
@@ -680,31 +682,41 @@ class KaderController extends Controller
         // Pastikan Balita yang diukur berada di Posyandu Kader yang login
         $balita = Balita::where('posyandu_id', $posyanduId)->findOrFail($request->balita_id);
         
+        // Normalisasi input koma ke titik
+        $beratBadan = (float) str_replace(',', '.', $request->berat_badan);
+        $tinggiBadan = (float) str_replace(',', '.', $request->tinggi_badan);
+        $lingkarKepala = $request->lingkar_kepala ? (float) str_replace(',', '.', $request->lingkar_kepala) : null;
+
         // 1. Panggil GrowthCalculationService (Pure Logic)
         $calc = $this->growthService->calculate(
             Carbon::parse($balita->tanggal_lahir),
             Carbon::parse($request->tanggal_ukur),
             $balita->jenis_kelamin,
-            (float) $request->berat_badan,
-            (float) $request->tinggi_badan
+            $beratBadan,
+            $tinggiBadan
         );
 
         // 2. Simpan ke database
         $pengukuran = Pengukuran::create([
             'balita_id'        => $balita->id,
-            'kader_id'         => Auth::user()->kader->id,
+            'kader_id'         => Auth::user()->kader?->id,
             'tanggal_ukur'     => $request->tanggal_ukur,
             'umur_bulan'       => $calc['umur_bulan'],
-            'berat_badan'      => $request->berat_badan,
-            'tinggi_badan'     => $request->tinggi_badan,
-            'lingkar_kepala'   => $request->lingkar_kepala,
+            'berat_badan'      => $beratBadan,
+            'tinggi_badan'     => $tinggiBadan,
+            'lingkar_kepala'   => $lingkarKepala,
             'asi_eksklusif'    => $request->boolean('asi_eksklusif'),
             'status_kenaikan'  => $request->status_kenaikan,
             'catatan_kader'    => $request->input('catatan_kader'),
             'z_score_bbu'      => $calc['z_score_bbu'],
             'z_score_tbu'      => $calc['z_score_tbu'],
+            'z_score_bbt'      => $calc['z_score_bbt'] ?? null,
             'status_gizi'      => $calc['status_gizi'],
-            'status_validasi'  => 'pending'
+            'status_bbt'       => $calc['status_bbt'] ?? null,
+            'status_tbu'       => $calc['status_tbu'] ?? null,
+            'status_bbu'       => $calc['status_bbu'] ?? null,
+            'rekomendasi_pmt'  => $calc['rekomendasi_pmt'] ?? null,
+            'status_validasi'  => 'draft'
         ]);
 
         // 3. Panggil RecommendationService (Bisa dikirim ke Session atau UI)
@@ -950,11 +962,13 @@ class KaderController extends Controller
         $previewBalitas = Balita::where('posyandu_id', $posyanduId)
             ->whereHas('pengukurans', function ($q) use ($month, $year) {
                 $q->whereMonth('tanggal_ukur', $month)
-                  ->whereYear('tanggal_ukur', $year);
+                  ->whereYear('tanggal_ukur', $year)
+                  ->where('status_validasi', '!=', 'draft');
             })
             ->with(['pengukurans' => function ($q) use ($month, $year) {
                 $q->whereMonth('tanggal_ukur', $month)
                   ->whereYear('tanggal_ukur', $year)
+                  ->where('status_validasi', '!=', 'draft')
                   ->latest('tanggal_ukur');
             }, 'orangTua'])
             ->take(5)
@@ -1010,20 +1024,31 @@ class KaderController extends Controller
         $balitas = Balita::where('posyandu_id', $posyanduId)
             ->whereHas('pengukurans', function($q) use ($month, $year) {
                 $q->whereMonth('tanggal_ukur', $month)
-                  ->whereYear('tanggal_ukur', $year);
+                  ->whereYear('tanggal_ukur', $year)
+                  ->where('status_validasi', '!=', 'draft');
             })
             ->with(['orangTua', 'pengukurans' => function($q) use ($month, $year) {
                 $q->whereMonth('tanggal_ukur', $month)
                   ->whereYear('tanggal_ukur', $year)
+                  ->where('status_validasi', '!=', 'draft')
                   ->latest('id');
             }])->get();
+
+        $puskesmas = $posyandu?->puskesmas;
+        $kabupatenKota = $puskesmas?->kabupaten_kota ?? 'Kota Banda Aceh';
+        $puskesmasTelp = $puskesmas?->no_telp ?? '-';
+        $puskesmasKode = $puskesmas?->kode_faskes ?? '-';
 
         $data = [
             'posyandu' => $posyandu,
             'posyanduName' => 'Posyandu ' . $cleanPosyanduName,
             'cleanPosyanduName' => $cleanPosyanduName,
+            'puskesmas' => $puskesmas,
             'puskesmasName' => 'Puskesmas ' . $cleanPuskesmasName,
             'cleanPuskesmasName' => $cleanPuskesmasName,
+            'kabupatenKota' => $kabupatenKota,
+            'puskesmasTelp' => $puskesmasTelp,
+            'puskesmasKode' => $puskesmasKode,
             'desa' => $desa,
             'alamat' => $alamat,
             'periode' => $periodeLabel,
@@ -1064,13 +1089,29 @@ class KaderController extends Controller
         $balitas = Balita::where('posyandu_id', $posyanduId)
             ->whereHas('pengukurans', function($q) use ($month, $year) {
                 $q->whereMonth('tanggal_ukur', $month)
-                  ->whereYear('tanggal_ukur', $year);
+                  ->whereYear('tanggal_ukur', $year)
+                  ->where('status_validasi', '!=', 'draft');
             })
             ->with(['orangTua', 'pengukurans' => function($q) use ($month, $year) {
                 $q->whereMonth('tanggal_ukur', $month)
                   ->whereYear('tanggal_ukur', $year)
+                  ->where('status_validasi', '!=', 'draft')
                   ->latest('id');
             }])->get();
+
+        $stats = $this->statisticsService->getKaderDashboardStats($posyanduId, $month, $year);
+        $totalBalita = $stats['total_balita'];
+        $sudahDiukur = $stats['bulan_ini'];
+        $persentase = $totalBalita > 0 ? round(($sudahDiukur / $totalBalita) * 100) : 0;
+        $normalCount = $stats['normal'] ?? 0;
+        $perluPerhatian = $stats['risiko'] + ($stats['kurang'] ?? 0);
+        $stuntingCount = $stats['stunting'];
+
+        $puskesmas = $posyandu?->puskesmas;
+        $kabupatenKota = $puskesmas?->kabupaten_kota ?? 'Kota Banda Aceh';
+        $desa = $posyandu?->desa_kelurahan ?? ($posyandu?->desa ?? 'Desa Sehat');
+        $alamat = $posyandu?->alamat ?? 'Kecamatan Sehat';
+        $puskesmasTelp = $puskesmas?->no_telp ?? '-';
 
         $fileName = 'Laporan_Posyandu_' . preg_replace('/[^A-Za-z0-9_]/', '_', $cleanPosyanduName) . '_' . Carbon::createFromDate($year, $month, 1)->format('Y_m') . '.xls';
 
@@ -1082,100 +1123,152 @@ class KaderController extends Controller
             'Expires' => '0'
         ];
 
-        $callback = function() use ($balitas, $cleanPosyanduName, $cleanPuskesmasName, $posyandu, $periodeLabel, $kader) {
+        $callback = function() use ($balitas, $cleanPosyanduName, $cleanPuskesmasName, $posyandu, $periodeLabel, $kader, $kabupatenKota, $desa, $alamat, $puskesmasTelp, $stats, $totalBalita, $sudahDiukur, $persentase, $normalCount, $perluPerhatian, $stuntingCount) {
             echo "\xEF\xBB\xBF"; // UTF-8 BOM for Excel
-            echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><style>
+            echo "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>";
+            echo "<head><meta charset='UTF-8'><style>
                 body { font-family: Arial, sans-serif; }
                 table { border-collapse: collapse; width: 100%; font-size: 10pt; }
-                th, td { border: 1px solid #64748b; padding: 6px 8px; text-align: left; }
-                th { background-color: #0f766e; color: #ffffff; font-weight: bold; text-align: center; }
-                .kop-header { font-size: 13pt; font-weight: bold; text-align: center; border: none; }
-                .kop-sub { font-size: 10pt; text-align: center; border: none; color: #475569; }
+                .kop-instansi { font-size: 11pt; font-weight: bold; text-align: center; border: none; }
+                .kop-dinas { font-size: 12pt; font-weight: bold; text-align: center; border: none; }
+                .kop-puskesmas { font-size: 13pt; font-weight: bold; color: #0d9488; text-align: center; border: none; }
+                .kop-posyandu { font-size: 11pt; font-weight: bold; text-align: center; border: none; }
+                .kop-detail { font-size: 8.5pt; color: #475569; text-align: center; border: none; }
+                .kop-divider { border: none; border-bottom: 3px double #0f172a; height: 4px; }
+                .doc-title { font-size: 13pt; font-weight: bold; text-align: center; border: none; padding-top: 10px; }
+                .doc-sub { font-size: 10pt; color: #0d9488; font-weight: bold; text-align: center; border: none; }
+                .doc-meta { font-size: 8.5pt; color: #64748b; text-align: center; border: none; }
+                .kpi-lbl { background-color: #f1f5f9; font-weight: bold; font-size: 8pt; text-align: center; border: 1px solid #cbd5e1; color: #475569; }
+                .kpi-val { font-size: 13pt; font-weight: bold; text-align: center; border: 1px solid #cbd5e1; }
+                th.col-header { background-color: #0d9488; color: #ffffff; font-weight: bold; font-size: 9pt; text-align: center; border: 1px solid #0f766e; padding: 7px 5px; }
+                td.cell { border: 1px solid #cbd5e1; padding: 5px 6px; font-size: 9.5pt; vertical-align: middle; }
+                .bg-alt { background-color: #f8fafc; }
                 .text-center { text-align: center; }
                 .text-right { text-align: right; }
                 .font-bold { font-weight: bold; }
-                .bg-alt { background-color: #f8fafc; }
             </style></head><body>";
 
-            echo "<table>";
-            echo "<tr><td colspan='16' class='kop-header'>LAPORAN BULANAN HASIL PENIMBANGAN & PENGUKURAN POSYANDU</td></tr>";
-            echo "<tr><td colspan='16' class='kop-sub'><strong>Posyandu {$cleanPosyanduName}</strong> &bull; Wilayah Kerja: <strong>Puskesmas {$cleanPuskesmasName}</strong> &bull; Periode: <strong>{$periodeLabel}</strong></td></tr>";
-            echo "<tr><td colspan='16' style='border:none; height:12px;'></td></tr>";
-            
+            echo "<table border='1'>";
+            // KOP SURAT RESMI DINAS & POSYANDU
+            echo "<tr><td colspan='20' class='kop-instansi'>KEMENTERIAN KESEHATAN REPUBLIK INDONESIA</td></tr>";
+            echo "<tr><td colspan='20' class='kop-dinas'>DINAS KESEHATAN " . strtoupper($kabupatenKota) . "</td></tr>";
+            echo "<tr><td colspan='20' class='kop-puskesmas'>UPTD PUSKESMAS " . strtoupper($cleanPuskesmasName) . "</td></tr>";
+            echo "<tr><td colspan='20' class='kop-posyandu'>POSYANDU " . strtoupper($cleanPosyanduName) . " &bull; DESA/KEL. " . strtoupper($desa) . "</td></tr>";
+            echo "<tr><td colspan='20' class='kop-detail'>Alamat: " . htmlspecialchars($alamat) . " &bull; Telp: " . htmlspecialchars($puskesmasTelp) . " &bull; Format Standar Pelaporan Buku KIA / KMS Terintegrasi NutriGen</td></tr>";
+            echo "<tr><td colspan='20' class='kop-divider'></td></tr>";
+            echo "<tr><td colspan='20' style='border:none; height:8px;'></td></tr>";
+
+            // JUDUL DOKUMEN & PERIODE
+            echo "<tr><td colspan='20' class='doc-title'>LAPORAN HASIL PENIMBANGAN & PEMANTAUAN STATUS GIZI BALITA</td></tr>";
+            echo "<tr><td colspan='20' class='doc-sub'>PERIODE PELAKSANAAN: " . strtoupper($periodeLabel) . "</td></tr>";
+            echo "<tr><td colspan='20' class='doc-meta'>Tempat: Posyandu {$cleanPosyanduName} &bull; Wilayah Binaan: UPTD Puskesmas {$cleanPuskesmasName} &bull; Waktu Ekspor: " . now()->translatedFormat('d F Y, H:i') . " WIB</td></tr>";
+            echo "<tr><td colspan='20' style='border:none; height:10px;'></td></tr>";
+
+            // KPI SUMMARY BLOCK
             echo "<tr>
-                <th style='width:35px;'>No</th>
-                <th style='width:130px;'>NIK Balita</th>
-                <th style='width:160px;'>Nama Balita</th>
-                <th style='width:45px;'>L/P</th>
-                <th style='width:85px;'>Tgl Lahir</th>
-                <th style='width:65px;'>Umur</th>
-                <th style='width:150px;'>Nama Ibu / Ortu</th>
-                <th style='width:130px;'>No. KK</th>
-                <th style='width:85px;'>Tgl Ukur</th>
-                <th style='width:65px;'>BB (kg)</th>
-                <th style='width:65px;'>TB (cm)</th>
-                <th style='width:65px;'>LK (cm)</th>
-                <th style='width:60px;'>ASI Eks</th>
-                <th style='width:60px;'>KMS</th>
-                <th style='width:140px;'>Status / Diagnosa</th>
-                <th style='width:180px;'>Catatan</th>
+                <td colspan='4' class='kpi-lbl'>TOTAL SASARAN (S)</td>
+                <td colspan='4' class='kpi-lbl'>BALITA TERUKUR (D)</td>
+                <td colspan='4' class='kpi-lbl'>CAKUPAN (D/S)</td>
+                <td colspan='4' class='kpi-lbl'>STATUS GIZI NORMAL</td>
+                <td colspan='4' class='kpi-lbl'>PANTAUAN GIZI / STUNTING</td>
+            </tr>";
+            echo "<tr>
+                <td colspan='4' class='kpi-val' style='color:#0f172a;'>{$totalBalita}</td>
+                <td colspan='4' class='kpi-val' style='color:#0d9488;'>{$sudahDiukur}</td>
+                <td colspan='4' class='kpi-val' style='color:#0284c7;'>{$persentase}%</td>
+                <td colspan='4' class='kpi-val' style='color:#16a34a;'>{$normalCount}</td>
+                <td colspan='4' class='kpi-val' style='color:#e11d48;'>" . ($perluPerhatian + $stuntingCount) . "</td>
+            </tr>";
+            echo "<tr><td colspan='20' style='border:none; height:12px;'></td></tr>";
+
+            // TABEL DATA
+            echo "<tr>
+                <th class='col-header' style='width:35px;'>No</th>
+                <th class='col-header' style='width:130px;'>NIK Balita</th>
+                <th class='col-header' style='width:170px;'>Nama Balita</th>
+                <th class='col-header' style='width:45px;'>L/P</th>
+                <th class='col-header' style='width:85px;'>Tgl Lahir</th>
+                <th class='col-header' style='width:65px;'>Umur</th>
+                <th class='col-header' style='width:150px;'>Nama Ibu / Ortu</th>
+                <th class='col-header' style='width:130px;'>No. KK</th>
+                <th class='col-header' style='width:85px;'>Tgl Ukur</th>
+                <th class='col-header' style='width:65px;'>BB (kg)</th>
+                <th class='col-header' style='width:65px;'>TB (cm)</th>
+                <th class='col-header' style='width:65px;'>LK (cm)</th>
+                <th class='col-header' style='width:65px;'>Z BB/U</th>
+                <th class='col-header' style='width:65px;'>Z TB/U</th>
+                <th class='col-header' style='width:65px;'>Z BB/TB</th>
+                <th class='col-header' style='width:60px;'>ASI Eks</th>
+                <th class='col-header' style='width:60px;'>KMS</th>
+                <th class='col-header' style='width:140px;'>Status / Diagnosa</th>
+                <th class='col-header' style='width:140px;'>Rekomendasi PMT</th>
+                <th class='col-header' style='width:180px;'>Catatan</th>
             </tr>";
 
             if ($balitas->isEmpty()) {
-                echo "<tr><td colspan='16' class='text-center' style='padding:15px; color:#64748b;'>Belum ada data balita yang diukur pada periode {$periodeLabel}.</td></tr>";
+                echo "<tr><td colspan='20' class='cell text-center' style='padding:15px; color:#64748b;'>Belum ada data balita yang diukur pada periode {$periodeLabel}.</td></tr>";
             } else {
                 foreach ($balitas as $idx => $b) {
                     $m = $b->pengukurans->first();
                     $no = $idx + 1;
-                    $nik = "'" . ($b->nik ?? '-');
+                    $nik = $b->nik ?? '-';
                     $nama = htmlspecialchars($b->nama);
                     $jk = $b->jenis_kelamin;
                     $tglLahir = $b->tanggal_lahir ? Carbon::parse($b->tanggal_lahir)->format('d/m/Y') : '-';
                     $umur = $m ? ($m->umur_bulan . ' bln') : '-';
-                    $ibu = htmlspecialchars($b->orangTua->nama_ibu ?? '-');
-                    $kk = "'" . ($b->orangTua->no_kk ?? '-');
+                    $ibu = htmlspecialchars($b->orangTua?->nama_ibu ?? '-');
+                    $kk = $b->orangTua?->no_kk ?? '-';
                     $tglUkur = $m ? Carbon::parse($m->tanggal_ukur)->format('d/m/Y') : '-';
                     $bb = $m ? number_format((float)$m->berat_badan, 2) : '-';
                     $tb = $m ? number_format((float)$m->tinggi_badan, 1) : '-';
                     $lk = ($m && $m->lingkar_kepala) ? number_format((float)$m->lingkar_kepala, 1) : '-';
+                    $zbbu = $m && $m->z_score_bbu !== null ? number_format((float)$m->z_score_bbu, 2) : '-';
+                    $ztbu = $m && $m->z_score_tbu !== null ? number_format((float)$m->z_score_tbu, 2) : '-';
+                    $zbbtb = $m && $m->z_score_bbt !== null ? number_format((float)$m->z_score_bbt, 2) : '-';
                     $asi = $m ? ($m->asi_eksklusif ? 'Ya' : 'Tdk') : '-';
                     $kms = $m ? ($m->status_kenaikan ?? '-') : '-';
                     $status = $m ? $this->formatDisplayStatus($m->status_gizi, $m->status_validasi) : 'Belum Diukur';
+                    $pmt = $m ? ($m->rekomendasi_pmt ?? '-') : '-';
                     $catatan = $m ? ($m->catatan_kader ?? ($m->catatan_validator ?? '-')) : '-';
                     $bgClass = $idx % 2 == 1 ? 'class="bg-alt"' : '';
 
                     echo "<tr {$bgClass}>
-                        <td class='text-center'>{$no}</td>
-                        <td class='text-center'>{$nik}</td>
-                        <td class='font-bold'>{$nama}</td>
-                        <td class='text-center'>{$jk}</td>
-                        <td class='text-center'>{$tglLahir}</td>
-                        <td class='text-center'>{$umur}</td>
-                        <td>{$ibu}</td>
-                        <td class='text-center'>{$kk}</td>
-                        <td class='text-center'>{$tglUkur}</td>
-                        <td class='text-center font-bold'>{$bb}</td>
-                        <td class='text-center font-bold'>{$tb}</td>
-                        <td class='text-center'>{$lk}</td>
-                        <td class='text-center'>{$asi}</td>
-                        <td class='text-center font-bold'>{$kms}</td>
-                        <td class='text-center font-bold'>{$status}</td>
-                        <td>" . htmlspecialchars($catatan) . "</td>
+                        <td class='cell text-center'>{$no}</td>
+                        <td class='cell text-center' style='mso-number-format:\"\\@\";'>{$nik}</td>
+                        <td class='cell font-bold'>{$nama}</td>
+                        <td class='cell text-center'>{$jk}</td>
+                        <td class='cell text-center'>{$tglLahir}</td>
+                        <td class='cell text-center'>{$umur}</td>
+                        <td class='cell'>{$ibu}</td>
+                        <td class='cell text-center' style='mso-number-format:\"\\@\";'>{$kk}</td>
+                        <td class='cell text-center'>{$tglUkur}</td>
+                        <td class='cell text-center font-bold'>{$bb}</td>
+                        <td class='cell text-center font-bold'>{$tb}</td>
+                        <td class='cell text-center'>{$lk}</td>
+                        <td class='cell text-center font-bold'>{$zbbu}</td>
+                        <td class='cell text-center font-bold'>{$ztbu}</td>
+                        <td class='cell text-center font-bold'>{$zbbtb}</td>
+                        <td class='cell text-center'>{$asi}</td>
+                        <td class='cell text-center font-bold'>{$kms}</td>
+                        <td class='cell text-center font-bold'>{$status}</td>
+                        <td class='cell text-center font-bold'>{$pmt}</td>
+                        <td class='cell'>" . htmlspecialchars($catatan) . "</td>
                     </tr>";
                 }
             }
 
-            echo "<tr><td colspan='16' style='border:none; height:20px;'></td></tr>";
+            echo "<tr><td colspan='20' style='border:none; height:24px;'></td></tr>";
             echo "<tr>
-                <td colspan='8' style='border:none; text-align:center;'>
+                <td colspan='9' style='border:none; text-align:center;'>
                     Mengetahui,<br>
-                    <strong>Petugas Gizi / Bidan Pembina Puskesmas</strong><br><br><br><br>
+                    <strong>Petugas Gizi / Bidan Pembina Puskesmas " . htmlspecialchars($cleanPuskesmasName) . "</strong><br><br><br><br>
                     ( .................................................... )<br>
                     NIP. .............................................
                 </td>
-                <td colspan='8' style='border:none; text-align:center;'>
-                    Dicetak pada: " . now()->translatedFormat('d F Y') . "<br>
-                    <strong>Pelaksana Kader Posyandu {$cleanPosyanduName}</strong><br><br><br><br>
+                <td colspan='2' style='border:none;'></td>
+                <td colspan='9' style='border:none; text-align:center;'>
+                    " . htmlspecialchars($desa) . ", " . now()->translatedFormat('d F Y') . "<br>
+                    <strong>Pelaksana Kader Posyandu " . htmlspecialchars($cleanPosyanduName) . "</strong><br><br><br><br>
                     <strong><u>" . htmlspecialchars($kader?->nama ?? Auth::user()->name) . "</u></strong><br>
                     Kader Penanggung Jawab
                 </td>
@@ -1287,79 +1380,286 @@ class KaderController extends Controller
     }
 
     /**
-     * Show rejected measurements for the Kader's Posyandu.
+     * Show measurements requiring revalidation for the Kader's Posyandu.
      */
-    public function rejectedData(Request $request)
+    public function validasiUlang(Request $request)
     {
+        Carbon::setLocale('id');
         $posyanduId = $this->getKaderPosyanduId();
+        $posyandu = Posyandu::find($posyanduId);
 
-        $pengukuran = Pengukuran::whereHas('balita', function ($q) use ($posyanduId) {
-            $q->where('posyandu_id', $posyanduId);
-        })->where('status_validasi', 'rejected')
-            ->with(['balita', 'balita.orangTua'])
-            ->get();
+        $q = $request->input('q');
 
-        $data = $pengukuran->map(function ($p) {
+        $query = Pengukuran::whereHas('balita', function ($sub) use ($posyanduId) {
+            $sub->where('posyandu_id', $posyanduId);
+        })
+        ->where('status_validasi', 'rejected')
+        ->with(['balita', 'balita.orangTua', 'validator'])
+        ->orderBy('updated_at', 'desc');
+
+        if ($q) {
+            $query->whereHas('balita', function ($sub) use ($q) {
+                $sub->where('nama', 'like', "%{$q}%")
+                    ->orWhere('nik', 'like', "%{$q}%");
+            });
+        }
+
+        $items = $query->get();
+
+        $revalidasiList = $items->map(function ($p) {
+            $b = $p->balita;
+            $ageDiff = Carbon::parse($b->tanggal_lahir)->diff(Carbon::parse($p->tanggal_ukur));
+            $ageStr = $ageDiff->y > 0 ? $ageDiff->y . ' Thn ' . $ageDiff->m . ' Bln' : $ageDiff->m . ' Bulan';
+
             return [
                 'id' => $p->id,
-                'childName' => $p->balita->nama ?? '-',
-                'measureDate' => Carbon::parse($p->tanggal_ukur)->translatedFormat('d M Y'),
-                'statusGizi' => $p->status_gizi,
-                'catatan' => $p->catatan_validator ?? '-',
+                'balita_id' => $b->id,
+                'child_name' => $b->nama,
+                'child_nik' => $b->nik,
+                'gender' => $b->jenis_kelamin,
+                'birth_date' => Carbon::parse($b->tanggal_lahir)->translatedFormat('d M Y'),
+                'mother_name' => $b->orangTua?->nama_ibu ?? '-',
+                'phone' => $b->orangTua?->no_hp_whatsapp ?? '-',
+                'age_at_measure' => $p->umur_bulan ? $p->umur_bulan . ' Bulan' : $ageStr,
+                'tanggal_ukur' => $p->tanggal_ukur,
+                'formatted_tanggal_ukur' => Carbon::parse($p->tanggal_ukur)->translatedFormat('d F Y'),
+                'berat_badan' => $p->berat_badan,
+                'tinggi_badan' => $p->tinggi_badan,
+                'lingkar_kepala' => $p->lingkar_kepala,
+                'asi_eksklusif' => (bool) $p->asi_eksklusif,
+                'status_kenaikan' => $p->status_kenaikan,
+                'status_gizi' => $p->status_gizi,
+                'catatan_kader' => $p->catatan_kader,
+                'catatan_validator' => $p->catatan_validator ?: 'Terdeteksi anomali data, mohon lakukan pengukuran atau input ulang.',
+                'validator_name' => $p->validator?->name ?? 'Petugas Gizi Puskesmas',
+                'validator_role' => $p->validator?->role ?? 'Puskesmas',
+                'rejected_at' => $p->updated_at ? Carbon::parse($p->updated_at)->translatedFormat('d M Y, H:i') . ' WIB' : '-',
             ];
-        })->toArray();
+        });
 
-        return view('kader.rejected', ['rejected' => $data]);
+        return view('kader.validasi-ulang', [
+            'items' => $revalidasiList,
+            'posyanduName' => $posyandu?->nama ?? 'Posyandu',
+            'totalItems' => $revalidasiList->count(),
+            'searchQuery' => $q,
+        ]);
     }
 
     /**
-     * Update a rejected measurement after correction and resubmit.
+     * Backward compatibility alias for rejectedData.
+     */
+    public function rejectedData(Request $request)
+    {
+        return $this->validasiUlang($request);
+    }
+
+    /**
+     * Update a revalidation measurement after re-measurement and resubmit.
      */
     public function updatePengukuran(Request $request, $id)
     {
         $request->validate([
             'tanggal_ukur'    => 'required|date',
-            'berat_badan'     => 'required|numeric|min:1|max:999.99',
-            'tinggi_badan'    => 'required|numeric|min:10|max:999.99',
+            'berat_badan'     => 'required|numeric|min:0.5|max:100',
+            'tinggi_badan'    => 'required|numeric|min:20|max:200',
             'lingkar_kepala'  => 'nullable|numeric|min:10|max:99.99',
             'asi_eksklusif'   => 'nullable',
             'status_kenaikan' => 'nullable|string|max:10',
             'catatan_kader'   => 'nullable|string|max:500',
+        ], [
+            'tanggal_ukur.required' => 'Tanggal ukur wajib diisi.',
+            'berat_badan.required'  => 'Berat badan wajib diisi.',
+            'berat_badan.numeric'   => 'Berat badan harus berupa angka valid.',
+            'tinggi_badan.required' => 'Tinggi / Panjang badan wajib diisi.',
+            'tinggi_badan.numeric'  => 'Tinggi badan harus berupa angka valid.',
         ]);
 
-        $pengukuran = Pengukuran::findOrFail($id);
-        // Ensure it belongs to this Kader's Posyandu
+        $pengukuran = Pengukuran::with('balita')->findOrFail($id);
         $posyanduId = $this->getKaderPosyanduId();
-        if ($pengukuran->balita->posyandu_id !== $posyanduId) {
-            abort(403, 'Akses ditolak');
+        if ($pengukuran->balita?->posyandu_id !== $posyanduId) {
+            abort(403, 'Akses ditolak: Data bukan milik Posyandu Anda.');
         }
 
-        // Panggil GrowthCalculationService (Pure Logic) untuk menghitung ulang Z-Score
+        // Normalisasi input koma ke titik
+        $beratBadan = (float) str_replace(',', '.', $request->berat_badan);
+        $tinggiBadan = (float) str_replace(',', '.', $request->tinggi_badan);
+        $lingkarKepala = $request->lingkar_kepala ? (float) str_replace(',', '.', $request->lingkar_kepala) : null;
+
+        // Panggil GrowthCalculationService (Pure Logic) untuk menghitung ulang Z-Score WHO
         $calc = $this->growthService->calculate(
-            Carbon::parse($pengukuran->balita->tanggal_lahir),
+            Carbon::parse($pengukuran->balita?->tanggal_lahir),
             Carbon::parse($request->tanggal_ukur),
-            $pengukuran->balita->jenis_kelamin,
-            (float) $request->berat_badan,
-            (float) $request->tinggi_badan
+            $pengukuran->balita?->jenis_kelamin,
+            $beratBadan,
+            $tinggiBadan
         );
 
-        // Update measurement fields beserta z-score dan status gizi baru
+        $catatanKaderBaru = $request->input('catatan_kader');
+
+        // Jika data masih draft (diedit sebelum dikirim), tetap draft. Jika ditolak, kembali ke pending.
+        $newStatus = $pengukuran->status_validasi === 'draft' ? 'draft' : 'pending';
+
+        // Update pengukuran
         $pengukuran->update([
             'tanggal_ukur'      => $request->tanggal_ukur,
             'umur_bulan'        => $calc['umur_bulan'],
-            'berat_badan'       => $request->berat_badan,
-            'tinggi_badan'      => $request->tinggi_badan,
-            'lingkar_kepala'    => $request->lingkar_kepala,
+            'berat_badan'       => $beratBadan,
+            'tinggi_badan'      => $tinggiBadan,
+            'lingkar_kepala'    => $lingkarKepala,
             'asi_eksklusif'     => $request->boolean('asi_eksklusif'),
             'status_kenaikan'   => $request->status_kenaikan,
-            'catatan_kader'     => $request->input('catatan_kader', $pengukuran->catatan_kader),
+            'catatan_kader'     => $catatanKaderBaru,
             'z_score_bbu'       => $calc['z_score_bbu'],
             'z_score_tbu'       => $calc['z_score_tbu'],
+            'z_score_bbt'       => $calc['z_score_bbt'] ?? null,
             'status_gizi'       => $calc['status_gizi'],
-            'status_validasi'   => 'pending',
+            'status_bbt'        => $calc['status_bbt'] ?? null,
+            'status_tbu'        => $calc['status_tbu'] ?? null,
+            'status_bbu'        => $calc['status_bbu'] ?? null,
+            'rekomendasi_pmt'   => $calc['rekomendasi_pmt'] ?? null,
+            'status_validasi'   => $newStatus,
             'catatan_validator' => null,
+            'validated_by'      => null,
+            'validated_at'      => null,
         ]);
 
-        return back()->with('success', 'Pengukuran berhasil diperbaiki dan dikirim kembali untuk validasi.');
+        return redirect()->route('kader.validasi-ulang')
+            ->with('success', 'Data pengukuran balita ' . $pengukuran->balita?->nama . ' berhasil diukur/diinput ulang dan dikirimkan kembali ke Puskesmas.');
+    }
+
+    // =========================================================================
+    // SESI POSYANDU BATCHING
+    // =========================================================================
+    
+    public function kirimSesiPuskesmas(Request $request)
+    {
+        $posyanduId = $this->getKaderPosyanduId();
+        $thisMonth = Carbon::now()->month;
+        $thisMonthYear = Carbon::now()->year;
+
+        // Validasi payload
+        $request->validate([
+            'catatan_kader' => 'nullable|string|max:1000'
+        ]);
+
+        $balitas = Balita::where('posyandu_id', $posyanduId)->get();
+        $totalSasaran = $balitas->count();
+
+        if ($totalSasaran === 0) {
+            return back()->with('error', 'Tidak ada balita terdaftar di Posyandu ini.');
+        }
+
+        $drafts = Pengukuran::whereHas('balita', function ($q) use ($posyanduId) {
+            $q->where('posyandu_id', $posyanduId);
+        })
+        ->whereMonth('tanggal_ukur', $thisMonth)
+        ->whereYear('tanggal_ukur', $thisMonthYear)
+        ->where('status_validasi', 'draft')
+        ->get();
+
+        if ($drafts->count() === 0) {
+            return back()->with('error', 'Tidak ada data pengukuran draft untuk dikirim bulan ini.');
+        }
+
+        $semuaPengukuranBulanIni = Pengukuran::whereHas('balita', function ($q) use ($posyanduId) {
+            $q->where('posyandu_id', $posyanduId);
+        })
+        ->whereMonth('tanggal_ukur', $thisMonth)
+        ->whereYear('tanggal_ukur', $thisMonthYear)
+        ->get();
+
+        $totalTerukur = $semuaPengukuranBulanIni->count();
+        $totalAbsen = $totalSasaran - $totalTerukur;
+        $persentase = ($totalTerukur / $totalSasaran) * 100;
+
+        // Transaction to ensure atomicity
+        \Illuminate\Support\Facades\DB::transaction(function () use ($drafts, $posyanduId, $thisMonth, $thisMonthYear, $totalSasaran, $totalTerukur, $totalAbsen, $persentase, $request) {
+            // Update all drafts to pending
+            foreach ($drafts as $draft) {
+                $draft->update(['status_validasi' => 'pending']);
+            }
+
+            // Create or update sesi_posyandus
+            \App\Models\SesiPosyandu::updateOrCreate(
+                [
+                    'posyandu_id' => $posyanduId,
+                    'bulan' => $thisMonth,
+                    'tahun' => $thisMonthYear,
+                ],
+                [
+                    'kader_id' => Auth::user()->kader?->id,
+                    'total_sasaran' => $totalSasaran,
+                    'total_terukur' => $totalTerukur,
+                    'total_absen' => max(0, $totalAbsen),
+                    'persentase_kehadiran' => $persentase,
+                    'catatan_kader' => $request->input('catatan_kader'),
+                    'status' => 'dikirim',
+                    'tanggal_kirim' => now()
+                ]
+            );
+        });
+
+        return back()->with('success', 'Data sesi penimbangan bulan ini berhasil dikirim ke Puskesmas untuk verifikasi.');
+    }
+
+    public function tarikKembaliSesi(Request $request)
+    {
+        $posyanduId = $this->getKaderPosyanduId();
+        $thisMonth = Carbon::now()->month;
+        $thisMonthYear = Carbon::now()->year;
+
+        $sesi = \App\Models\SesiPosyandu::where('posyandu_id', $posyanduId)
+            ->where('bulan', $thisMonth)
+            ->where('tahun', $thisMonthYear)
+            ->first();
+
+        if (!$sesi || $sesi->status !== 'dikirim') {
+            return back()->with('error', 'Sesi tidak dapat ditarik kembali karena belum dikirim atau sudah selesai verifikasi.');
+        }
+
+        // Cek jika Puskesmas sudah mulai verifikasi (ada yang approved/rejected)
+        $sudahDivalidasi = Pengukuran::whereHas('balita', function ($q) use ($posyanduId) {
+            $q->where('posyandu_id', $posyanduId);
+        })
+        ->whereMonth('tanggal_ukur', $thisMonth)
+        ->whereYear('tanggal_ukur', $thisMonthYear)
+        ->whereIn('status_validasi', ['approved', 'rejected'])
+        ->exists();
+
+        if ($sudahDivalidasi) {
+            return back()->with('error', 'Sesi tidak dapat ditarik kembali karena sebagian/seluruh data sudah divalidasi oleh Puskesmas.');
+        }
+
+        // Transaction
+        \Illuminate\Support\Facades\DB::transaction(function () use ($posyanduId, $thisMonth, $thisMonthYear, $sesi) {
+            Pengukuran::whereHas('balita', function ($q) use ($posyanduId) {
+                $q->where('posyandu_id', $posyanduId);
+            })
+            ->whereMonth('tanggal_ukur', $thisMonth)
+            ->whereYear('tanggal_ukur', $thisMonthYear)
+            ->where('status_validasi', 'pending')
+            ->update(['status_validasi' => 'draft']);
+
+            $sesi->update(['status' => 'draft', 'tanggal_kirim' => null]);
+        });
+
+        return back()->with('success', 'Sesi bulan ini berhasil ditarik kembali ke draf untuk diperbaiki.');
+    }
+
+    public function hapusPengukuranDraft($id)
+    {
+        $posyanduId = $this->getKaderPosyanduId();
+        
+        $pengukuran = Pengukuran::whereHas('balita', function ($q) use ($posyanduId) {
+            $q->where('posyandu_id', $posyanduId);
+        })->findOrFail($id);
+
+        if ($pengukuran->status_validasi !== 'draft') {
+            return back()->with('error', 'Hanya data dengan status draft yang dapat dihapus secara instan.');
+        }
+
+        $pengukuran->forceDelete();
+
+        return back()->with('success', 'Data pengukuran draft berhasil dihapus.');
     }
 }

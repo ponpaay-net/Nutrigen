@@ -22,13 +22,20 @@ class Pengukuran extends Model
         'asi_eksklusif',
         'z_score_bbu',
         'z_score_tbu',
+        'z_score_bbt',
         'status_gizi',
+        'status_bbt',
+        'status_tbu',
+        'status_bbu',
         'status_kenaikan',
         'status_validasi',
         'catatan_validator',
         'validated_by',
         'validated_at',
         'catatan_kader',
+        'rekomendasi_pmt',
+        'is_susulan',
+        'sesi_posyandu_id',
     ];
 
     protected $casts = [
@@ -40,6 +47,8 @@ class Pengukuran extends Model
         'asi_eksklusif' => 'boolean',
         'z_score_bbu' => 'float',
         'z_score_tbu' => 'float',
+        'z_score_bbt' => 'float',
+        'is_susulan' => 'boolean',
         'validated_at' => 'datetime',
     ];
 
@@ -57,6 +66,20 @@ class Pengukuran extends Model
     {
         return $this->belongsTo(User::class, 'validated_by');
     }
+
+    public function sesiPosyandu(): BelongsTo
+    {
+        return $this->belongsTo(SesiPosyandu::class);
+    }
+
+    /**
+    * Scope a query to only include draft validations.
+    */
+    public function scopeDraft($query)
+    {
+        return $query->where('status_validasi', 'draft');
+    }
+
     /**
     * Scope a query to only include pending validations.
     */

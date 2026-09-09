@@ -254,15 +254,15 @@
                                 $vColor = 'text-amber-700';
                             }
                         @endphp
-                        <tr x-show="!searchQuery || '{{ strtolower($activity->balita->nama ?? '') }}'.includes(searchQuery.toLowerCase())" class="hover:bg-slate-50/80 transition-colors group">
+                        <tr x-show="!searchQuery || '{{ strtolower($activity->balita?->nama ?? '') }}'.includes(searchQuery.toLowerCase())" class="hover:bg-slate-50/80 transition-colors group">
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-full {{ $avatarClass }} flex items-center justify-center font-bold text-sm shrink-0 uppercase border border-white/20">
-                                        {{ substr($activity->balita->nama ?? 'B', 0, 1) }}
+                                        {{ substr($activity->balita?->nama ?? 'B', 0, 1) }}
                                     </div>
                                     <div class="flex flex-col min-w-0">
-                                        <span class="text-[13px] font-bold text-slate-900 group-hover:text-teal-700 transition-colors truncate">{{ $activity->balita->nama ?? 'Budi Santoso' }}</span>
-                                        <span class="text-[11px] font-medium text-slate-500 truncate">{{ $activity->balita->posyandu->nama ?? 'Posyandu' }}</span>
+                                        <span class="text-[13px] font-bold text-slate-900 group-hover:text-teal-700 transition-colors truncate">{{ $activity->balita?->nama ?? 'Budi Santoso' }}</span>
+                                        <span class="text-[11px] font-medium text-slate-500 truncate">{{ $activity->balita?->posyandu?->nama ?? 'Posyandu' }}</span>
                                     </div>
                                 </div>
                             </td>
@@ -348,15 +348,15 @@
                         $vColor = 'text-amber-700';
                     }
                 @endphp
-                <div x-show="!searchQuery || '{{ strtolower($activity->balita->nama ?? '') }}'.includes(searchQuery.toLowerCase())" class="p-4 hover:bg-slate-50/50 transition-colors flex flex-col gap-3">
+                <div x-show="!searchQuery || '{{ strtolower($activity->balita?->nama ?? '') }}'.includes(searchQuery.toLowerCase())" class="p-4 hover:bg-slate-50/50 transition-colors flex flex-col gap-3">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full {{ $avatarClass }} flex items-center justify-center font-bold text-sm shrink-0 uppercase border border-white/20">
-                                {{ substr($activity->balita->nama ?? 'B', 0, 1) }}
+                                {{ substr($activity->balita?->nama ?? 'B', 0, 1) }}
                             </div>
                             <div class="flex flex-col min-w-0">
-                                <span class="text-sm font-bold text-slate-900 truncate">{{ $activity->balita->nama ?? 'Budi Santoso' }}</span>
-                                <span class="text-[11px] font-medium text-slate-500 truncate">{{ $activity->balita->posyandu->nama ?? 'Posyandu' }}</span>
+                                <span class="text-sm font-bold text-slate-900 truncate">{{ $activity->balita?->nama ?? 'Budi Santoso' }}</span>
+                                <span class="text-[11px] font-medium text-slate-500 truncate">{{ $activity->balita?->posyandu?->nama ?? 'Posyandu' }}</span>
                             </div>
                         </div>
                     </div>

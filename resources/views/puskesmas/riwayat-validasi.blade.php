@@ -58,13 +58,13 @@
                                 $validation = $measurement->status_validasi ?? 'pending';
                                 $validationColor = match ($validation) {
                                     'approved' => 'emerald',
-                                    'rejected' => 'rose',
-                                    default => 'amber',
+                                    'rejected' => 'amber',
+                                    default => 'slate',
                                 };
                                 $validationLabel = match ($validation) {
                                     'approved' => 'Terverifikasi',
-                                    'rejected' => 'Perlu revisi',
-                                    default => 'Menunggu',
+                                    'rejected' => 'Validasi Ulang',
+                                    default => 'Menunggu Validasi',
                                 };
                             @endphp
                             <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50/70">

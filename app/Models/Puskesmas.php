@@ -18,6 +18,11 @@ class Puskesmas extends Model
         'nama',
         'kode_faskes',
         'alamat',
+        'kepala_puskesmas',
+        'no_telp',
+        'kecamatan',
+        'kabupaten_kota',
+        'provinsi',
     ];
 
     public function user(): BelongsTo
@@ -28,5 +33,10 @@ class Puskesmas extends Model
     public function posyandus(): HasMany
     {
         return $this->hasMany(Posyandu::class);
+    }
+
+    public function balitas(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(Balita::class, Posyandu::class);
     }
 }

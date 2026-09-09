@@ -51,9 +51,9 @@
                     <span>Telah Divalidasi</span>
                 </span>
             @else
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200/80">
-                    <i class="ph-bold ph-x-circle text-rose-600"></i>
-                    <span>Ditolak / Perlu Revisi</span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200/80">
+                    <i class="ph-bold ph-arrows-counter-clockwise text-amber-600"></i>
+                    <span>Perlu Validasi Ulang</span>
                 </span>
             @endif
         </div>
@@ -502,9 +502,9 @@
 
                     <button type="button" 
                             @click="showRejectModal = true" 
-                            class="w-full py-3 px-4 bg-white hover:bg-rose-50 border border-slate-200/80 hover:border-rose-200 text-slate-600 hover:text-rose-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm">
-                        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-                        <span>Tolak / Minta Pengukuran Ulang</span>
+                            class="w-full py-3 px-4 bg-white hover:bg-amber-50 border border-slate-200/80 hover:border-amber-300 text-slate-700 hover:text-amber-800 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm">
+                        <i class="ph-bold ph-arrows-counter-clockwise text-sm text-amber-600"></i>
+                        <span>Minta Validasi Ulang</span>
                     </button>
                     
                 </div>
@@ -534,34 +534,41 @@
                     </div>
                 </div>
 
-                <!-- Reject Modal -->
+                <!-- Re-validation Modal (Pengganti Tolak) -->
                 <div x-show="showRejectModal" 
                      style="display: none;" 
                      class="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div x-show="showRejectModal" x-transition.opacity class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showRejectModal = false"></div>
                     <div x-show="showRejectModal" 
                          x-transition.scale.95 
-                         class="bg-white rounded-3xl shadow-xl w-full max-w-sm overflow-hidden z-10 p-6 relative">
-                        <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
-                            <i class="ph-bold ph-arrow-counter-clockwise text-2xl"></i>
+                         class="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden z-10 p-6 relative">
+                        <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
+                            <i class="ph-bold ph-arrows-counter-clockwise text-2xl"></i>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-2">Tolak & Kembalikan Data</h3>
-                        <p class="text-sm text-slate-500 mb-4">Data akan dikembalikan ke Kader Posyandu untuk dilakukan pengukuran ulang atau perbaikan.</p>
+                        <h3 class="text-lg font-bold text-slate-900 mb-1.5">Permintaan Validasi Ulang</h3>
+                        <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                            Data anomali ini akan dikembalikan ke <strong>Portal Kader</strong> agar dilakukan penimbangan ulang atau koreksi salah input di Posyandu.
+                        </p>
                         
                         <form action="{{ route('puskesmas.validasi.reject', $child['id']) }}" method="POST">
                             @csrf
                             <div class="mb-5">
-                                <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Alasan Penolakan</label>
+                                <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                    Catatan Anomali & Instruksi untuk Kader <span class="text-rose-500">*</span>
+                                </label>
                                 <textarea name="catatan_validator" 
                                           x-model="rejectReason" 
                                           required 
                                           rows="3" 
-                                          placeholder="Jelaskan bagian mana yang perlu diperbaiki oleh kader..." 
-                                          class="w-full px-3 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:bg-white focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 resize-none transition-all"></textarea>
+                                          placeholder="Contoh: Terdeteksi lonjakan berat badan drastis (+4.2 kg) dalam 1 bulan. Mohon kader menimbang ulang balita atau memeriksa kemungkinan salah ketik angka." 
+                                          class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 resize-none transition-all"></textarea>
                             </div>
                             <div class="flex gap-3">
-                                <button type="button" @click="showRejectModal = false" class="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors">Batal</button>
-                                <button type="submit" class="flex-1 px-4 py-3 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700 transition-colors shadow-sm">Kirim Penolakan</button>
+                                <button type="button" @click="showRejectModal = false" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors">Batal</button>
+                                <button type="submit" class="flex-1 px-4 py-2.5 rounded-xl bg-amber-600 text-white font-bold text-xs hover:bg-amber-700 transition-colors shadow-sm flex items-center justify-center gap-1.5">
+                                    <i class="ph-bold ph-paper-plane-tilt"></i>
+                                    Kirim ke Kader
+                                </button>
                             </div>
                         </form>
                     </div>

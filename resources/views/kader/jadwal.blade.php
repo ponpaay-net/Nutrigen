@@ -66,9 +66,9 @@
                 </div>
 
                 <!-- Actions Section -->
-                <div class="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 mt-3 lg:mt-0 border-t border-teal-600/10 lg:border-t-0 pt-4 lg:pt-0" @click.stop>
-                    <button type="button" @click="askNotif(next.id)" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-all active:scale-95 shadow-sm shadow-teal-600/20"><x-icon name="bell" weight="bold" class="text-[15px]" /> <span class="whitespace-nowrap">Notifikasi</span></button>
-                    <button type="button" @click="openEdit(next.id)" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 text-[13.5px] font-semibold transition-all active:scale-95 shadow-sm shadow-amber-400/20"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> <span class="whitespace-nowrap">Edit</span></button>
+                <div class="shrink-0 grid grid-cols-2 sm:flex sm:flex-row sm:items-center gap-2 sm:gap-2.5 mt-3 lg:mt-0 border-t border-teal-600/10 lg:border-t-0 pt-4 lg:pt-0" @click.stop>
+                    <button type="button" @click="askNotif(next.id)" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-4 sm:px-5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-all active:scale-95 shadow-sm shadow-teal-600/20"><x-icon name="bell" weight="bold" class="text-[15px]" /> <span class="whitespace-nowrap">Notifikasi</span></button>
+                    <button type="button" @click="openEdit(next.id)" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-4 sm:px-5 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 text-[13.5px] font-semibold transition-all active:scale-95 shadow-sm shadow-amber-400/20"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> <span class="whitespace-nowrap">Edit</span></button>
                 </div>
             </div>
         </div>
@@ -157,7 +157,7 @@
                     <x-icon name="check-circle" weight="regular" class="text-slate-400 text-[14px] mt-0.5 shrink-0" />
                     <span class="leading-relaxed">Kegiatan selesai dilaksanakan.</span>
                 </div>
-                <div class="mt-auto border-t border-slate-100 px-5 py-3 flex items-center justify-between gap-2">
+                <div class="mt-auto border-t border-slate-100 px-4 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Selesai</span>
                     <div class="flex items-center gap-1.5">
                         <button type="button" @click="openDetail({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>
@@ -184,29 +184,29 @@
                     <input type="hidden" name="_method" :value="form.id ? 'PUT' : 'POST'">
                     <div>
                         <label class="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Nama / Judul Kegiatan <span class="text-rose-500">*</span></label>
-                        <input type="text" name="judul" x-model="form.judul" required placeholder="Contoh: Penimbangan Rutin & Imunisasi" class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-4 text-[14px] font-medium text-slate-800 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all">
+                        <input type="text" name="judul" x-model="form.judul" required placeholder="Contoh: Penimbangan Rutin & Imunisasi" class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-4 text-base sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all">
                     </div>
                     <div>
                         <label class="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Tempat / Lokasi <span class="text-rose-500">*</span></label>
-                        <input type="text" name="lokasi" x-model="form.lokasi" required placeholder="Contoh: Balai Posyandu RW 01" class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-4 text-[14px] font-medium text-slate-800 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all">
+                        <input type="text" name="lokasi" x-model="form.lokasi" required placeholder="Contoh: Balai Posyandu RW 01" class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-4 text-base sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Tanggal <span class="text-rose-500">*</span></label>
-                            <input type="date" name="tanggal" x-model="form.tanggal" required class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-4 text-[14px] font-medium text-slate-800 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all appearance-none">
+                            <input type="date" name="tanggal" x-model="form.tanggal" required class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-4 text-base sm:text-sm font-medium text-slate-800 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all appearance-none">
                         </div>
                         <div>
                             <label class="block text-[12.5px] font-semibold text-slate-700 mb-1.5">Jam Mulai & Selesai <span class="text-rose-500">*</span></label>
                             <div class="flex items-center gap-2">
-                                <input type="time" name="waktu_mulai" x-model="form.mulai" required class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[14px] font-medium text-slate-800 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all">
+                                <input type="time" name="waktu_mulai" x-model="form.mulai" required class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-base sm:text-sm font-medium text-slate-800 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all">
                                 <span class="text-slate-400 font-bold">–</span>
-                                <input type="time" name="waktu_selesai" x-model="form.selesai" required class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[14px] font-medium text-slate-800 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all">
+                                <input type="time" name="waktu_selesai" x-model="form.selesai" required class="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-base sm:text-sm font-medium text-slate-800 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all">
                             </div>
                         </div>
                     </div>
                     <div>
                         <label class="flex items-center justify-between text-[12.5px] font-semibold text-slate-700 mb-1.5"><span>Catatan untuk Ibu Balita</span><span class="text-[11px] font-medium text-slate-400">Opsional</span></label>
-                        <textarea name="catatan" x-model="form.catatan" rows="3" placeholder="Contoh: Harap membawa Buku KIA." class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[14px] font-medium text-slate-800 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all resize-none"></textarea>
+                        <textarea name="catatan" x-model="form.catatan" rows="3" placeholder="Contoh: Harap membawa Buku KIA." class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-base sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600 focus:bg-white transition-all resize-none"></textarea>
                     </div>
                     <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 border-t border-slate-100 pt-5">
                         <button type="button" @click="formOpen = false" class="w-full sm:w-auto h-11 px-5 rounded-xl border border-slate-200 bg-white text-slate-700 text-[13.5px] font-semibold hover:bg-slate-50 transition-colors">Batal</button>

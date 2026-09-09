@@ -26,9 +26,10 @@ class OrangTua extends Model
     ];
 
     protected $casts = [
-        'no_kk' => 'encrypted',
-        'nik_ayah' => 'encrypted',
-        'nik_ibu' => 'encrypted',
+        'no_kk' => \App\Casts\FallbackEncryptCast::class,
+        'nik_ayah' => \App\Casts\FallbackEncryptCast::class,
+        'nik_ibu' => \App\Casts\FallbackEncryptCast::class,
+        'no_hp_whatsapp' => \App\Casts\FallbackEncryptCast::class,
     ];
 
     public function user(): BelongsTo

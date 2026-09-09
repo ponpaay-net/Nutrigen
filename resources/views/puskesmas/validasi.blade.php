@@ -323,6 +323,9 @@
                                         <span class="text-xs font-black tracking-tight {{ $isDanger ? 'text-rose-600' : ($isWarning ? 'text-amber-600' : 'text-emerald-600') }}">
                                             {{ $child['statusLabel'] }}
                                         </span>
+                                        @if(!empty($child['rekomendasi_pmt']))
+                                            <span class="block text-[10px] text-slate-500 font-semibold mt-0.5">PMT: {{ $child['rekomendasi_pmt'] }}</span>
+                                        @endif
                                     </td>
 
                                     <!-- Col 4: Posyandu & Kader -->
@@ -401,7 +404,12 @@
                                 <div class="h-px w-full bg-slate-200/60"></div>
                                 <div class="flex justify-between items-center text-xs">
                                     <span class="font-semibold text-slate-500">Status Gizi</span>
-                                    <span class="font-black {{ $isDanger ? 'text-rose-600' : ($isWarning ? 'text-amber-600' : 'text-emerald-600') }}">{{ $child['statusLabel'] }}</span>
+                                    <div class="text-right">
+                                        <span class="font-black block {{ $isDanger ? 'text-rose-600' : ($isWarning ? 'text-amber-600' : 'text-emerald-600') }}">{{ $child['statusLabel'] }}</span>
+                                        @if(!empty($child['rekomendasi_pmt']))
+                                            <span class="text-[10px] text-slate-500 font-semibold mt-0.5">PMT: {{ $child['rekomendasi_pmt'] }}</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
 

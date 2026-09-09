@@ -54,7 +54,9 @@ Route::get('/team', function () {
 Route::get('/dashboard', function () {
     $user = auth()->user();
 
-    if ($user->role === 'kader') {
+    if ($user->role === 'super_admin') {
+        return redirect()->route('super-admin.dashboard');
+    } elseif ($user->role === 'kader') {
         return redirect()->route('kader.dashboard');
     } elseif ($user->role === 'puskesmas') {
         return redirect()->route('puskesmas.dashboard');
@@ -93,6 +95,30 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 // ==========================================================================
+// PORTAL SUPER ADMIN (Kemenkes) — Standard Auth + Role Middleware
+// ==========================================================================
+use App\Http\Controllers\SuperAdmin\SuperAdminController;
+
+Route::prefix('super-admin')->name('super-admin.')->middleware(['web', 'auth', 'prevent-back-history', 'role:super_admin'])->group(function () {
+    Route::get('/', function() {
+        return redirect()->route('super-admin.dashboard');
+    });
+
+    Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
+    // Master Data Puskesmas
+    Route::get('/puskesmas', [SuperAdminController::class, 'indexPuskesmas'])->name('puskesmas.index');
+    Route::post('/puskesmas', [SuperAdminController::class, 'storePuskesmas'])->name('puskesmas.store');
+    Route::put('/puskesmas/{id}', [SuperAdminController::class, 'updatePuskesmas'])->name('puskesmas.update');
+    Route::delete('/puskesmas/{id}', [SuperAdminController::class, 'destroyPuskesmas'])->name('puskesmas.destroy');
+
+    // Detail & Export
+    Route::get('/puskesmas/export/csv', [SuperAdminController::class, 'exportCsv'])->name('puskesmas.export.csv');
+    Route::get('/puskesmas/export/excel', [SuperAdminController::class, 'exportExcel'])->name('puskesmas.export.excel');
+    Route::get('/export/pdf', [SuperAdminController::class, 'exportPdf'])->name('export.pdf');
+    Route::get('/puskesmas/{id}', [SuperAdminController::class, 'showPuskesmas'])->name('puskesmas.show');
+});
+
+// ==========================================================================
 // PORTAL PUSKESMAS — Standard Auth + Role Middleware
 // ==========================================================================
 use App\Http\Controllers\Puskesmas\PuskesmasController;
@@ -108,6 +134,7 @@ Route::prefix('puskesmas')->name('puskesmas.')->middleware(['web', 'auth', 'prev
     Route::get('/balita/{id}', [PuskesmasController::class, 'showBalita'])->name('balita.show');
     Route::get('/laporan',   [PuskesmasController::class, 'laporan'])->name('laporan');
     Route::get('/laporan/export-excel', [PuskesmasController::class, 'exportExcel'])->name('laporan.export.excel');
+    Route::get('/laporan/export-csv', [PuskesmasController::class, 'exportExcel'])->name('laporan.export.csv');
     Route::get('/laporan/cetak-pdf', [PuskesmasController::class, 'cetakPdf'])->name('laporan.cetak.pdf');
     Route::get('/api/validasi-count', [PuskesmasController::class, 'apiValidasiCount'])->name('api.validasi-count');
 
@@ -151,10 +178,14 @@ Route::prefix('kader')->middleware(['web', 'auth', 'prevent-back-history', 'role
     Route::put('/balita/{id}', [KaderController::class, 'updateBalita'])->name('balita.update');
     Route::delete('/balita/{id}', [KaderController::class, 'hapusBalita'])->name('balita.destroy');
 
-    // Pengukuran CRUD
+    // Pengukuran CRUD & Validasi Ulang
     Route::get('/pengukuran', [KaderController::class, 'pengukuran'])->name('pengukuran.create');
     Route::post('/pengukuran', [KaderController::class, 'simpanPengukuran'])->name('pengukuran.store');
     Route::put('/pengukuran/{id}', [KaderController::class, 'updatePengukuran'])->name('pengukuran.update');
+    Route::delete('/pengukuran/draft/{id}', [KaderController::class, 'hapusPengukuranDraft'])->name('pengukuran.draft.destroy');
+    Route::post('/sesi/kirim', [KaderController::class, 'kirimSesiPuskesmas'])->name('sesi.kirim');
+    Route::post('/sesi/tarik-kembali', [KaderController::class, 'tarikKembaliSesi'])->name('sesi.tarik-kembali');
+    Route::get('/validasi-ulang', [KaderController::class, 'validasiUlang'])->name('kader.validasi-ulang');
 
     // Jadwal CRUD
     Route::get('/jadwal', [KaderController::class, 'jadwal'])->name('jadwal.index');

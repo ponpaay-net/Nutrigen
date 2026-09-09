@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Http\Requests\Puskesmas\StorePosyanduRequest;
 use App\Http\Requests\Puskesmas\StoreKaderRequest;
 use App\Http\Requests\Puskesmas\UpdateKeamananRequest;
+use App\Http\Requests\Puskesmas\UpdatePengaturanRequest;
 
 class PuskesmasController extends Controller
 {
@@ -60,6 +61,7 @@ class PuskesmasController extends Controller
         $recentActivities = Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
             $q->where('puskesmas_id', $puskesmasId);
         })->with(['balita.posyandu'])
+            ->where('status_validasi', '!=', 'draft')
             ->orderBy('created_at', 'desc')
             ->take(4)
             ->get();
@@ -70,6 +72,7 @@ class PuskesmasController extends Controller
                 $q->where('puskesmas_id', $puskesmasId);
             })
             ->where('tanggal_ukur', '>=', $sixMonthsAgo)
+            ->where('status_validasi', '!=', 'draft')
             ->selectRaw('DATE_FORMAT(tanggal_ukur, "%Y-%m") as month, count(*) as total, sum(case when status_gizi IN ("Risiko", "Kurang") then 1 else 0 end) as risiko, sum(case when status_gizi = "Stunting" then 1 else 0 end) as stunting')
             ->groupBy('month')
             ->orderBy('month', 'asc')
@@ -101,7 +104,7 @@ class PuskesmasController extends Controller
     {
         $puskesmasId = $this->getPuskesmasId();
         
-        $pendingCount = \App\Models\Pengukuran::where('status_validasi', 'pending')
+        $pendingCount = Pengukuran::where('status_validasi', 'pending')
             ->whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
                 $q->where('puskesmas_id', $puskesmasId);
             })->count();
@@ -116,13 +119,13 @@ class PuskesmasController extends Controller
     {
         $puskesmasId = $this->getPuskesmasId();
 
-        $p = \App\Models\Pengukuran::with(['balita.orangTua', 'balita.posyandu', 'kader.user'])
+        $p = Pengukuran::with(['balita.orangTua', 'balita.posyandu', 'kader.user'])
             ->whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
                 $q->where('puskesmas_id', $puskesmasId);
             })
             ->findOrFail($id);
 
-        $statusGizi = strtolower($p->status_gizi);
+        $statusGizi = strtolower((string) $p->status_gizi);
         $statusType = 'success';
         $statusLabel = 'Normal';
         if (in_array($statusGizi, ['stunting'])) {
@@ -133,14 +136,15 @@ class PuskesmasController extends Controller
             $statusLabel = 'Risiko Stunting';
         }
 
-        $history = \App\Models\Pengukuran::where('balita_id', $p->balita_id)
+        $history = Pengukuran::where('balita_id', $p->balita_id)
             ->where('tanggal_ukur', '<', $p->tanggal_ukur)
+            ->where('status_validasi', '!=', 'draft')
             ->orderBy('tanggal_ukur', 'desc')
             ->limit(3)
             ->get()
             ->map(function ($h) {
                 return [
-                    'date' => \Carbon\Carbon::parse($h->tanggal_ukur)->translatedFormat('d M Y'),
+                    'date' => Carbon::parse($h->tanggal_ukur)->translatedFormat('d M Y'),
                     'age' => $h->umur_bulan . ' bln',
                     'bb' => $h->berat_badan,
                     'tb' => $h->tinggi_badan,
@@ -158,7 +162,8 @@ class PuskesmasController extends Controller
         if ($zTbu < -2) {
             $valText .= ' (Pendek)';
         }
-        $allMeasurements = \App\Models\Pengukuran::where('balita_id', $p->balita_id)
+        $allMeasurements = Pengukuran::where('balita_id', $p->balita_id)
+            ->where('status_validasi', '!=', 'draft')
             ->orderBy('tanggal_ukur', 'asc')
             ->get();
 
@@ -180,19 +185,19 @@ class PuskesmasController extends Controller
 
         $child = [
             'id' => $p->id,
-            'name' => $p->balita->nama,
-            'nik' => $p->balita->nik,
-            'gender' => $p->balita->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+            'name' => $p->balita?->nama,
+            'nik' => $p->balita?->nik,
+            'gender' => $p->balita?->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
             'age' => $p->umur_bulan . ' bln',
             'indicator' => $indicator,
             'value' => $valText,
-            'posyandu' => $p->balita->posyandu->nama ?? '-',
-            'kader' => $p->kader->nama ?? $p->kader->user->name ?? '-',
-            'time' => \Carbon\Carbon::parse($p->tanggal_ukur)->format('H:i'),
-            'date' => \Carbon\Carbon::parse($p->tanggal_ukur)->translatedFormat('d F Y'),
+            'posyandu' => $p->balita?->posyandu?->nama ?? '-',
+            'kader' => $p->kader?->nama ?? $p->kader?->user?->name ?? '-',
+            'time' => Carbon::parse($p->tanggal_ukur)->format('H:i'),
+            'date' => Carbon::parse($p->tanggal_ukur)->translatedFormat('d F Y'),
             'statusType' => $statusType,
             'statusLabel' => $statusLabel,
-            'parent' => $p->balita->orangTua->nama_ibu ?? '-',
+            'parent' => $p->balita?->orangTua?->nama_ibu ?? '-',
             'bb' => $p->berat_badan,
             'tb' => $p->tinggi_badan,
             'catatan_kader' => $p->catatan_kader,
@@ -202,13 +207,14 @@ class PuskesmasController extends Controller
                 'TB (cm)' => ['val' => number_format((float)$p->tinggi_badan, 1), 'status' => 'Normal', 'color' => 'slate'],
                 'BB/U' => ['val' => number_format((float)$p->z_score_bbu, 2), 'status' => ((float)$p->z_score_bbu < -2 ? 'Kurang' : 'Normal'), 'color' => 'slate'],
                 'TB/U' => ['val' => number_format((float)$p->z_score_tbu, 2), 'status' => ((float)$p->z_score_tbu < -2 ? 'Pendek' : 'Normal'), 'color' => ((float)$p->z_score_tbu < -2 ? 'rose' : 'slate')],
-                'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'],
-                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
+                'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita?->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'],
+                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita?->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
             ],
             'history' => $history,
             'chartData' => $chartData,
             'status_validasi' => $p->status_validasi,
-            'balita_id' => $p->balita_id
+            'balita_id' => $p->balita_id,
+            'rekomendasi_pmt' => $p->rekomendasi_pmt,
         ];
 
         return view('puskesmas.validasi-review', compact('child'));
@@ -256,7 +262,7 @@ class PuskesmasController extends Controller
 
         $children = [];
         foreach ($allPengukurans as $p) {
-            $statusGizi = strtolower($p->status_gizi);
+            $statusGizi = strtolower((string) $p->status_gizi);
             $statusType = 'success';
             $statusLabel = 'Normal';
             $isAnomali = false;
@@ -277,7 +283,7 @@ class PuskesmasController extends Controller
             if ($filters['tab'] === 'berisiko' && !$isBerisiko) continue;
 
             // Load already-aware measurements from eager-loaded relation (no N+1)
-            $measurements = $p->balita->pengukurans->sortByDesc('tanggal_ukur');
+            $measurements = $p->balita?->pengukurans->filter(fn($h) => $h->status_validasi !== 'draft')->sortByDesc('tanggal_ukur');
             $history = $measurements
                 ->filter(fn($h) => $h->tanggal_ukur < $p->tanggal_ukur)
                 ->take(3)
@@ -303,7 +309,7 @@ class PuskesmasController extends Controller
                 $valText .= ' (Pendek)';
             }
             // Use already-loaded measurements for the chart (ascending order)
-            $allMeasurements = $p->balita->pengukurans->sortBy('tanggal_ukur');
+            $allMeasurements = $p->balita?->pengukurans->filter(fn($h) => $h->status_validasi !== 'draft')->sortBy('tanggal_ukur');
 
             $chartData = [
                 'labels' => [],
@@ -323,19 +329,19 @@ class PuskesmasController extends Controller
 
             $children[] = [
                 'id' => $p->id,
-                'name' => $p->balita->nama,
-                'nik' => $p->balita->nik,
-                'gender' => $p->balita->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                'name' => $p->balita?->nama,
+                'nik' => $p->balita?->nik,
+                'gender' => $p->balita?->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
                 'age' => $p->umur_bulan . ' bln',
                 'indicator' => $indicator,
                 'value' => $valText,
-                'posyandu' => $p->balita->posyandu->nama ?? '-',
-                'kader' => $p->kader->nama ?? $p->kader->user->name ?? '-',
+                'posyandu' => $p->balita?->posyandu?->nama ?? '-',
+                'kader' => $p->kader?->nama ?? $p->kader?->user?->name ?? '-',
                 'time' => Carbon::parse($p->tanggal_ukur)->format('H:i'),
                 'date' => Carbon::parse($p->tanggal_ukur)->translatedFormat('d F Y'),
                 'statusType' => $statusType,
                 'statusLabel' => $statusLabel,
-                'parent' => $p->balita->orangTua->nama_ibu ?? '-',
+                'parent' => $p->balita?->orangTua?->nama_ibu ?? '-',
                 'bb' => $p->berat_badan,
                 'tb' => $p->tinggi_badan,
                 'catatan_kader' => $p->catatan_kader,
@@ -345,11 +351,12 @@ class PuskesmasController extends Controller
                     'TB (cm)' => ['val' => number_format((float)$p->tinggi_badan, 1), 'status' => 'Normal', 'color' => 'slate'],
                     'BB/U' => ['val' => number_format((float)$p->z_score_bbu, 2), 'status' => ((float)$p->z_score_bbu < -2 ? 'Kurang' : 'Normal'), 'color' => 'slate'],
                     'TB/U' => ['val' => number_format((float)$p->z_score_tbu, 2), 'status' => ((float)$p->z_score_tbu < -2 ? 'Pendek' : 'Normal'), 'color' => ((float)$p->z_score_tbu < -2 ? 'rose' : 'slate')],
-                    'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // IMT/U asli (BMI-for-age WHO)
-                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
+                    'IMT/U'=> (($iz = app(\App\Services\GrowthCalculationService::class)->imtuZscore($p->umur_bulan, $p->balita?->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($iz, 2),'status'=>($iz < -2 ? 'Kurus' : ($iz > 1 ? 'Risiko Lebih' : 'Normal')),'color'=>($iz < -2 ? 'rose' : ($iz > 1 ? 'amber' : 'slate'))] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // IMT/U asli (BMI-for-age WHO)
+                'BB/TB'=> (($bz = app(\App\Services\GrowthCalculationService::class)->bbtZscore($p->umur_bulan, $p->balita?->jenis_kelamin, (float)$p->berat_badan, (float)$p->tinggi_badan)) !== null) ? ['val'=>number_format($bz, 2),'status'=>($bz < -3 ? 'Sangat Kurus' : ($bz < -2 ? 'Kurus' : 'Normal')),'color'=>($bz < -2 ? 'rose' : 'slate')] : ['val'=>'-','status'=>'Normal','color'=>'slate'], // BB/TB wasting WHO
                 ],
                 'history' => $history,
                 'chartData' => $chartData,
+                'rekomendasi_pmt' => $p->rekomendasi_pmt,
             ];
         }
 
@@ -373,12 +380,13 @@ class PuskesmasController extends Controller
 
         $measurements = Pengukuran::with('validator')
             ->where('balita_id', $currentMeasurement->balita_id)
+            ->where('status_validasi', '!=', 'draft')
             ->orderBy('tanggal_ukur', 'desc')
             ->get();
 
         return view('puskesmas.riwayat-validasi', [
             'child' => $currentMeasurement->balita,
-            'posyandu' => $currentMeasurement->balita->posyandu->nama ?? '-',
+            'posyandu' => $currentMeasurement->balita?->posyandu?->nama ?? '-',
             'measurements' => $measurements,
         ]);
     }
@@ -406,7 +414,7 @@ class PuskesmasController extends Controller
         $signedUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
             'portal-ibu.home',
             now()->addDays($ttlDays),
-            ['balita' => $pengukuran->balita_id, 'orang_tua' => $pengukuran->balita->orang_tua_id]
+            ['balita' => $pengukuran->balita_id, 'orang_tua' => $pengukuran->balita?->orang_tua_id]
         );
 
         // TINGGI-02 (short-term): otomatis kirim link portal (buku KIA digital)
@@ -414,6 +422,8 @@ class PuskesmasController extends Controller
         // Personalisasi dengan nama ibu/ayah (best practice anti-spam Fonnte).
         $orangTua = $pengukuran->balita->orangTua;
         $waDigits = preg_replace('/[^0-9]/', '', $orangTua->no_hp_whatsapp ?? '');
+        // TINGGI-02 (short-term): link wa.me dengan pesan berisi URL portal
+        $waDigits = preg_replace('/[^0-9]/', '', $pengukuran->balita?->orangTua?->no_hp_whatsapp ?? '');
         if ($waDigits !== '') {
             if (!str_starts_with($waDigits, '62')) {
                 $waDigits = str_starts_with($waDigits, '0') ? '62' . substr($waDigits, 1) : '62' . $waDigits;
@@ -430,7 +440,7 @@ class PuskesmasController extends Controller
         $notification = null;
         if ($waDigits !== '') {
             $notification = $this->whatsAppService->send(
-                $pengukuran->balita->orang_tua_id,
+                $pengukuran->balita?->orang_tua_id,
                 $pengukuran->id,
                 $waDigits,
                 $waMessage
@@ -441,7 +451,7 @@ class PuskesmasController extends Controller
             'url' => $signedUrl,
             'ttl_days' => $ttlDays,
             'wa_url' => $waDigits !== '' ? 'https://wa.me/' . $waDigits . '?text=' . rawurlencode($waMessage) : null,
-            'child_name' => $pengukuran->balita->nama,
+            'child_name' => $pengukuran->balita?->nama,
             'notif_log_id' => $notification['log_id'] ?? null,
             'notif_status' => $notification['status'] ?? null,
         ];
@@ -473,7 +483,7 @@ class PuskesmasController extends Controller
 
         $pengukuran->update([
             'status_validasi' => 'rejected',
-            'catatan_validator' => $request->input('catatan_validator', 'Data tidak valid, mohon perbaiki.'),
+            'catatan_validator' => $request->input('catatan_validator', 'Terdeteksi anomali data, mohon lakukan pengukuran atau input ulang.'),
             'validated_by' => Auth::id(),
             'validated_at' => now(),
         ]);
@@ -484,7 +494,7 @@ class PuskesmasController extends Controller
             $request->input('posyandu_id') ?: null
         );
 
-        return redirect()->route('puskesmas.validasi')->with('success', 'Data berhasil ditolak dan dikembalikan ke Kader untuk revisi.');
+        return redirect()->route('puskesmas.validasi')->with('success', 'Permintaan validasi ulang berhasil dikirim ke Kader Posyandu.');
     }
 
     public function balita(Request $request)
@@ -499,7 +509,7 @@ class PuskesmasController extends Controller
         $statusGizi = $request->input('status_gizi');
 
         $query = Balita::with(['orangTua', 'posyandu', 'pengukurans' => function($query) {
-            $query->orderBy('tanggal_ukur', 'desc'); // To easily get latest status_gizi
+            $query->where('status_validasi', '!=', 'draft')->orderBy('tanggal_ukur', 'desc'); // To easily get latest status_gizi
         }])
         ->whereHas('posyandu', fn($q) => $q->where('puskesmas_id', $puskesmasId));
 
@@ -523,25 +533,30 @@ class PuskesmasController extends Controller
                 'risiko' => 'Risiko',
                 'stunting' => 'Stunting'
             ];
-            $expected = $statusMap[strtolower($statusGizi)] ?? $statusGizi;
-            return $q->whereHas('latestPengukuran', function($subq) use ($expected) {
-                $subq->whereRaw('LOWER(status_gizi) = ?', [strtolower($expected)]);
+            $expected = $statusMap[strtolower((string) $statusGizi)] ?? $statusGizi;
+            return $q->whereHas('pengukurans', function($subq) use ($expected) {
+                // Ensure the latest measurement that is not draft matches the expected status
+                $subq->where('status_validasi', '!=', 'draft')
+                     ->whereRaw('LOWER(status_gizi) = ?', [strtolower((string) $expected)]);
             });
         });
 
         // Calculate KPIs based on the current filtered query
         $totalBalita = (clone $balitasQuery)->count();
-        $totalStunting = (clone $balitasQuery)->whereHas('latestPengukuran', function($q) {
-            $q->whereIn(\Illuminate\Support\Facades\DB::raw('LOWER(status_gizi)'), ['stunting', 'gizi buruk', 'sangat kurus', 'obesitas']);
+        $totalStunting = (clone $balitasQuery)->whereHas('pengukurans', function($q) {
+            $q->where('status_validasi', '!=', 'draft')
+              ->whereIn(DB::raw('LOWER(status_gizi)'), ['stunting', 'gizi buruk', 'sangat kurus', 'obesitas']);
         })->count();
-        $totalRisiko = (clone $balitasQuery)->whereHas('latestPengukuran', function($q) {
-            $q->whereIn(\Illuminate\Support\Facades\DB::raw('LOWER(status_gizi)'), ['kurang', 'kurus', 'risiko lebih', 'risiko']);
+        $totalRisiko = (clone $balitasQuery)->whereHas('pengukurans', function($q) {
+            $q->where('status_validasi', '!=', 'draft')
+              ->whereIn(DB::raw('LOWER(status_gizi)'), ['kurang', 'kurus', 'risiko lebih', 'risiko']);
         })->count();
 
-        $balitas = $balitasQuery->paginate(20)->withQueryString();
+        $balitas = $balitasQuery->paginate(20)->appends(request()->query());
 
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $balitas */
         $balitas->getCollection()->transform(function($b) {
-            $posyanduName = $b->posyandu->nama ?? '-';
+            $posyanduName = $b->posyandu?->nama ?? '-';
 
             $formattedPengukurans = $b->pengukurans->sortByDesc('tanggal_ukur')->map(function($p) {
                 return [
@@ -560,7 +575,7 @@ class PuskesmasController extends Controller
             $latestPengukuran = count($formattedPengukurans) > 0 ? $formattedPengukurans[0] : null;
             $rawStatus = $latestPengukuran ? $latestPengukuran['status_gizi'] : 'Belum Diukur';
             $statusLabel = ucwords($rawStatus);
-            $checkStatus = strtolower($rawStatus);
+            $checkStatus = strtolower((string) $rawStatus);
 
             $statusType = 'success'; // Default normal
             if(in_array($checkStatus, ['kurang', 'kurus', 'risiko lebih', 'risiko'])) $statusType = 'warning';
@@ -575,7 +590,7 @@ class PuskesmasController extends Controller
                 'jenis_kelamin' => $b->jenis_kelamin,
                 'berat_lahir'   => $b->berat_lahir,
                 'tinggi_lahir'  => $b->panjang_lahir,
-                'ibu'           => ['nama' => $b->orangTua->nama_ibu ?? '-', 'no_hp_wa' => $b->orangTua->no_hp_whatsapp ?? '-'],
+                'ibu'           => ['nama' => $b->orangTua?->nama_ibu ?? '-', 'no_hp_wa' => $b->orangTua?->no_hp_whatsapp ?? '-'],
                 'posyandu'      => ['nama' => $posyanduName],
                 'pengukurans'   => $formattedPengukurans,
                 'statusLabel'   => $statusLabel,
@@ -620,8 +635,8 @@ class PuskesmasController extends Controller
             $kaders = $p->kaders->map(function($k) {
                 return [
                     'id' => $k->id,
-                    'nama' => $k->user->name ?? $k->nama,
-                    'email' => $k->user->email ?? '',
+                    'nama' => $k->user?->name ?? $k->nama,
+                    'email' => $k->user?->email ?? '',
                     'nik' => '-', // NIK Kader dihilangkan dari tabel V2
                     'no_hp' => $k->no_hp,
                     'aktivitas_bulan_ini' => $k->pengukurans()->whereMonth('tanggal_ukur', Carbon::now()->month)->count(),
@@ -725,7 +740,7 @@ class PuskesmasController extends Controller
                 if (!empty($validated['password'])) {
                     $userUpdate['password'] = Hash::make($validated['password']);
                 }
-                $kader->user->update($userUpdate);
+                $kader->user?->update($userUpdate);
             }
         });
 
@@ -747,7 +762,7 @@ class PuskesmasController extends Controller
             $userId = $kader->user_id;
             $kader->delete();
             if ($userId) {
-                \App\Models\User::destroy($userId);
+                User::destroy($userId);
             }
         });
 
@@ -765,53 +780,129 @@ class PuskesmasController extends Controller
 
         $posyandus = Posyandu::where('puskesmas_id', $puskesmasId)->get(['id', 'nama'])->toArray();
 
-        // Retrieve base stats via StatisticsService (approved data only)
-        $reportStats = $this->statisticsService->getReportStats($puskesmasId, (int)$bulan, (int)$tahun);
+        // Calculate 3 Indices dynamically
+        $pengukurans = \App\Models\Pengukuran::with('balita')->whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
+            $q->where('puskesmas_id', $puskesmasId);
+        })
+        ->where('status_validasi', 'approved')
+        ->whereMonth('tanggal_ukur', $bulan)
+        ->whereYear('tanggal_ukur', $tahun)
+        ->get();
 
-        // Additional pending validation count (still uses pending status)
-        $pendingValidasi = Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
+        $calcService = app(\App\Services\GrowthCalculationService::class);
+        
+        $totalDiukur = 0;
+        $underweight = 0;
+        $stunting    = 0;
+        $wasting     = 0;
+        $normalAll   = 0;
+
+        $posyanduStats = [];
+
+        foreach ($pengukurans as $p) {
+            $posyandu_id = $p->balita->posyandu_id;
+            if (!isset($posyanduStats[$posyandu_id])) {
+                $posyanduStats[$posyandu_id] = [
+                    'diukur' => 0, 'underweight' => 0, 'stunting' => 0, 'wasting' => 0, 'normal' => 0
+                ];
+            }
+            
+            $jk = $p->balita->jenis_kelamin ?? 'L';
+            $zbbu = $p->z_score_bbu !== null ? (float)$p->z_score_bbu : (float)$calcService->bbuZscore($p->umur_bulan, $jk, (float)$p->berat_badan);
+            $ztbu = $p->z_score_tbu !== null ? (float)$p->z_score_tbu : (float)$calcService->tbuZscore($p->umur_bulan, $jk, (float)$p->tinggi_badan);
+            $zbbt = $p->z_score_bbt !== null ? (float)$p->z_score_bbt : (float)$calcService->bbtZscore($p->umur_bulan, $jk, (float)$p->berat_badan, (float)$p->tinggi_badan);
+            
+            $isNormal = true;
+            $isUnderweight = false;
+            $isStunting = false;
+            $isWasting = false;
+
+            if ($zbbu < -2.0) { $isUnderweight = true; $isNormal = false; }
+            if ($ztbu < -2.0) { $isStunting = true; $isNormal = false; }
+            if ($zbbt < -2.0) { $isWasting = true; $isNormal = false; }
+            
+            // For overall and specific posyandu filtering
+            if ($posyanduId === 'semua' || $posyanduId == $posyandu_id) {
+                $totalDiukur++;
+                if ($isUnderweight) $underweight++;
+                if ($isStunting) $stunting++;
+                if ($isWasting) $wasting++;
+                if ($isNormal) $normalAll++;
+            }
+
+            $posyanduStats[$posyandu_id]['diukur']++;
+            if ($isUnderweight) $posyanduStats[$posyandu_id]['underweight']++;
+            if ($isStunting) $posyanduStats[$posyandu_id]['stunting']++;
+            if ($isWasting) $posyanduStats[$posyandu_id]['wasting']++;
+            if ($isNormal) $posyanduStats[$posyandu_id]['normal']++;
+        }
+
+        if ($posyanduId === 'semua') {
+            $totalSasaranAll = \App\Models\Balita::whereHas('posyandu', function($q) use ($puskesmasId) {
+                $q->where('puskesmas_id', $puskesmasId);
+            })->count();
+        } else {
+            $totalSasaranAll = \App\Models\Balita::where('posyandu_id', $posyanduId)->count();
+        }
+
+        $pendingValidasi = \App\Models\Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
             $q->where('puskesmas_id', $puskesmasId);
         })->where('status_validasi', 'pending')->count();
 
         $stats = [
-            'total_balita' => $reportStats['total'],
-            'normal' => $reportStats['normal'],
-            'berisiko' => $reportStats['risiko'] + $reportStats['stunting'],
+            'total_balita' => $totalSasaranAll,
+            'normal' => $normalAll,
+            'underweight' => $underweight,
+            'stunting' => $stunting,
+            'wasting' => $wasting,
             'pending_validasi' => $pendingValidasi,
-            'sudah_validasi' => $reportStats['total'], // approved count equals total approved for month
+            'sudah_validasi' => $totalDiukur,
         ];
 
         $reports = [];
         if ($posyanduId === 'semua') {
             foreach ($posyandus as $p) {
-                $pStats = $this->dashboardService->getKaderDashboardStats($p['id'], (int) $bulan, (int) $tahun);
+                $pid = $p['id'];
+                $totalSasaran = \App\Models\Balita::where('posyandu_id', $pid)->count();
+                $pStats = $posyanduStats[$pid] ?? ['diukur' => 0, 'underweight' => 0, 'stunting' => 0, 'wasting' => 0, 'normal' => 0];
+                
                 $reports[] = [
                     'nama_posyandu' => $p['nama'],
-                    'sasaran' => $pStats['total_balita'],
-                    'diukur' => $pStats['bulan_ini'],
+                    'sasaran' => $totalSasaran,
+                    'diukur' => $pStats['diukur'],
                     'normal' => $pStats['normal'],
-                    'berisiko' => $pStats['risiko'] + $pStats['stunting'],
-                    'persentase_hadir' => $pStats['total_balita'] > 0 ? round(($pStats['bulan_ini']/$pStats['total_balita'])*100).'%' : '0%'
+                    'underweight' => $pStats['underweight'],
+                    'stunting' => $pStats['stunting'],
+                    'wasting' => $pStats['wasting'],
+                    'persentase_hadir' => $totalSasaran > 0 ? round(($pStats['diukur']/$totalSasaran)*100).'%' : '0%'
                 ];
             }
         } else {
+            $totalSasaran = \App\Models\Balita::where('posyandu_id', $posyanduId)->count();
             $reports[] = [
                 'nama_posyandu' => collect($posyandus)->firstWhere('id', (int)$posyanduId)['nama'] ?? 'Posyandu',
-                'sasaran' => $stats['total_balita'],
-                'diukur' => $reportStats['total'],
-                'normal' => $stats['normal'],
-                'berisiko' => $stats['berisiko'],
-                'persentase_hadir' => $stats['total_balita'] > 0 ? round(($reportStats['total']/$stats['total_balita'])*100).'%' : '0%'
+                'sasaran' => $totalSasaran,
+                'diukur' => $totalDiukur,
+                'normal' => $normalAll,
+                'underweight' => $underweight,
+                'stunting' => $stunting,
+                'wasting' => $wasting,
+                'persentase_hadir' => $totalSasaran > 0 ? round(($totalDiukur/$totalSasaran)*100).'%' : '0%'
             ];
         }
 
-        // Distribution already provided by reportStats
-        $distTotal = $reportStats['normal'] + $reportStats['risiko'] + $reportStats['stunting'];
+        // Distribution logic for Pie Chart
+        // Karena overlap, persentase menggunakan perbandingan dengan total masalah vs normal (estimasi kasar untuk chart pie)
+        $distTotal = $normalAll + $underweight + $stunting + $wasting;
         $distribution = [
-            'normal' => $reportStats['normal'],
-            'pct_normal' => $distTotal > 0 ? round(($reportStats['normal'] / $distTotal) * 100) : 0,
-            'stunting' => $reportStats['risiko'] + $reportStats['stunting'], // treated as risk total
-            'pct_stunting' => $distTotal > 0 ? round((($reportStats['risiko'] + $reportStats['stunting']) / $distTotal) * 100) : 0,
+            'normal' => $normalAll,
+            'pct_normal' => $distTotal > 0 ? round(($normalAll / $distTotal) * 100) : 0,
+            'underweight' => $underweight,
+            'pct_underweight' => $distTotal > 0 ? round(($underweight / $distTotal) * 100) : 0,
+            'stunting' => $stunting,
+            'pct_stunting' => $distTotal > 0 ? round(($stunting / $distTotal) * 100) : 0,
+            'wasting' => $wasting,
+            'pct_wasting' => $distTotal > 0 ? round(($wasting / $distTotal) * 100) : 0,
         ];
 
         $topBerisiko = $this->dashboardService->getTopBerisiko($puskesmasId, $posyanduId, (int) $bulan, (int) $tahun);
@@ -835,7 +926,7 @@ class PuskesmasController extends Controller
         $tahun = $request->input('tahun', Carbon::now()->format('Y'));
         $posyanduId = $request->input('posyandu_id', 'semua');
         
-        $pengukurans = \App\Models\Pengukuran::with(['balita.posyandu', 'balita.orangTua'])
+        $pengukurans = Pengukuran::with(['balita.posyandu', 'balita.orangTua'])
             ->whereHas('balita.posyandu', function ($q) use ($puskesmasId, $posyanduId) {
                 $q->where('puskesmas_id', $puskesmasId);
                 if ($posyanduId !== 'semua') {
@@ -844,43 +935,89 @@ class PuskesmasController extends Controller
             })
             ->whereMonth('tanggal_ukur', $bulan)
             ->whereYear('tanggal_ukur', $tahun)
+            ->where('status_validasi', '!=', 'draft')
             ->orderBy('tanggal_ukur', 'asc')
             ->get();
 
-        $fileName = 'Data_Pengukuran_Anak_' . $bulan . '_' . $tahun . '.csv';
+        $fileName = 'Data_Pengukuran_Anak_' . $bulan . '_' . $tahun . '.xls';
 
-        $headers = array(
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
+        $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        $html .= '<head><meta charset="UTF-8"><style>';
+        $html .= 'body { font-family: Arial, sans-serif; }';
+        $html .= 'table { border-collapse: collapse; width: 100%; font-size: 10pt; }';
+        $html .= 'th { background-color: #0d9488; color: #ffffff; font-weight: bold; border: 1px solid #0f766e; padding: 7px 5px; }';
+        $html .= 'td { border: 1px solid #cbd5e1; padding: 5px 6px; vertical-align: middle; }';
+        $html .= '</style></head><body>';
+        $html .= '<table border="1">';
+        $html .= '<thead><tr>';
+        $html .= '<th>No</th><th>Nama Posyandu</th><th>NIK Balita</th><th>Nama Balita</th>';
+        $html .= '<th>Umur (Bulan)</th><th>Jenis Kelamin</th><th>BB (kg)</th><th>TB (cm)</th>';
+        $html .= '<th>Z-Score BB/U</th><th>Status BB/U</th><th>Z-Score TB/U</th><th>Status TB/U</th>';
+        $html .= '<th>Z-Score BB/TB</th><th>Status BB/TB</th><th>Rekomendasi PMT</th><th>Status Gizi (Old)</th>';
+        $html .= '<th>Nama Ibu</th><th>No HP Ibu</th>';
+        $html .= '</tr></thead><tbody>';
+
+        $no = 1;
+        foreach ($pengukurans as $row) {
+            $status_bbu = '-';
+            if ($row->z_score_bbu !== null) {
+                if ($row->z_score_bbu < -3.0) $status_bbu = 'BB Sangat Kurang';
+                elseif ($row->z_score_bbu < -2.0) $status_bbu = 'BB Kurang';
+                elseif ($row->z_score_bbu <= 1.0) $status_bbu = 'Normal';
+                else $status_bbu = 'Risiko Berat Badan Lebih';
+            }
+
+            $status_tbu = '-';
+            if ($row->z_score_tbu !== null) {
+                if ($row->z_score_tbu < -3.0) $status_tbu = 'Sangat Pendek';
+                elseif ($row->z_score_tbu < -2.0) $status_tbu = 'Pendek';
+                elseif ($row->z_score_tbu <= 3.0) $status_tbu = 'Normal';
+                else $status_tbu = 'Tinggi';
+            }
+
+            $status_bbt = '-';
+            if ($row->z_score_bbt !== null) {
+                if ($row->z_score_bbt < -3.0) $status_bbt = 'Gizi Buruk';
+                elseif ($row->z_score_bbt < -2.0) $status_bbt = 'Gizi Kurang';
+                elseif ($row->z_score_bbt <= 1.0) $status_bbt = 'Gizi Baik';
+                elseif ($row->z_score_bbt <= 2.0) $status_bbt = 'Beresiko Gizi Lebih';
+                elseif ($row->z_score_bbt <= 3.0) $status_bbt = 'Gizi Lebih';
+                else $status_bbt = 'Obesitas';
+            }
+
+            $jk = $row->balita?->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan';
+            $html .= '<tr>';
+            $html .= '<td>' . $no++ . '</td>';
+            $html .= '<td>' . ($row->balita?->posyandu?->nama ?? '-') . '</td>';
+            $html .= '<td style="mso-number-format:\'\@\';">' . ($row->balita?->nik ?? '-') . '</td>';
+            $html .= '<td>' . ($row->balita?->nama ?? '-') . '</td>';
+            $html .= '<td>' . $row->umur_bulan . '</td>';
+            $html .= '<td>' . $jk . '</td>';
+            $html .= '<td>' . str_replace('.', ',', $row->berat_badan) . '</td>';
+            $html .= '<td>' . str_replace('.', ',', $row->tinggi_badan) . '</td>';
+            $html .= '<td>' . ($row->z_score_bbu !== null ? str_replace('.', ',', $row->z_score_bbu) : '-') . '</td>';
+            $html .= '<td>' . $status_bbu . '</td>';
+            $html .= '<td>' . ($row->z_score_tbu !== null ? str_replace('.', ',', $row->z_score_tbu) : '-') . '</td>';
+            $html .= '<td>' . $status_tbu . '</td>';
+            $html .= '<td>' . ($row->z_score_bbt !== null ? str_replace('.', ',', $row->z_score_bbt) : '-') . '</td>';
+            $html .= '<td>' . $status_bbt . '</td>';
+            $html .= '<td>' . ($row->rekomendasi_pmt ?? '-') . '</td>';
+            $html .= '<td>' . ($row->status_gizi ?? '-') . '</td>';
+            $html .= '<td>' . ($row->balita?->orangTua?->nama_ibu ?? '-') . '</td>';
+            $html .= '<td style="mso-number-format:\'\@\';">' . ($row->balita?->orangTua?->no_hp_whatsapp ?? '-') . '</td>';
+            $html .= '</tr>';
+        }
+        $html .= '</tbody></table></body></html>';
+
+        $headers = [
+            "Content-type"        => "application/vnd.ms-excel; charset=utf-8",
+            "Content-Disposition" => "attachment; filename=\"$fileName\"",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0"
-        );
+        ];
 
-        $callback = function() use($pengukurans) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['No', 'Nama Posyandu', 'NIK Balita', 'Nama Balita', 'Umur (Bulan)', 'Jenis Kelamin', 'BB (kg)', 'TB (cm)', 'Status Gizi', 'Nama Ibu', 'No HP Ibu']);
-            
-            $no = 1;
-            foreach ($pengukurans as $row) {
-                fputcsv($file, [
-                    $no++,
-                    $row->balita->posyandu->nama ?? '-',
-                    $row->balita->nik ?? '-',
-                    $row->balita->nama ?? '-',
-                    $row->umur_bulan,
-                    $row->balita->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
-                    $row->berat_badan,
-                    $row->tinggi_badan,
-                    $row->status_gizi,
-                    $row->balita->orangTua->nama_ibu ?? '-',
-                    $row->balita->orangTua->no_hp_whatsapp ?? '-'
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response("\xEF\xBB\xBF" . $html, 200, $headers);
     }
 
     public function cetakPdf(Request $request)
@@ -891,18 +1028,76 @@ class PuskesmasController extends Controller
         $tahun = $request->input('tahun', Carbon::now()->format('Y'));
         $posyanduId = $request->input('posyandu_id', 'semua');
 
-        $posyandus = Posyandu::where('puskesmas_id', $puskesmasId)->get(['id', 'nama'])->toArray();
+        $posyandus = Posyandu::where('puskesmas_id', $puskesmasId)->get(['id', 'nama', 'desa_kelurahan']);
 
-        $reportStats = $this->statisticsService->getReportStats($puskesmasId, (int)$bulan, (int)$tahun);
+        $baseQuery = \App\Models\Pengukuran::whereHas('balita.posyandu', function ($q) use ($puskesmasId) {
+            $q->where('puskesmas_id', $puskesmasId);
+        })
+        ->where('status_validasi', 'approved')
+        ->whereMonth('tanggal_ukur', $bulan)
+        ->whereYear('tanggal_ukur', $tahun);
+
+        $totalDiukur = (clone $baseQuery)->count();
+        $underweight = (clone $baseQuery)->where('z_score_bbu', '<', -2.0)->count();
+        $stunting    = (clone $baseQuery)->where('z_score_tbu', '<', -2.0)->count();
+        $wasting     = (clone $baseQuery)->where('z_score_bbt', '<', -2.0)->count();
+        $normalAll   = (clone $baseQuery)->where('z_score_bbu', '>=', -2.0)
+                                         ->where('z_score_tbu', '>=', -2.0)
+                                         ->where('z_score_bbt', '>=', -2.0)->count();
+
+        if ($posyanduId === 'semua') {
+            $totalSasaranAll = \App\Models\Balita::whereHas('posyandu', function($q) use ($puskesmasId) {
+                $q->where('puskesmas_id', $puskesmasId);
+            })->count();
+        } else {
+            $totalSasaranAll = \App\Models\Balita::where('posyandu_id', $posyanduId)->count();
+        }
+
+        $stuntingPrevalence = $totalDiukur > 0 ? round(($stunting / $totalDiukur) * 100, 1) : 0;
 
         $stats = [
-            'total_balita' => $reportStats['total'],
-            'normal' => $reportStats['normal'],
-            'berisiko' => $reportStats['risiko'] + $reportStats['stunting'],
+            'total_balita' => $totalSasaranAll,
+            'normal'       => $normalAll,
+            'underweight'  => $underweight,
+            'stunting'     => $stunting,
+            'wasting'      => $wasting,
+            'prevalence'   => $stuntingPrevalence,
         ];
 
-        // Fetch detailed measurement data
-        $pengukurans = \App\Models\Pengukuran::with(['balita.posyandu', 'balita.orangTua'])
+        // Posyandu Performance Summary
+        $posyanduSummary = $posyandus->map(function($p) use ($bulan, $tahun) {
+            $base = \App\Models\Pengukuran::whereHas('balita', function ($q) use ($p) {
+                $q->where('posyandu_id', $p->id);
+            })
+            ->where('status_validasi', 'approved')
+            ->whereMonth('tanggal_ukur', $bulan)
+            ->whereYear('tanggal_ukur', $tahun);
+
+            $tot = (clone $base)->count();
+            $und = (clone $base)->where('z_score_bbu', '<', -2.0)->count();
+            $stunt = (clone $base)->where('z_score_tbu', '<', -2.0)->count();
+            $wst = (clone $base)->where('z_score_bbt', '<', -2.0)->count();
+            $norm = (clone $base)->where('z_score_bbu', '>=', -2.0)
+                                 ->where('z_score_tbu', '>=', -2.0)
+                                 ->where('z_score_bbt', '>=', -2.0)->count();
+
+            $prev = $tot > 0 ? round(($stunt / $tot) * 100, 1) : 0;
+
+            return [
+                'id'         => $p->id,
+                'nama'       => $p->nama,
+                'desa'       => $p->desa_kelurahan ?? '-',
+                'total'      => $tot,
+                'normal'     => $norm,
+                'underweight'=> $und,
+                'wasting'    => $wst,
+                'stunting'   => $stunt,
+                'prevalence' => $prev,
+            ];
+        });
+
+        // Detailed measurement query
+        $query = Pengukuran::with(['balita.posyandu', 'balita.orangTua'])
             ->whereHas('balita.posyandu', function ($q) use ($puskesmasId, $posyanduId) {
                 $q->where('puskesmas_id', $puskesmasId);
                 if ($posyanduId !== 'semua') {
@@ -911,18 +1106,34 @@ class PuskesmasController extends Controller
             })
             ->whereMonth('tanggal_ukur', $bulan)
             ->whereYear('tanggal_ukur', $tahun)
-            ->orderBy('tanggal_ukur', 'asc')
-            ->get();
+            ->where('status_validasi', '!=', 'draft')
+            ->orderBy('tanggal_ukur', 'asc');
+
+        $pengukurans = $query->get();
+
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $monthLabel = $monthNames[(int)$bulan] ?? 'Bulan ' . $bulan;
 
         $filters = [
-            'bulan' => str_pad($bulan, 2, '0', STR_PAD_LEFT),
-            'tahun' => $tahun,
+            'bulan'       => str_pad($bulan, 2, '0', STR_PAD_LEFT),
+            'tahun'       => $tahun,
             'posyandu_id' => $posyanduId,
         ];
         
         $puskesmas = Auth::user()?->puskesmas;
 
-        return view('puskesmas.laporan-print', compact('stats', 'pengukurans', 'filters', 'puskesmas'));
+        return view('puskesmas.laporan-print', compact(
+            'stats',
+            'pengukurans',
+            'filters',
+            'puskesmas',
+            'posyanduSummary',
+            'monthLabel'
+        ));
     }
 
     public function pengaturan()
@@ -931,40 +1142,40 @@ class PuskesmasController extends Controller
 
         return view('puskesmas.pengaturan', [
             'puskesmas' => [
-                'id'             => $puskesmas->id ?? null,
-                'nama'           => $puskesmas->nama ?? 'Puskesmas',
-                'kode_registrasi' => $puskesmas->kode_faskes ?? '-',
-                'alamat'         => $puskesmas->alamat ?? '-',
-                'logo_url'       => null,
-                'jumlah_posyandu'=> $puskesmas ? $puskesmas->posyandus()->count() : 0,
+                'id'               => $puskesmas->id ?? null,
+                'nama'             => $puskesmas->nama ?? 'Puskesmas',
+                'kode_registrasi'  => $puskesmas->kode_faskes ?? '-',
+                'kepala_puskesmas' => $puskesmas->kepala_puskesmas ?? '',
+                'no_telp'          => $puskesmas->no_telp ?? '',
+                'alamat'           => $puskesmas->alamat ?? '',
+                'logo_url'         => null,
+                'jumlah_posyandu'  => $puskesmas ? $puskesmas->posyandus()->count() : 0,
             ],
             'user' => [
                 'nama'   => Auth::user()->name ?? 'Admin',
-                'nip'    => '-', // Dihilangkan dari arsitektur V2
+                'nip'    => '-',
                 'email'  => Auth::user()->email ?? '-',
                 'no_hp'  => '-',
             ]
         ]);
     }
 
-    public function updatePengaturan(Request $request)
+    public function updatePengaturan(UpdatePengaturanRequest $request)
     {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'alamat' => 'nullable|string'
-        ]);
-
         $user = Auth::user();
         $puskesmas = $user->puskesmas;
 
         if ($puskesmas) {
             $puskesmas->update([
-                'nama' => $request->nama,
-                'alamat' => $request->alamat
+                // Hanya field yang boleh diedit oleh Puskesmas
+                'kepala_puskesmas' => $request->kepala_puskesmas,
+                'no_telp' => $request->no_telp,
+                'alamat' => $request->alamat,
             ]);
         }
 
-        return redirect()->route('puskesmas.pengaturan')->with('success', 'Profil institusi berhasil diperbarui.');
+        return redirect()->route('puskesmas.pengaturan')
+            ->with('success', 'Profil berhasil disimpan.');
     }
 
     public function petugas()
@@ -980,7 +1191,7 @@ class PuskesmasController extends Controller
                 'updated_at' => $user->updated_at ? $user->updated_at->translatedFormat('d F Y, H:i') . ' WIB' : '-',
             ],
             'puskesmas' => [
-                'nama' => $user->puskesmas->nama ?? 'Puskesmas',
+                'nama' => $user->puskesmas?->nama ?? 'Puskesmas',
             ]
         ]);
     }
@@ -1004,7 +1215,7 @@ class PuskesmasController extends Controller
         $totalMeasures = $measurementsList->count();
 
         $measurements = $measurementsList->map(function($p, $index) use ($measurementsList, $totalMeasures, $b) {
-            $statusType = match(strtolower($p->status_gizi)) {
+            $statusType = match(strtolower((string) $p->status_gizi)) {
                 'normal' => 'success',
                 'risiko', 'kurang', 'kurus', 'risiko lebih' => 'warning',
                 'stunting', 'gizi buruk', 'sangat kurus', 'obesitas' => 'danger',
@@ -1055,14 +1266,14 @@ class PuskesmasController extends Controller
 
         $latestMeasure = count($measurements) > 0 ? $measurements[0] : null;
 
-        $alamatRaw = $b->orangTua->alamat ?? '';
+        $alamatRaw = $b->orangTua?->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
             $desa = $alamatData['desa'] ?? '';
-            $kecamatan = $alamatData['kecamatan'] ?? ($b->orangTua->kecamatan ?? '');
+            $kecamatan = $alamatData['kecamatan'] ?? ($b->orangTua?->kecamatan ?? '');
         } else {
             $desa = $alamatRaw;
-            $kecamatan = $b->orangTua->kecamatan ?? '';
+            $kecamatan = $b->orangTua?->kecamatan ?? '';
         }
 
         $data = [
@@ -1076,15 +1287,15 @@ class PuskesmasController extends Controller
             'birthWeight'    => $b->berat_lahir,
             'birthLength'    => $b->panjang_lahir,
             'birthHeadCirc'  => $b->lingkar_kepala_lahir,
-            'noKk'           => $b->orangTua->no_kk ?? null,
-            'motherName'     => $b->orangTua->nama_ibu ?? '-',
-            'motherNik'      => $b->orangTua->nik_ibu ?? null,
-            'motherJob'      => $b->orangTua->pekerjaan_ibu ?? null,
-            'motherPhone'    => $b->orangTua->no_hp_whatsapp ?? '-',
-            'fatherName'     => $b->orangTua->nama_ayah ?? null,
-            'fatherNik'      => $b->orangTua->nik_ayah ?? null,
-            'fatherJob'      => $b->orangTua->pekerjaan_ayah ?? null,
-            'posyanduName'   => $b->posyandu->nama ?? '-',
+            'noKk'           => $b->orangTua?->no_kk ?? null,
+            'motherName'     => $b->orangTua?->nama_ibu ?? '-',
+            'motherNik'      => $b->orangTua?->nik_ibu ?? null,
+            'motherJob'      => $b->orangTua?->pekerjaan_ibu ?? null,
+            'motherPhone'    => $b->orangTua?->no_hp_whatsapp ?? '-',
+            'fatherName'     => $b->orangTua?->nama_ayah ?? null,
+            'fatherNik'      => $b->orangTua?->nik_ayah ?? null,
+            'fatherJob'      => $b->orangTua?->pekerjaan_ayah ?? null,
+            'posyanduName'   => $b->posyandu?->nama ?? '-',
             'address'        => $desa ?: '-',
             'addressSub'     => $kecamatan ?: null,
             'status'         => $latestMeasure ? ucwords($latestMeasure['status']) : 'Belum Ada',

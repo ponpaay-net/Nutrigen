@@ -17,15 +17,15 @@
             @endphp
             <div class="relative">
                 <!-- Glowing Timeline Dot -->
-                <div class="absolute -left-[27px] top-1.5 w-3 h-3 rounded-full bg-{{ $statusColor }}-500 ring-4 ring-{{ $statusColor }}-50 shadow-sm"></div>
+                <div class="absolute -left-[27px] top-1.5 w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-emerald-50 shadow-sm"></div>
                 
                 <div class="bg-white border border-slate-200 rounded-[1.5rem] p-5 flex flex-col gap-4 shadow-sm hover:shadow-sm border border-slate-200/60 transition-shadow">
                     
                     <!-- Top Row: Date & Status -->
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
                         <span class="text-[13px] font-black text-slate-800">{{ date('d M Y', strtotime($p['created_at'])) }} <span class="text-slate-400 font-medium ml-1">(Umur: {{ $p['umur_bulan'] }} Bln)</span></span>
-                        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide bg-{{ $statusColor }}-50 text-{{ $statusColor }}-700 ring-1 ring-{{ $statusColor }}-200/50">
-                            <span class="w-1.5 h-1.5 rounded-full bg-{{ $statusColor }}-500"></span>
+                        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                             {{ $simulatedStatus }}
                         </div>
                     </div>
@@ -47,13 +47,13 @@
                         <div class="flex flex-col gap-1">
                             <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Status Gizi</span>
                             @php
-                                $giziColor = 'slate';
                                 $giziLower = strtolower($p['status_gizi']);
-                                if(in_array($giziLower, ['normal', 'gizi baik'])) $giziColor = 'emerald';
-                                elseif(in_array($giziLower, ['kurang', 'kurus', 'risiko lebih'])) $giziColor = 'amber';
-                                elseif(in_array($giziLower, ['stunting', 'gizi buruk', 'sangat kurus', 'obesitas'])) $giziColor = 'rose';
+                                $giziCls = 'text-slate-600';
+                                if(in_array($giziLower, ['normal', 'gizi baik'])) $giziCls = 'text-emerald-600';
+                                elseif(in_array($giziLower, ['kurang', 'kurus', 'risiko lebih'])) $giziCls = 'text-amber-600';
+                                elseif(in_array($giziLower, ['stunting', 'gizi buruk', 'sangat kurus', 'obesitas'])) $giziCls = 'text-rose-600';
                             @endphp
-                            <span class="font-black text-{{ $giziColor }}-600 text-[14px]">{{ $p['status_gizi'] }}</span>
+                            <span class="font-black {{ $giziCls }} text-[14px]">{{ $p['status_gizi'] }}</span>
                         </div>
                     </div>
 

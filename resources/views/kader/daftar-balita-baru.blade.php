@@ -8,14 +8,15 @@
              'kelahiran' => ['baby', '02', 'Kelahiran', 'Antropometri saat lahir'],
              'orangtua'  => ['users', '03', 'Orang Tua / Wali', 'Identitas & kontak wali'],
              'lokasi'    => ['map-pin', '04', 'Lokasi & Posyandu', 'Domisili saat ini']];
-    $inp = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[14px] font-medium text-slate-900 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 focus:bg-white transition-all';
+    $inp = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-base sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 focus:bg-white transition-all';
     $lbl = 'block text-[13px] font-semibold text-slate-700';
     $field = 'flex flex-col gap-1.5';
-    @endphp
+    /** @var \Illuminate\Support\ViewErrorBag $errors */
+@endphp
 
 @section('content')
 <div class="bg-slate-50 min-h-full" x-data="editForm()">
-    <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
+    <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 pt-5 sm:pt-8 pb-28 sm:pb-12">
 
         {{-- Breadcrumb + header --}}
         <div class="mb-6">

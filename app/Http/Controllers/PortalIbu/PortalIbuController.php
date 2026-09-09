@@ -56,7 +56,7 @@ class PortalIbuController extends Controller
             }
         } else {
             // Check if the actual latest measurement in DB is pending
-            $absoluteLatest = Pengukuran::where('balita_id', $balita->id)->latest('tanggal_ukur')->first();
+            $absoluteLatest = Pengukuran::where('balita_id', $balita->id)->where('status_validasi', '!=', 'draft')->latest('tanggal_ukur')->first();
             if ($absoluteLatest && $absoluteLatest->status_validasi === 'pending') {
                 $hasPending = true;
             }
@@ -93,7 +93,7 @@ class PortalIbuController extends Controller
                 $latest->z_score_tbu
             );
 
-            $gizi = strtolower($latest->status_gizi);
+            $gizi = strtolower((string) $latest->status_gizi);
             if (in_array($gizi, ['stunting'])) {
                 $pageState = 'merah';
             } elseif (in_array($gizi, ['risiko', 'kurang'])) {
@@ -103,10 +103,10 @@ class PortalIbuController extends Controller
 
         // Fetch live upcoming Posyandu schedule created by Kader
         $upcomingJadwal = null;
-        $posyanduName = $balita->posyandu->nama ?? 'Posyandu';
+        $posyanduName = $balita->posyandu?->nama ?? 'Posyandu';
         $scheduleText = 'Sesuai info Kader';
         $countdownText = 'Menunggu Jadwal';
-        $location = $balita->posyandu->alamat ?? 'Balai Posyandu';
+        $location = $balita->posyandu?->alamat ?? 'Balai Posyandu';
         $notes = null;
 
         if ($balita && $balita->posyandu_id) {
@@ -190,7 +190,7 @@ class PortalIbuController extends Controller
                 'age' => $ageParts->y . ' Tahun ' . $ageParts->m . ' Bulan',
                 'weight' => $p->berat_badan,
                 'height' => $p->tinggi_badan,
-                'status' => strtolower($p->status_gizi)
+                'status' => strtolower((string) $p->status_gizi)
             ];
         })->toArray();
 
@@ -233,7 +233,7 @@ class PortalIbuController extends Controller
                 $latest->z_score_bbu,
                 $latest->z_score_tbu
             );
-            $gizi = strtolower($latest->status_gizi);
+            $gizi = strtolower((string) $latest->status_gizi);
             if (in_array($gizi, ['stunting'])) $storyState = 'merah';
             elseif (in_array($gizi, ['risiko', 'kurang'])) $storyState = 'kuning';
         }
@@ -315,7 +315,7 @@ class PortalIbuController extends Controller
                 $countdown = $tgl->isToday() ? 'Hari Ini' : ($diffDays > 0 ? $diffDays . ' Hari Lagi' : 'Segera');
                 
                 $scheduleData = [
-                    'posyanduName' => $balita->posyandu->nama,
+                    'posyanduName' => $balita->posyandu?->nama,
                     'title' => $upcomingJadwal->judul,
                     'date' => $tgl->translatedFormat('l, d F Y'),
                     'time' => substr($upcomingJadwal->waktu_mulai, 0, 5) . ' - ' . substr($upcomingJadwal->waktu_selesai, 0, 5) . ' WIB',
@@ -325,12 +325,12 @@ class PortalIbuController extends Controller
                 ];
             } else {
                 $scheduleData = [
-                    'posyanduName' => $balita->posyandu->nama,
+                    'posyanduName' => $balita->posyandu?->nama,
                     'title' => 'Layanan Rutin Posyandu',
                     'date' => 'Menunggu jadwal kader',
                     'time' => 'Sesuai Jadwal',
                     'countdown' => '-',
-                    'address' => $balita->posyandu->alamat ?? '-',
+                    'address' => $balita->posyandu?->alamat ?? '-',
                     'notes' => null
                 ];
             }
@@ -349,7 +349,7 @@ class PortalIbuController extends Controller
             ] : null,
             'schedule' => $scheduleData,
             'kader' => $kader ? [
-                'name' => $kader->user->name ?? $kader->nama,
+                'name' => $kader->user?->name ?? $kader->nama,
                 'role' => 'Kader Posyandu',
                 // wa.me butuh format internasional (62...); fallback hanya jika kader belum punya nomor
                 'whatsapp_url' => 'https://wa.me/' . (function () use ($kader) {
@@ -413,7 +413,7 @@ class PortalIbuController extends Controller
 
         $children = $balitaList->map(function ($balita) use ($orangTuaId) {
             $latest = $balita->pengukurans->first();
-            $status = $latest ? ucfirst(strtolower($latest->status_gizi)) : null;
+            $status = $latest ? ucfirst(strtolower((string) $latest->status_gizi)) : null;
 
             $ageParts = Carbon::parse($balita->tanggal_lahir)->diff(Carbon::now('Asia/Jakarta'));
             $age = $ageParts->y > 0
