@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Pastikan enum role sudah mendukung super_admin SEBELUM seeding
+        // (tidak bergantung urutan migrasi add_super_admin_role)
+        \Illuminate\Support\Facades\DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('super_admin', 'puskesmas', 'kader', 'ibu') DEFAULT 'ibu'");
+
         // Disable foreign key checks
         Schema::disableForeignKeyConstraints();
 
