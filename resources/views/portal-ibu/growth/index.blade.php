@@ -81,32 +81,19 @@
                     <x-ui.card padding="p-4" class="bg-white border border-slate-100 shadow-sm mt-3 relative overflow-hidden">
                         @if(count($chartPoints ?? []) >= 2)
                             @php
-                                // Skala grafik: X = umur (bulan), Y = berat (kg).
-                                // Rentang Y mencakup kurva WHO + data anak, agar
-                                // kurva referensi tidak terpotong di tepi.
+                                // Gaya resmi WHO: 7 kurva z-score di latar putih.
+                                // Sumbu Y = kg bulat (skala tetap 2-25 kg, khas
+                                // lembar WHO WFA), X = umur (tahun, grid 6 bln).
+                                $kgMin = 2; $kgMax = 25;
                                 $ages   = array_column($chartPoints, 0);
-                                $bbs    = array_column($chartPoints, 1);
-                                $allBbs = $bbs;
-                                if (!empty($whoCurve)) {
-                                    foreach (['neg2','median','pos2'] as $k) {
-                                        $allBbs = array_merge($allBbs, array_column($whoCurve[$k], 1));
-                                    }
-                                }
                                 $minAge = min($ages);
                                 $maxAge = max($ages);
-                                $minBb  = min($allBbs);
-                                $maxBb  = max($allBbs);
-                                // Padding sumbu: 1 bulan kiri/kanan, 0.5 kg bawah/atas
-                                $x0 = $minAge - 1;
-                                $x1 = max($maxAge + 1, $minAge + 2);
-                                $y0 = max(0, $minBb - 0.5);
-                                $y1 = $maxBb + 0.5;
-                                $W = 100; $H = 60; // viewBox
-                                $sx = function($age) use ($x0, $x1, $W) {
-                                    return round(($age - $x0) / ($x1 - $x0) * $W, 2);
+                                $W = 100; $H = 66;
+                                $sx = function($age) use ($W) {
+                                    return round($age / 60 * $W, 2); // 0-60 bln -> 0-100
                                 };
-                                $sy = function($bb) use ($y0, $y1, $H) {
-                                    return round($H - ($bb - $y0) / ($y1 - $y0) * $H, 2);
+                                $sy = function($bb) use ($kgMin, $kgMax, $H) {
+                                    return round($H - ($bb - $kgMin) / ($kgMax - $kgMin) * $H, 2);
                                 };
                                 $pathOf = function(array $series) use ($sx, $sy) {
                                     return collect($series)->map(fn($p, $i) => ($i === 0 ? 'M' : 'L') . $sx($p[0]) . ',' . $sy($p[1]))->implode(' ');
@@ -115,55 +102,59 @@
                                 foreach ($chartPoints as $pt) {
                                     $ptCoords[] = ['x' => $sx($pt[0]), 'y' => $sy($pt[1]), 'age' => $pt[0], 'bb' => $pt[1]];
                                 }
-                                $firstPt = $ptCoords[0];
-                                $lastPt  = $ptCoords[count($ptCoords) - 1];
+                                $lastPt = $ptCoords[count($ptCoords) - 1];
                                 $linePath = $pathOf($chartPoints);
-                                $areaPath = $linePath . ' L' . $lastPt['x'] . ',' . $H . ' L' . $firstPt['x'] . ',' . $H . ' Z';
-                                // Kurva WHO (jika tersedia)
-                                $hasWho = !empty($whoCurve) && isset($whoCurve['neg2'], $whoCurve['median'], $whoCurve['pos2']);
+                                // Kurva WHO 7 seri (jika tersedia)
+                                $hasWho = !empty($whoCurve) && isset($whoCurve['neg3'], $whoCurve['med'], $whoCurve['pos3']);
+                                $zSeries = $hasWho ? ['neg3','neg2','neg1','med','pos1','pos2','pos3'] : [];
+                                $zLabels = ['neg3'=>'-3','neg2'=>'-2','neg1'=>'-1','med'=>'0','pos1'=>'+1','pos2'=>'+2','pos3'=>'+3'];
                             @endphp
-                            <div class="relative w-full bg-slate-50 border border-slate-100 rounded-lg overflow-hidden" style="aspect-ratio: 5/3;">
-                                <svg class="w-full h-full" viewBox="0 0 100 60" preserveAspectRatio="none">
-                                    <!-- Zona SD (gaya KIA) -->
-                                    <rect x="0" y="0" width="100" height="20" fill="#f0fdf4" />
-                                    <rect x="0" y="20" width="100" height="20" fill="#fffbeb" />
-                                    <rect x="0" y="40" width="100" height="20" fill="#fff1f2" />
-                                    <!-- Grid horizontal -->
-                                    <line x1="0" y1="20" x2="100" y2="20" stroke="#e2e8f0" stroke-width="0.4" stroke-dasharray="2 2" />
-                                    <line x1="0" y1="40" x2="100" y2="40" stroke="#e2e8f0" stroke-width="0.4" stroke-dasharray="2 2" />
-                                    @if($hasWho)
-                                        <!-- Kurva referensi WHO BB/U (standar WHO 2006) -->
-                                        <path d="{{ $pathOf($whoCurve['pos2']) }}" fill="none" stroke="#f59e0b" stroke-width="0.9" stroke-dasharray="3 2" stroke-linecap="round" />
-                                        <path d="{{ $pathOf($whoCurve['median']) }}" fill="none" stroke="#10b981" stroke-width="1" stroke-dasharray="4 2.5" stroke-linecap="round" />
-                                        <path d="{{ $pathOf($whoCurve['neg2']) }}" fill="none" stroke="#ef4444" stroke-width="0.9" stroke-dasharray="3 2" stroke-linecap="round" />
-                                    @endif
-                                    <!-- Area + garis pengukuran anak -->
-                                    <path d="{{ $areaPath }}" fill="rgba(14,165,233,0.12)" />
-                                    <path d="{{ $linePath }}" fill="none" stroke="#0ea5e9" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
+                            <div class="relative w-full bg-white border border-slate-200 rounded-lg overflow-hidden" style="aspect-ratio: 10/6.6;">
+                                <svg class="w-full h-full" viewBox="0 0 100 66" preserveAspectRatio="none">
+                                    <!-- Grid vertikal: 6 bulan tipis, 12 bulan tebal -->
+                                    @for($m = 6; $m <= 54; $m += 6)
+                                        <line x1="{{ $sx($m) }}" y1="0" x2="{{ $sx($m) }}" y2="66" stroke="{{ $m % 12 === 0 ? '#d4d4d8' : '#f4f4f5' }}" stroke-width="{{ $m % 12 === 0 ? 0.35 : 0.2 }}" />
+                                    @endfor
+                                    <!-- Grid horizontal: kg tiap 1 -->
+                                    @for($kg = $kgMin + 1; $kg < $kgMax; $kg++)
+                                        <line x1="0" y1="{{ $sy($kg) }}" x2="100" y2="{{ $sy($kg) }}" stroke="#f4f4f5" stroke-width="0.2" />
+                                    @endfor
+                                    <!-- Border plot -->
+                                    <rect x="0" y="0" width="100" height="66" fill="none" stroke="#d4d4d8" stroke-width="0.35" />
+                                    <!-- 7 kurva referensi WHO (abu, median lebih tebal) -->
+                                    @foreach($zSeries as $zKey)
+                                        <path d="{{ $pathOf($whoCurve[$zKey]) }}" fill="none" stroke="#52525b" stroke-width="{{ $zKey === 'med' ? 0.55 : 0.35 }}" stroke-linejoin="round" />
+                                    @endforeach
+                                    <!-- Garis pengukuran anak (biru, di atas referensi) -->
+                                    <path d="{{ $linePath }}" fill="none" stroke="#0ea5e9" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" />
                                     @foreach($ptCoords as $p)
-                                        <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="1.6" fill="#0ea5e9" stroke="#fff" stroke-width="0.6" />
+                                        <circle cx="{{ $p['x'] }}" cy="{{ $p['y'] }}" r="1.3" fill="#0ea5e9" stroke="#fff" stroke-width="0.5" />
                                     @endforeach
                                 </svg>
-                                <!-- Label SD kiri (overlay) -->
-                                <div class="absolute left-1.5 top-0 bottom-0 flex flex-col text-[9px] font-bold tracking-wider text-slate-400 pointer-events-none" aria-hidden="true">
-                                    <span class="flex-1 flex items-center">+2 SD</span>
-                                    <span class="flex-1 flex items-center">0 SD</span>
-                                    <span class="flex-1 flex items-center">-2 SD</span>
-                                </div>
-                                <!-- Legend -->
+                                <!-- Label z-score di ujung kanan tiap kurva -->
                                 @if($hasWho)
-                                    <div class="absolute top-1.5 left-7 flex items-center gap-2.5 text-[8.5px] font-bold text-slate-500 bg-white/70 backdrop-blur-sm px-1.5 py-0.5 rounded pointer-events-none">
-                                        <span class="inline-flex items-center gap-0.5"><span class="w-3 h-0.5 rounded bg-[#10b981]"></span>Median WHO</span>
-                                        <span class="inline-flex items-center gap-0.5"><span class="w-3 border-t border-dashed border-[#f59e0b]"></span>+2SD</span>
-                                        <span class="inline-flex items-center gap-0.5"><span class="w-3 border-t border-dashed border-[#ef4444]"></span>−2SD</span>
+                                    <div class="absolute top-0 bottom-0 right-0 w-8 pointer-events-none" aria-hidden="true">
+                                        @foreach($zSeries as $zKey)
+                                            @php $rowEnd = end($whoCurve[$zKey]); @endphp
+                                            <span class="absolute text-[8px] font-semibold text-zinc-600 leading-none" style="right: 2px; top: {{ $sy($rowEnd[1]) / 66 * 100 }}%; transform: translateY(-50%);">{{ $zLabels[$zKey] }}</span>
+                                        @endforeach
                                     </div>
                                 @endif
-                                <!-- Label sumbu -->
-                                <div class="absolute bottom-1 right-2 text-[9px] font-bold text-slate-400">Umur (bulan)</div>
-                                <div class="absolute top-2 right-2 text-[9px] font-bold text-slate-400">Berat (kg)</div>
+                                <!-- Sumbu: tahun (X) & kg (Y) -->
+                                <div class="absolute bottom-0 left-0 right-6 h-4 flex pointer-events-none" aria-hidden="true">
+                                    @for($t = 0; $t <= 5; $t++)
+                                        <span class="absolute text-[8px] font-semibold text-zinc-500" style="left: {{ $sx($t * 12) / 100 * 100 }}%; transform: translateX(-50%);">{{ $t }}</span>
+                                    @endfor
+                                </div>
+                                <div class="absolute bottom-3.5 right-2 text-[8px] font-bold text-zinc-500">Usia (tahun)</div>
+                                <div class="absolute left-1 top-0 bottom-4 flex flex-col justify-between py-0.5 pointer-events-none" aria-hidden="true">
+                                    <span class="text-[7.5px] font-semibold text-zinc-400">25</span>
+                                    <span class="text-[7.5px] font-semibold text-zinc-400">2</span>
+                                </div>
+                                <div class="absolute -top-0.5 left-1 text-[8px] font-bold text-zinc-500">kg</div>
                             </div>
-                            <div class="mt-2 flex items-center justify-between text-[10px] font-bold text-slate-400 px-1">
-                                <span>{{ $firstPt['age'] }} bln ({{ $firstPt['bb'] }} kg)</span>
+                            <div class="mt-2 flex items-center justify-between text-[10px] font-bold px-1">
+                                <span class="text-zinc-400">Standar: WHO Child Growth Standards 2006 — Weight-for-Age (z-scores)</span>
                                 <span class="text-sky-600">{{ $lastPt['age'] }} bln ({{ $lastPt['bb'] }} kg)</span>
                             </div>
                         @else

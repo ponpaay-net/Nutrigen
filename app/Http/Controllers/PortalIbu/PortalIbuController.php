@@ -194,10 +194,20 @@ class PortalIbuController extends Controller
             ];
         })->toArray();
 
-        // Format points for chart: [umur_bulan, berat_badan]
-        $points = $pengukurans->map(function ($p) {
-            return [$p->umur_bulan, (float) $p->berat_badan];
-        })->reverse()->values()->toArray();
+        // Format points for chart: [umur_bulan, berat_badan].
+        // Dedup per bulan umur: bila ada 2+ pengukuran dalam bulan yang sama,
+        // ambil yang TERBARU (praktik KMS — catatan terakhir yang berlaku),
+        // supaya dua titik tidak jatuh di X sama dan bertumpuk di grafik.
+        // $pengukurans urut tanggal terbaru dulu -> first() per grup = terbaru.
+        $points = $pengukurans
+            ->groupBy('umur_bulan')
+            ->map(function ($group) {
+                $last = $group->first();
+                return [$last->umur_bulan, (float) $last->berat_badan];
+            })
+            ->sortKeys()
+            ->values()
+            ->toArray();
 
         // Kurva referensi WHO BB/U (standar WHO 2006, tabel LMS asli) sesuai
         // jenis kelamin anak, dipotong ke rentang umur data pengukuran.

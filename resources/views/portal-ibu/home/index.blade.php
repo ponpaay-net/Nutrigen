@@ -170,8 +170,8 @@
                     <div class="w-11 h-11 rounded-full bg-[#FFC107] flex items-center justify-center shadow-[0_4px_12px_rgba(255,193,7,0.35)] mb-3">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
                     </div>
-                    <h3 class="text-[17px] font-black text-[#3E2723] mb-1.5 tracking-tight">Butuh ide bekal bergizi?</h3>
-                    <p class="text-[12px] font-medium text-[#8D6E63] leading-relaxed mb-4">Temukan resep bernutrisi yang dirancang khusus untuk mendukung masa emas si Kecil.</p>
+                    <h3 class="text-[17px] font-black text-[#3E2723] mb-1.5 tracking-tight">Rekomendasi Menu Gizi</h3>
+                    <p class="text-[12px] font-medium text-[#8D6E63] leading-relaxed mb-4">Disusun &amp; ditinjau Tenaga Gizi Puskesmas/Posyandu sesuai kebutuhan si Kecil. Bukan keputusan AI yang berlepas tangan.</p>
                     <button class="inline-flex items-center gap-2 bg-[#FF9800] active:bg-[#F57C00] text-white font-extrabold pl-4 pr-3 py-3 rounded-full shadow-[0_6px_16px_rgba(255,152,0,0.35)] transition-colors text-[13px] focus:outline-none"
                             x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.nutrition', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>

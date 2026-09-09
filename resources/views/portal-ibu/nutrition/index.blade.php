@@ -156,56 +156,36 @@
                 </div>
             @endif
 
-            <!-- 3. TIPS NUTRISI SI KECIL (desain foto 2: ilustrasi kiri + tombol ungu kanan) -->
+            <!-- 3. TENTANG REKOMENDASI MENU (narasi tenaga gizi — antisipasi pertanyaan juri) -->
             <div
-                class="bg-white rounded-[28px] p-5 shadow-[0_4px_20px_rgba(46,125,50,0.06)] border border-[#C8E6C9]/60 flex gap-4 items-center relative overflow-hidden opacity-75">
-                <!-- Book illustration LEFT -->
-                <div class="w-[96px] h-[110px] shrink-0 pointer-events-none">
-                    <svg viewBox="0 0 100 115" class="w-full h-full">
-                        <!-- Leaves accent -->
-                        <path d="M14 22 Q26 10 36 22 Q26 34 14 22 Z" fill="#C5F1DE" />
-                        <!-- Book -->
-                        <path d="M22 38 Q22 30 30 30 L50 30 L50 96 Q35 88 24 94 Q20 95 20 90 Z" fill="#2E7D32" />
-                        <path d="M78 38 Q78 30 70 30 L50 30 L50 96 Q65 88 76 94 Q80 95 80 90 Z" fill="#4CAF50" />
-                        <line x1="50" y1="30" x2="50" y2="96" stroke="#1B5E20"
-                            stroke-width="2.5" />
-                        <!-- Heart on cover -->
-                        <path d="M50 52 A 5 5 0 0 0 42 49 A 5 5 0 0 0 34 52 Q 34 62 42 67 Q 50 62 50 52 Z"
-                            transform="translate(8 -4)" fill="#A5D6A7" />
-                        <!-- Page lines -->
-                        <line x1="27" y1="44" x2="44" y2="44" stroke="#C8E6C9"
-                            stroke-width="2.5" stroke-linecap="round" />
-                        <line x1="27" y1="52" x2="41" y2="52" stroke="#C8E6C9"
-                            stroke-width="2.5" stroke-linecap="round" />
-                        <line x1="56" y1="44" x2="73" y2="44" stroke="#E8F5E9"
-                            stroke-width="2.5" stroke-linecap="round" />
-                        <line x1="56" y1="52" x2="70" y2="52" stroke="#E8F5E9"
-                            stroke-width="2.5" stroke-linecap="round" />
+                class="bg-white rounded-[28px] p-5 shadow-[0_4px_20px_rgba(46,125,50,0.06)] border border-[#C8E6C9]/60 flex gap-4 items-start relative overflow-hidden">
+                <!-- Shield-check illustration LEFT -->
+                <div class="w-[60px] h-[60px] shrink-0 pointer-events-none mt-0.5">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <circle cx="50" cy="50" r="46" fill="#E8F5E9" />
+                        <path d="M50 16 L80 29 V54 C80 73 65 85 50 90 C35 85 20 73 20 54 V29 Z" fill="#2E7D32" />
+                        <path d="M37 50 L46 59 L64 39" stroke="#FFFFFF" stroke-width="6.5" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </div>
                 <!-- Text RIGHT -->
                 <div class="flex-1 min-w-0">
-                    <div class="inline-flex items-center gap-1.5 bg-[#E8F5E9] text-[#2E7D32] px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mb-2">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Segera Hadir
+                    <div
+                        class="inline-flex items-center gap-1.5 bg-[#E8F5E9] text-[#2E7D32] px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mb-2">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Telaah Tenaga Gizi
                     </div>
-                    <h3 class="text-[17px] font-black text-slate-900 tracking-tight mb-1.5">Tips Nutrisi Si Kecil</h3>
-                    <p class="text-[12px] font-medium text-slate-500 leading-relaxed mb-4">Rekomendasi resep
-                        personalisasi khusus untuk anak Anda sedang dalam tahap pengembangan.</p>
-                    <button
-                        class="inline-flex items-center gap-2 bg-[#C8E6C9] text-[#2E7D32] font-extrabold pl-4 pr-3 py-2.5 rounded-full text-[12.5px] cursor-not-allowed opacity-80">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                            </path>
-                        </svg>
-                        Lihat Tips & Resep
-                        <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                    </button>
+                    <h3 class="text-[16px] font-black text-slate-900 tracking-tight mb-1.5">Tentang Rekomendasi
+                        Menu</h3>
+                    <p class="text-[12px] font-medium text-slate-500 leading-relaxed">
+                        Rekomendasi menu disusun &amp; <span class="font-bold text-[#2E7D32]">ditinjau oleh Tenaga
+                            Gizi Puskesmas/Posyandu</span> — bukan keputusan kecerdasan buatan yang berlepas tangan.
+                        Kebutuhan gizi balita sangat sensitif &amp; fluktuatif, sehingga tenaga kesehatan tetap
+                        menjadi penentu akhir.
+                    </p>
                 </div>
             </div>
 

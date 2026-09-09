@@ -62,36 +62,48 @@ class GrowthCalculationService
     }
 
     /**
-     * Kurva referensi WHO BB/U (weight-for-age) untuk grafik Portal Ibu.
-     * Menghasilkan 3 seri — [-2SD, median, +2SD] — dari tabel LMS WHO asli
-     * (WhoLmsData.php), dipotong ke rentang umur data pengukuran anak.
-     * Output: ['neg2' => [[umur, kg], ...], 'median' => ..., 'pos2' => ...]
+     * Kurva referensi WHO BB/U (weight-for-age) gaya resmi WHO: 7 kurva
+     * z-score (-3, -2, -1, 0/median, +1, +2, +3 SD) dari tabel LMS WHO asli
+     * (WhoLmsData.php). -2SD/-3SD/+2SD/+3SD & median diambil dari kolom asli
+     * WHO; -1SD/+1SD dihitung via transformasi Box-Cox LMS.
+     * Dipotong ke rentang umur data ±6 bulan agar kurva terlihat menanjak.
+     * Output: ['neg3'=>[[umur,kg],...], 'neg2'=>..., 'neg1'=>..., 'med'=>...,
+     *          'pos1'=>..., 'pos2'=>..., 'pos3'=>...]
      */
     public function bbuWhoCurve(int $umurMinBulan, int $umurMaxBulan, string $jenisKelamin): array
     {
         $sex = strtoupper($jenisKelamin) === 'P' ? 'P' : 'L';
-        // Ekspansi rentang ±2 bulan agar kurva bernapas di kedua ujung
-        $from = max(0, min($umurMinBulan, $umurMaxBulan) - 2);
-        $to   = max(0, min(60, max($umurMinBulan, $umurMaxBulan) + 2));
+        $from = max(0, min($umurMinBulan, $umurMaxBulan) - 6);
+        $to   = min(60, max($umurMinBulan, $umurMaxBulan) + 6);
 
-        $table = $this->whoData['bbu_' . $sex] ?? null;
-        if (!$table) {
+        if (empty($this->whoData['bbu_' . $sex])) {
             return [];
         }
 
-        $neg2 = $median = $pos2 = [];
+        $series = ['neg3' => [], 'neg2' => [], 'neg1' => [], 'med' => [], 'pos1' => [], 'pos2' => [], 'pos3' => []];
         for ($m = $from; $m <= $to; $m++) {
             $row = $this->interpolateRow('bbu_' . $sex, $m);
             if (!$row) {
                 continue;
             }
             // Format baris: [L, M, S, -3SD, -2SD, median, +2SD, +3SD]
-            $neg2[]   = [$m, (float) $row[4]];
-            $median[] = [$m, (float) $row[5]];
-            $pos2[]   = [$m, (float) $row[6]];
+            [$L, $M, $S] = [$row[0], $row[1], $row[2]];
+            $weightAtZ = function (float $z) use ($L, $M, $S): float {
+                if (abs($L) < 1e-4) {
+                    return $M * exp($S * $z);
+                }
+                return $M * pow(1 + $L * $S * $z, 1 / $L);
+            };
+            $series['neg3'][] = [$m, (float) $row[3]];
+            $series['neg2'][] = [$m, (float) $row[4]];
+            $series['neg1'][] = [$m, round($weightAtZ(-1), 2)];
+            $series['med'][]  = [$m, (float) $row[5]];
+            $series['pos1'][] = [$m, round($weightAtZ(1), 2)];
+            $series['pos2'][] = [$m, (float) $row[6]];
+            $series['pos3'][] = [$m, (float) $row[7]];
         }
 
-        return ['neg2' => $neg2, 'median' => $median, 'pos2' => $pos2];
+        return $series;
     }
 
     /**
