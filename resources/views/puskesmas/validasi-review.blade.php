@@ -60,19 +60,19 @@
     </div>
 
     <!-- Patient Header Card (Clinical Dossier Banner) -->
-    <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-sm relative overflow-hidden">
+    <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-7 shadow-sm relative overflow-hidden">
         <!-- Subtle Top Brand Accent Line -->
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-teal-600 to-slate-200"></div>
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-teal-600 to-emerald-400"></div>
 
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <!-- Left: Identity & Core Metadata -->
-            <div class="flex items-start sm:items-center gap-4 sm:gap-5">
+            <div class="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0">
                 <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl {{ $avatarClass }} border flex items-center justify-center font-extrabold text-xl sm:text-2xl shrink-0 shadow-sm">
                     {{ substr($child['name'], 0, 1) }}
                 </div>
-                <div>
+                <div class="min-w-0">
                     <div class="flex items-center gap-3 flex-wrap">
-                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-tight">
                             {{ $child['name'] }}
                         </h1>
                         <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-md border {{ $isBoy ? 'bg-sky-50 text-sky-700 border-sky-200/70' : 'bg-rose-50 text-rose-700 border-rose-200/70' }}">
@@ -81,18 +81,16 @@
                     </div>
 
                     <!-- Meta Tags -->
-                    <div class="flex items-center gap-3 text-xs text-slate-500 mt-2 flex-wrap">
-                        <span class="inline-flex items-center gap-1.5 text-slate-600">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12.5px] text-slate-500 mt-2">
+                        <span class="inline-flex items-center gap-1.5">
                             <i class="ph-bold ph-identification-card text-slate-400 text-sm"></i>
                             NIK: <span class="text-slate-800 font-semibold">{{ $child['nik'] ?: '-' }}</span>
                         </span>
-                        <span class="text-slate-300 hidden sm:inline">&bull;</span>
-                        <span class="inline-flex items-center gap-1.5 text-slate-600">
+                        <span class="inline-flex items-center gap-1.5">
                             <i class="ph-bold ph-user text-slate-400 text-sm"></i>
                             Ibu: <span class="text-slate-800 font-semibold">{{ $child['parent'] ?: '-' }}</span>
                         </span>
-                        <span class="text-slate-300 hidden sm:inline">&bull;</span>
-                        <span class="inline-flex items-center gap-1.5 text-slate-600">
+                        <span class="inline-flex items-center gap-1.5">
                             <i class="ph-bold ph-map-pin text-teal-600 text-sm"></i>
                             <span class="font-semibold">{{ $child['posyandu'] }}</span>
                         </span>
@@ -101,9 +99,9 @@
             </div>
 
             <!-- Right: Clinical Diagnosis Tag -->
-            <div class="flex items-center gap-3 lg:border-l lg:border-slate-100 lg:pl-6 shrink-0 mt-2 lg:mt-0">
+            <div class="flex items-center gap-3 lg:border-l lg:border-slate-100 lg:pl-6 shrink-0 mt-1 lg:mt-0">
                 <div class="text-left lg:text-right">
-                    <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Kesimpulan Status Gizi</span>
+                    <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Kesimpulan Status Gizi</span>
                     <span class="text-xl sm:text-2xl font-extrabold tracking-tight {{ $isDanger ? 'text-rose-600' : ($isWarning ? 'text-amber-600' : 'text-emerald-600') }}">
                         {{ $child['statusLabel'] }}
                     </span>

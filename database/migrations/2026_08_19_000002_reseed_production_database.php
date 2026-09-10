@@ -12,10 +12,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Disable foreign key checks
+        // NOTE: Migrasi ini TIDAK lagi memanggil DatabaseSeeder.
+        //
+        // Sebelumnya ia menjalankan `php artisan db:seed`, sehingga ketika
+        // `migrate:fresh --seed` dipakai (umum di dev/testing) DatabaseSeeder
+        // akan dijalankan DUA kali (di sini + di flag --seed) dan crash dengan
+        // "Duplicate entry ... users_email_unique".
+        //
+        // Seeding seharusnya cukup dilakukan SEKALI lewat `php artisan db:seed`
+        // atau `php artisan migrate:fresh --seed`. Migrasi cukup bertugas
+        // menyiapkan struktur, bukan mengisi data demo.
         Schema::disableForeignKeyConstraints();
 
-        // Truncate tables with old dummy data to ensure fresh realistic data on Railway Production
         $tables = ['pengukurans', 'jadwals', 'balitas', 'orang_tuas', 'kaders', 'puskesmas', 'posyandus', 'users'];
         foreach ($tables as $table) {
             if (Schema::hasTable($table)) {
@@ -24,12 +32,6 @@ return new class extends Migration
         }
 
         Schema::enableForeignKeyConstraints();
-
-        // Run full clean seeder
-        Artisan::call('db:seed', [
-            '--class' => 'Database\\Seeders\\DatabaseSeeder',
-            '--force' => true,
-        ]);
     }
 
     /**

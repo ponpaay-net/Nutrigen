@@ -1,264 +1,274 @@
 <x-layout.mobile-shell>
-    <div x-data="{ state: '{{ $pageState ?? 'normal' }}', isPending: {{ isset($hasPending) && $hasPending ? 'true' : 'false' }} }" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col relative pb-[120px] pb-safe w-full bg-[#F1F8F2]">
+    <div class="flex-1 overflow-y-auto hide-scrollbar flex flex-col relative pb-28 pb-safe w-full bg-[#F7F5F0]">
 
-        <!-- DECORATIVE LEAF BLOBS -->
-        <div class="absolute top-[-50px] right-[-50px] w-[190px] h-[190px] bg-[#DCEDDD] rounded-full blur-2xl opacity-60 pointer-events-none"></div>
-        <div class="absolute top-[130px] left-[-60px] w-[170px] h-[170px] bg-[#E8F5E9] rounded-full blur-2xl opacity-70 pointer-events-none"></div>
+        {{-- ===== HALAMAN RAPOR E-KIA — Portal Ibu ===== --}}
 
-        <!-- MAIN CONTENT CONTAINER -->
-        <div class="relative z-10 flex flex-col flex-1 px-5 pt-7 pb-6">
-
-            <!-- 1. HEADER (komponen bersama) -->
-            <x-navigation.portal-header
-                variant="greeting"
-                :name="$user['child_name'] ?? 'Ibu'"
-                :avatar="$user['avatar'] ?? null"
-            />
-
-            <!-- PENDING BANNER -->
-            <template x-if="isPending">
-                <x-feedback.pending-banner message="Data pengukuran terbaru sedang dikonfirmasi oleh Puskesmas." class="rounded-2xl shadow-sm mb-4" />
-            </template>
-
-            <!-- EMPTY & ERROR STATES -->
-            <template x-if="state === 'error'">
-                <x-feedback.error-state />
-            </template>
-            <template x-if="state === 'empty'">
-                <div class="space-y-6">
-                    <x-feedback.empty-state title="Belum Ada Rekam Medis" message="Yuk bawa si Kecil ke Posyandu terdekat." actionText="Cari Jadwal Posyandu" />
+        {{-- HEADER IDENTITAS ANAK (seperti identitas di buku KIA) --}}
+        <header class="px-6 pt-7 pb-4 flex items-center justify-between">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-[0_8px_18px_-6px_rgba(16,185,129,0.5)] shrink-0">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 21V8l8 5 8-5v13"/>
+                        <path d="M7 16v1M12 16v2M17 15v3"/>
+                        <path d="M12 3h3l-1 2h1l-1.2 2.5"/>
+                    </svg>
                 </div>
-            </template>
+                <div class="min-w-0">
+                    <p class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400 mb-0.5">NutriGen</p>
+                    <p class="text-[12px] font-extrabold text-slate-700 leading-tight">Rapor Digital Tumbuh Kembang</p>
+                </div>
+            </div>
+            <span class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider
+                {{ ($pageState ?? 'normal') === 'merah' ? 'bg-rose-100 text-rose-700' : (($pageState ?? 'normal') === 'kuning' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700') }}">
+                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                {{ $summary['status'] ?? 'Pertumbuhan' }}
+            </span>
+        </header>
 
-            <!-- 2. STATUS PERTUMBUHAN CARD -->
-            <div x-show="['normal', 'kuning', 'merah'].includes(state)"
-                 class="bg-white rounded-[24px] p-5 shadow-[0_4px_20px_rgba(46,125,50,0.06)] border border-[#C8E6C9]/40 cursor-pointer active:scale-[0.99] transition-transform"
-                 x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.growth', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
+        <div class="px-5 space-y-5 flex-1 flex flex-col">
 
-                <div class="flex gap-4">
-                    <!-- Left Illustration -->
-                    <div class="w-[104px] rounded-2xl shrink-0 flex items-end justify-center pt-4 relative overflow-hidden"
-                         :class="{ 'bg-[#C8E6C9]': state === 'normal', 'bg-[#FFE9B8]': state === 'kuning', 'bg-[#FFD1D9]': state === 'merah' }">
-                        <!-- Height ruler -->
-                        <div class="absolute left-2.5 top-3 bottom-3 w-[3px] rounded-full"
-                             :class="{ 'bg-[#A5D6A7]': state === 'normal', 'bg-[#FFD54F]': state === 'kuning', 'bg-[#FF9DA9]': state === 'merah' }"></div>
-                        <div class="absolute left-[7px] top-4 space-y-[22px]">
-                            @for ($i = 0; $i < 6; $i++)
-                                <div class="w-2.5 h-[2px] rounded-full" :class="{ 'bg-[#A5D6A7]': state === 'normal', 'bg-[#FFD54F]': state === 'kuning', 'bg-[#FF9DA9]': state === 'merah' }"></div>
-                            @endfor
-                        </div>
-                        <!-- Child (celebrating: curly hair, arms up, heart-check shirt) + sprout ruler -->
-                        <svg viewBox="0 0 80 92" class="w-full h-full relative z-10">
-                        <!-- Sprout on top of ruler -->
-                        <path d="M12 6 Q8 1 2 2 Q4 8 11 8 Z" fill="#66BB6A"/>
-                        <path d="M13 6 Q17 1 23 2 Q21 8 14 8 Z" fill="#4CAF50"/>
-                        <path d="M12.5 7 L12.5 12" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"/>
-                        <!-- Darker green curved backdrop -->
-                        <path d="M62 84 Q60 40 40 34 Q70 30 78 52 L78 84 Z" :fill="state === 'normal' ? '#A5D6A7' : (state === 'kuning' ? '#FFD54F' : '#FF9DA9')" opacity="0.55"/>
-                        <!-- Raised arms (behind torso) -->
-                        <path d="M34 44 Q26 36 24 26" stroke="#FFE0BD" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-                        <path d="M54 44 Q62 36 64 26" stroke="#FFE0BD" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-                        <!-- Head -->
-                        <circle cx="44" cy="22" r="12" fill="#FFE0BD"/>
-                        <!-- Ears -->
-                        <circle cx="32.5" cy="23" r="2.5" fill="#FFE0BD"/>
-                        <circle cx="55.5" cy="23" r="2.5" fill="#FFE0BD"/>
-                        <!-- Curly hair -->
-                        <circle cx="36" cy="13" r="5" :fill="state === 'normal' ? '#6D4C41' : '#5D4037'"/>
-                        <circle cx="44" cy="10" r="5.5" :fill="state === 'normal' ? '#6D4C41' : '#5D4037'"/>
-                        <circle cx="52" cy="13" r="5" :fill="state === 'normal' ? '#6D4C41' : '#5D4037'"/>
-                        <circle cx="33" cy="18" r="3.5" :fill="state === 'normal' ? '#6D4C41' : '#5D4037'"/>
-                        <circle cx="55" cy="18" r="3.5" :fill="state === 'normal' ? '#6D4C41' : '#5D4037'"/>
-                        <!-- Happy squint eyes -->
-                        <path d="M38 22 Q40 20 42 22" stroke="#4E342E" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-                        <path d="M46 22 Q48 20 50 22" stroke="#4E342E" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-                        <!-- Big open smile -->
-                        <path d="M38 27 Q44 34 50 27 Q47 29 44 29 Q41 29 38 27 Z" fill="#5D4037"/>
-                        <path d="M39 28 Q44 32.5 49 28" fill="#B06A5A"/>
-                        <!-- Torso: green tee -->
-                        <path d="M35 35 Q44 32 53 35 L56 56 Q44 60 32 56 Z" :fill="state === 'normal' ? '#66BB6A' : (state === 'kuning' ? '#FFCA28' : '#EF5350')"/>
-                        <!-- Heart + check print -->
-                        <path d="M44 42 A 3.2 3.2 0 0 0 40 39.5 A 3.2 3.2 0 0 0 36 42 Q 36 47 40 50 Q 44 47 44 42 Z" transform="translate(4 -2)" fill="#FFFFFF"/>
-                        <path d="M42 41 L43.6 42.8 L46.4 39" stroke="#43A047" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -1)"/>
-                        <!-- Shorts -->
-                        <rect x="34" y="55" width="20" height="10" rx="3" fill="#37474F"/>
-                        <!-- Legs -->
-                        <rect x="36.5" y="64" width="6" height="17" rx="3" fill="#FFE0BD"/>
-                        <rect x="45.5" y="64" width="6" height="17" rx="3" fill="#FFE0BD"/>
-                        <!-- Shoes -->
-                        <ellipse cx="39" cy="82.5" rx="5.5" ry="3" :fill="state === 'normal' ? '#2E7D32' : (state === 'kuning' ? '#F57F17' : '#C62828')"/>
-                        <ellipse cx="49" cy="82.5" rx="5.5" ry="3" :fill="state === 'normal' ? '#2E7D32' : (state === 'kuning' ? '#F57F17' : '#C62828')"/>
-                        </svg>
+            {{-- EMPTY / REDIRECT STATE --}}
+            @if(empty($history))
+                <div class="mt-16 flex flex-col items-center justify-center text-center px-6 py-14 bg-white rounded-[24px] border border-amber-100 shadow-[0_10px_30px_-14px_rgba(180,83,9,0.25)]">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18l-1.5 9a1.5 1.5 0 01-1.5 1.3H6a1.5 1.5 0 01-1.5-1.3L3 10zM5 10a7 7 0 0114 0M9 13.5h2m2 0h2"/></svg>
                     </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Belum ada data</p>
+                    <h2 class="text-lg font-black text-slate-800 mb-1.5">Rapor Belum Tersedia</h2>
+                    <p class="text-[13px] text-slate-500 leading-relaxed max-w-[280px]">Data pengukuran akan muncul setelah Kader mencatat dan Puskesmas memvalidasi pertumbuhan si Kecil.</p>
+                </div>
+            @else
 
-                    <!-- Right Content -->
-                    <div class="flex-1 min-w-0">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest mb-2"
-                              :class="{
-                                  'bg-[#E8F5E9] text-[#2E7D32]': state === 'normal',
-                                  'bg-[#FFF3CD] text-[#B8860B]': state === 'kuning',
-                                  'bg-[#FFEBEE] text-[#C62828]': state === 'merah'
-                              }">
-                            ✅ {{ $summary['status'] ?? 'Pertumbuhan Normal' }}
-                        </span>
-                        <h2 class="text-[18px] font-black leading-tight tracking-tight mb-1.5"
-                            :class="{
-                                'text-[#1B5E20]': state === 'normal',
-                                'text-[#8a6d00]': state === 'kuning',
-                                'text-[#B71C1C]': state === 'merah'
-                            }">
-                            {{ $summary['title'] ?? 'Sesuai Standar Usia' }}
-                        </h2>
-                        <p class="text-[11.5px] font-medium text-slate-500 leading-relaxed line-clamp-3">
-                            {{ $summary['message'] ?? 'Berdasarkan standar penilaian WHO, berat dan tinggi badan anak berada pada kurva pertumbuhan yang ideal.' }}
-                        </p>
+                {{-- ===== HERO IDENTITAS & STATUS GIZI ===== --}}
+                <section class="rounded-[22px] overflow-hidden relative bg-gradient-to-br {{ ($pageState ?? 'normal') === 'merah' ? 'from-rose-500 to-rose-600' : (($pageState ?? 'normal') === 'kuning' ? 'from-amber-400 to-amber-500' : 'from-emerald-500 to-teal-600') }} shadow-[0_18px_40px_-16px_rgba(16,185,129,0.6)]">
+                    <!-- dekorasi -->
+                    <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full bg-white/10"></div>
+                    <div class="absolute -bottom-14 -left-10 w-36 h-36 rounded-full bg-white/10"></div>
 
-                        <!-- TINGGI-02: Menampilkan Catatan/Instruksi dari Ahli Gizi Puskesmas -->
-                        @if(!empty($summary['catatan_validator']))
-                            <div class="mt-2.5 p-2.5 bg-teal-50/70 border border-teal-100 rounded-lg">
+                    <div class="relative p-6">
+                        <!-- Identitas Anak -->
+                        <div class="flex items-center gap-4 mb-5">
+                            <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/25 flex items-center justify-center text-white text-2xl font-black shrink-0">
+                                {{ collect(explode(' ', $user['child_name'] ?? 'A'))->map(fn($n) => substr($n,0,1))->take(2)->join('') }}
+                            </div>
+                            <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-1.5 mb-1">
-                                    <svg class="w-3.5 h-3.5 text-teal-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                                    <span class="text-[10px] font-black text-teal-800 uppercase tracking-wide">Pesan Ahli Gizi Puskesmas</span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-white/80">{{ $measurement['gender'] ?? ($user['gender'] ?? '') }}</span>
+                                    @if(!empty($measurement['age']))<span class="text-white/60">•</span><span class="text-[10px] font-black uppercase tracking-widest text-white/80">{{ $measurement['age'] }}</span>@endif
                                 </div>
-                                <p class="text-[11px] font-medium text-teal-900 leading-snug italic">
-                                    "{{ $summary['catatan_validator'] }}"
+                                <h1 class="text-[22px] font-black text-white leading-tight tracking-tight drop-shadow-sm">{{ $user['child_name'] ?? 'Si Kecil' }}</h1>
+                                <p class="text-[12px] font-medium text-white/85 mt-0.5 flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                                    Lahir {{ $measurement['birth_date'] ?? '-' }}
                                 </p>
+                            </div>
+                        </div>
+
+                        <!-- Status Utama + Pesan Otomatis -->
+                        <div class="rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 p-4 mb-4">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-white/85">Status Gizi (Hasil Validasi)</span>
+                            </div>
+                            <h2 class="text-[24px] font-black text-white leading-tight tracking-tight drop-shadow-sm mb-1">
+                                {{ $summary['title'] ?? 'Tumbuh Sesuai Standar' }}
+                            </h2>
+                            <p class="text-[13px] font-medium text-white/90 leading-relaxed">
+                                {{ $summary['message'] ?? '' }}
+                            </p>
+                        </div>
+
+                        @if(!empty($summary['action']))
+                            <div class="rounded-2xl bg-white text-slate-800 p-4 mb-3 shadow-sm">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Yang perlu dilakukan</p>
+                                <p class="text-[13px] font-semibold leading-relaxed">{{ $summary['action'] }}</p>
+                            </div>
+                        @endif
+
+                        @if(!empty($summary['catatan_validator']))
+                            <div class="rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 p-4">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <svg class="w-3.5 h-3.5 text-white/85" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-white/85">Catatan Petugas Gizi</span>
+                                </div>
+                                <p class="text-[13px] font-semibold text-white leading-snug">"{{ $summary['catatan_validator'] }}"</p>
                             </div>
                         @endif
                     </div>
-                </div>
+                </section>
 
-                <!-- Stats Row -->
-                <div class="grid grid-cols-3 gap-2 mt-4">
-                    <div class="bg-[#F5F7F5] rounded-xl px-2 py-3 text-center">
-                        <svg class="w-4 h-4 mx-auto text-[#4CAF50] mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">Terakhir diukur</p>
-                        <p class="text-[12px] font-black text-slate-800">{{ $measurement['date'] ?? '-' }}</p>
+                {{-- ===== RINGKASAN TERKINI (BB/TB/LK terkini) ===== --}}
+                <section class="bg-white rounded-[20px] p-5 border border-slate-100 shadow-[0_8px_28px_-12px_rgba(15,23,42,0.08)]">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-[15px] font-black text-slate-800">Pengukuran Terkini</h3>
+                        <span class="text-[12px] font-bold text-slate-400">{{ $measurement['date'] ?? '-' }}</span>
                     </div>
-                    <div class="bg-[#F5F7F5] rounded-xl px-2 py-3 text-center">
-                        <svg class="w-4 h-4 mx-auto text-[#4CAF50] mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l6 6a4 4 0 006 0l6-6M3 6v12M21 6v12M3 18h18"></path></svg>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">Berat Badan</p>
-                        <p class="text-[12px] font-black text-slate-800">{{ $measurement['weight'] ?? '-' }} kg</p>
-                    </div>
-                    <div class="bg-[#F5F7F5] rounded-xl px-2 py-3 text-center">
-                        <svg class="w-4 h-4 mx-auto text-[#4CAF50] mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 8l20 8M2 8l20 8M2 8v8M22 8v8"></path></svg>
-                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wide mb-0.5">Tinggi Badan</p>
-                        <p class="text-[12px] font-black text-slate-800">{{ $measurement['height'] ?? '-' }} cm</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. IDE BEKAL BERGIZI CARD (YELLOW) -->
-            <div x-show="state !== 'empty' && state !== 'error'" class="bg-[#FFF8E1] rounded-[24px] p-5 mt-5 relative overflow-hidden border border-[#FFE082]/50">
-                <!-- Floating food illustration -->
-                <div class="absolute right-[-14px] bottom-[-14px] w-[110px] h-[110px] pointer-events-none opacity-95">
-                    <svg viewBox="0 0 100 100" class="w-full h-full">
-                        <circle cx="50" cy="55" r="34" fill="#FFFFFF"/>
-                        <circle cx="50" cy="55" r="26" fill="#FFF3E0"/>
-                        <path d="M30 52 Q38 40 50 44 Q64 40 70 52 Q60 60 50 58 Q40 60 30 52Z" fill="#FFFFFF"/>
-                        <circle cx="38" cy="48" r="6" fill="#A5D6A7"/>
-                        <circle cx="35" cy="45" r="4" fill="#81C784"/>
-                        <path d="M58 46 L68 42 L66 50 Z" fill="#FF8A65"/>
-                        <rect x="55" y="58" width="12" height="4" rx="2" fill="#FFB74D" transform="rotate(-12 61 60)"/>
-                        <circle cx="44" cy="53" r="1.2" fill="#5D4037"/>
-                        <circle cx="52" cy="53" r="1.2" fill="#5D4037"/>
-                        <path d="M45 57 Q48 60 51 57" stroke="#5D4037" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-                    </svg>
-                </div>
-
-                <div class="relative z-10 w-[72%]">
-                    <div class="w-11 h-11 rounded-full bg-[#FFC107] flex items-center justify-center shadow-[0_4px_12px_rgba(255,193,7,0.35)] mb-3">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
-                    </div>
-                    <h3 class="text-[17px] font-black text-[#3E2723] mb-1.5 tracking-tight">Butuh ide bekal bergizi?</h3>
-                    <p class="text-[12px] font-medium text-[#8D6E63] leading-relaxed mb-4">Temukan resep bernutrisi yang dirancang khusus untuk mendukung masa emas si Kecil.</p>
-                    <button class="inline-flex items-center gap-2 bg-[#FF9800] active:bg-[#F57C00] text-white font-extrabold pl-4 pr-3 py-3 rounded-full shadow-[0_6px_16px_rgba(255,152,0,0.35)] transition-colors text-[13px] focus:outline-none"
-                            x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.nutrition', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
-                        Lihat Rekomendasi Menu
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 4. AKSES CEPAT -->
-            <div class="mt-6">
-                <h3 class="text-[16px] font-black text-slate-800 tracking-tight mb-3">Akses Cepat</h3>
-                <div class="grid grid-cols-2 gap-3">
-                    <!-- Grafik Pertumbuhan -->
-                    <div class="bg-white rounded-2xl p-4 flex flex-col items-center gap-2.5 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform"
-                         x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.growth', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
-                        <div class="w-12 h-12 rounded-full bg-[#4CAF50] flex items-center justify-center shadow-[0_4px_12px_rgba(76,175,80,0.3)]">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="rounded-2xl bg-[#F7F5F0] p-3 text-center">
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1">Berat</p>
+                            <p class="text-[19px] font-black text-slate-900">{{ $measurement['weight'] ?? '-' }} <span class="text-[11px] font-semibold text-slate-400">kg</span></p>
+                            @if(isset($delta['weight']) && $delta['weight'] !== 'Data Awal')<p class="text-[11px] font-bold text-emerald-600 mt-0.5">{{ str_contains($delta['weight'],'Turun')?'▼':'▲' }} {{ $delta['weight'] }}</p>@endif
                         </div>
-                        <span class="text-[12px] font-bold text-slate-600 text-center leading-tight">Grafik<br>Pertumbuhan</span>
-                    </div>
-                    <!-- Riwayat Pengukuran -->
-                    <div class="bg-white rounded-2xl p-4 flex flex-col items-center gap-2.5 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform"
-                         x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.growth', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
-                        <div class="w-12 h-12 rounded-full bg-[#2196F3] flex items-center justify-center shadow-[0_4px_12px_rgba(33,150,243,0.3)]">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        <div class="rounded-2xl bg-[#F7F5F0] p-3 text-center">
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1">Tinggi</p>
+                            <p class="text-[19px] font-black text-slate-900">{{ $measurement['height'] ?? '-' }} <span class="text-[11px] font-semibold text-slate-400">cm</span></p>
+                            @if(isset($delta['height']) && $delta['height'] !== 'Data Awal')<p class="text-[11px] font-bold text-emerald-600 mt-0.5">{{ str_contains($delta['height'],'Turun')?'▼':'▲' }} {{ $delta['height'] }}</p>@endif
                         </div>
-                        <span class="text-[12px] font-bold text-slate-600 text-center leading-tight">Riwayat<br>Pengukuran</span>
-                    </div>
-                    <!-- Edukasi Gizi -->
-                    <div class="bg-white rounded-2xl p-4 flex flex-col items-center gap-2.5 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform"
-                         x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.nutrition', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
-                        <div class="w-12 h-12 rounded-full bg-[#9C27B0] flex items-center justify-center shadow-[0_4px_12px_rgba(156,39,176,0.3)]">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <div class="rounded-2xl bg-[#F7F5F0] p-3 text-center">
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1">Lingkar Kptr</p>
+                            <p class="text-[19px] font-black text-slate-900">{{ $measurement['head_circ'] ?? '-' }} <span class="text-[11px] font-semibold text-slate-400">cm</span></p>
                         </div>
-                        <span class="text-[12px] font-bold text-slate-600 text-center leading-tight">Edukasi<br>Gizi</span>
                     </div>
-                    <!-- Tanya Ahli -->
-                    <div class="bg-white rounded-2xl p-4 flex flex-col items-center gap-2.5 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform"
-                         x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.posyandu', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
-                        <div class="w-12 h-12 rounded-full bg-[#E91E63] flex items-center justify-center shadow-[0_4px_12px_rgba(233,30,99,0.3)]">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                </section>
+
+                {{-- ===== TAB NAVIGASI : RIWAYAT / KURVA / JADWAL ===== --}}
+                <section x-data="{ tab: 'riwayat' }">
+                    <div class="inline-flex w-full bg-slate-100 p-1 rounded-2xl mb-4">
+                        <button @click="tab='riwayat'" class="flex-1 py-2.5 rounded-xl text-[12px] font-bold transition-all" :class="tab==='riwayat' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500'">Riwayat</button>
+                        <button @click="tab='kurva'; renderCurveCharts()" class="flex-1 py-2.5 rounded-xl text-[12px] font-bold transition-all" :class="tab==='kurva' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500'">Kurva</button>
+                        <button @click="tab='jadwal'" class="flex-1 py-2.5 rounded-xl text-[12px] font-bold transition-all" :class="tab==='jadwal' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500'">Jadwal</button>
+                    </div>
+
+                    {{-- TAB RIWAYAT --}}
+                    <div x-show="tab==='riwayat'">
+                        <div class="space-y-3">
+                            @foreach($history as $idx => $h)
+                                @php
+                                    $gizi = strtolower((string) $h['status']);
+                                    $keyTone = $gizi === 'stunting' ? 'border-rose-300 bg-rose-50' : ($gizi === 'risiko' || $gizi === 'kurang' ? 'border-amber-300 bg-amber-50' : 'border-emerald-200 bg-emerald-50');
+                                @endphp
+                                <article class="bg-white rounded-2xl p-4 border border-slate-100 shadow-[0_6px_20px_-10px_rgba(15,23,42,0.06)]">
+                                    <div class="flex items-center justify-between mb-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0l3 3m-3-3l-3 3m9-9a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span class="text-[13px] font-bold text-slate-700">{{ $h['date'] }}</span>
+                                        </div>
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase {{ $keyTone }}">
+                                            {{ $h['status'] }}
+                                        </span>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 mb-2">
+                                        <div class="rounded-xl bg-slate-50 p-2 text-center"><p class="text-[10px] text-slate-400 font-bold">BB</p><p class="text-[14px] font-black text-slate-800">{{ $h['weight'] }} kg</p></div>
+                                        <div class="rounded-xl bg-slate-50 p-2 text-center"><p class="text-[10px] text-slate-400 font-bold">TB</p><p class="text-[14px] font-black text-slate-800">{{ $h['height'] }} cm</p></div>
+                                        <div class="rounded-xl bg-slate-50 p-2 text-center"><p class="text-[10px] text-slate-400 font-bold">LK</p><p class="text-[14px] font-black text-slate-800">{{ $h['head_circ'] ?? '-' }} cm</p></div>
+                                    </div>
+                                    <p class="text-[11px] text-slate-400 font-semibold">Usia saat ukur: {{ $h['age'] }}</p>
+                                    @if(!empty($h['catatan_validator']))
+                                        <p class="mt-2.5 pt-2.5 border-t border-slate-100 text-[12px] text-slate-500 leading-relaxed">
+                                            <span class="font-bold text-slate-600">Catatan gizi:</span> {{ $h['catatan_validator'] }}
+                                        </p>
+                                    @endif
+                                </article>
+                            @endforeach
                         </div>
-                        <span class="text-[12px] font-bold text-slate-600 text-center leading-tight">Tanya<br>Ahli</span>
                     </div>
-                </div>
-            </div>
 
-            <!-- 5. JADWAL POSYANDU CARD -->
-            <div class="mt-5 bg-white rounded-[24px] p-5 shadow-[0_4px_20px_rgba(46,125,50,0.06)] border border-[#C8E6C9]/40 relative overflow-hidden">
-                <!-- Decorative building -->
-                <div class="absolute right-[-8px] bottom-[-6px] w-[130px] h-[90px] pointer-events-none opacity-90">
-                    <svg viewBox="0 0 120 100" class="w-full h-full">
-                        <rect x="35" y="45" width="60" height="40" fill="#C8E6C9" rx="3"/>
-                        <polygon points="20,45 65,28 110,45" fill="#4CAF50"/>
-                        <rect x="55" y="60" width="20" height="25" fill="#F1F8F2"/>
-                        <rect x="42" y="55" width="10" height="12" fill="#E8F5E9"/>
-                        <rect x="78" y="55" width="10" height="12" fill="#E8F5E9"/>
-                        <circle cx="18" cy="72" r="13" fill="#A5D6A7"/>
-                        <rect x="15" y="78" width="6" height="14" fill="#8D6E63"/>
-                    </svg>
-                </div>
-
-                <div class="relative z-10">
-                    <div class="inline-flex items-center gap-1.5 bg-[#E8F5E9] text-[#2E7D32] px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest mb-3">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        {{ $posyandu['countdown'] ?? 'SESUAI JADWAL KADER' }}
+                    {{-- TAB KURVA --}}
+                    <div x-show="tab==='kurva'" style="display:none;" x-data="{ metric: 'bb' }">
+                        <div class="bg-white rounded-[20px] p-5 border border-slate-100 shadow-[0_8px_28px_-12px_rgba(15,23,42,0.08)]">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-[14px] font-black text-slate-800">Kurva Pertumbuhan WHO</h3>
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">NutriGen Growth</span>
+                            </div>
+                            <p class="text-[12px] text-slate-400 mb-3">Pertumbuhan si Kecil dari waktu ke waktu.</p>
+                            <div class="inline-flex bg-slate-100 p-1 rounded-xl mb-2">
+                                <button @click="metric='bb'; renderCurveCharts('bb')" class="px-4 py-1.5 rounded-lg text-[12px] font-bold transition-colors" :class="metric==='bb' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500'">Berat</button>
+                                <button @click="metric='tb'; renderCurveCharts('tb')" class="px-4 py-1.5 rounded-lg text-[12px] font-bold transition-colors" :class="metric==='tb' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500'">Tinggi</button>
+                            </div>
+                            <div class="h-64 w-full relative" x-ref="curveWrap">
+                                <div id="chartBB" x-show="metric === 'bb'" class="absolute inset-0"></div>
+                                <div id="chartTB" x-show="metric === 'tb'" class="absolute inset-0" style="display:none;"></div>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-[18px] font-black text-slate-800 mb-1 max-w-[60%] leading-tight">{{ $posyandu['name'] ?? 'Posyandu' }}</h3>
-                    <div class="flex items-start gap-1.5 mb-4 text-slate-500 max-w-[62%]">
-                        <svg class="w-4 h-4 shrink-0 mt-0.5 text-[#4CAF50]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <p class="text-[12px] font-medium leading-snug">
-                            <span class="font-bold text-slate-700">{{ $posyandu['schedule'] ?? 'Sesuai Jadwal' }}</span><br>
-                            <span class="text-[11px] text-slate-500">{{ $posyandu['location'] ?? 'Balai Posyandu' }}</span>
-                        </p>
-                    </div>
-                    <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full border-2 border-[#4CAF50] text-[#2E7D32] bg-white font-extrabold text-[12.5px] focus:outline-none active:scale-95 transition-transform"
-                            x-on:click="window.location.href='{!! \Illuminate\Support\Facades\URL::temporarySignedRoute('portal-ibu.posyandu', now()->addDays(config('portal.link_ttl_days')), ['balita' => request('balita'), 'orang_tua' => request('orang_tua')]) !!}'">
-                        Lihat Jadwal Posyandu
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
-                </div>
-            </div>
 
+                    {{-- TAB JADWAL --}}
+                    <div x-show="tab==='jadwal'" style="display:none;">
+                        <div class="bg-white rounded-[20px] p-5 border border-slate-100 shadow-[0_8px_28px_-12px_rgba(15,23,42,0.08)]">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657l-4.243 4.243a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Posyandu</p>
+                                    <h3 class="text-[16px] font-black text-slate-800 leading-tight truncate">{{ $posyandu['name'] ?? 'Posyandu' }}</h3>
+                                </div>
+                                @if(($posyandu['countdown'] ?? '') === 'HARI INI')
+                                    <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-[11px] font-black">Hari Ini</span>
+                                @else
+                                    <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-black">{{ $posyandu['countdown'] ?? '' }}</span>
+                                @endif
+                            </div>
+                            <div class="rounded-2xl bg-[#F7F5F0] p-4 mb-3">
+                                <p class="text-[13px] font-semibold text-slate-700">{{ $posyandu['schedule'] ?? 'Sesuai Jadwal' }}</p>
+                                <p class="text-[12px] text-slate-500 flex items-center gap-1.5 mt-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><circle cx="12" cy="11" r="3"/></svg>
+                                    {{ $posyandu['location'] ?? 'Balai Posyandu' }}
+                                </p>
+                            </div>
+                            @if(!empty($posyandu['notes']))
+                                <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-amber-700 mb-1">Pengumuman Pendaftar</p>
+                                    <p class="text-[13px] font-semibold text-amber-900 leading-relaxed">{{ $posyandu['notes'] }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </section>
+
+            @endif
         </div>
     </div>
 
     <!-- BOTTOM NAVIGATION -->
     <x-navigation.bottom-navigation active="home" />
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        // Data chart disuntikkan dari controller (berbasis hasil validasi DB).
+        var weightData = @json($chart['weight'] ?? []);
+        var heightData = @json($chart['height'] ?? []);
+        var curveCharts = {};
+
+        var curveOptions = function(metric) {
+            var isBB = metric === 'bb';
+            return {
+                chart: { type: 'area', height: 230, toolbar: {show:false}, zoom: {enabled:false}, fontFamily:'Nunito, sans-serif', parentHeightOffset:0 },
+                series: [{ name: isBB ? 'Berat Badan (kg)' : 'Tinggi Badan (cm)', data: isBB ? weightData : heightData }],
+                colors: [isBB ? '#10B981' : '#06B6D4'],
+                dataLabels: { enabled: false },
+                stroke: { curve: 'smooth', width: 3 },
+                fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.03, stops: [0,100] } },
+                grid: { borderColor: '#F1F5F9', strokeDashArray: 4, padding: { top:5, right:8, bottom:0, left:8 } },
+                xaxis: { type: 'numeric', tickAmount: 6, labels: { formatter: v => v + ' bln', style: { colors: '#94A3B8', fontSize: '10px' } } },
+                yaxis: { labels: { style: { colors: '#94A3B8', fontSize: '10px' } } },
+                markers: { size: 5, colors: '#fff', strokeColors: isBB ? '#10B981' : '#06B6D4', strokeWidth: 2, hover: { size: 6 } },
+                theme: { mode: 'light' }
+            };
+        };
+
+        window.renderCurveCharts = function(metric) {
+            metric = metric || 'bb';
+            var elId = metric === 'bb' ? 'chartBB' : 'chartTB';
+            var el = document.getElementById(elId);
+            if (!el) return;
+
+            // Bersihkan instance lama pada container yang sama
+            if (curveCharts[elId]) { curveCharts[elId].destroy(); curveCharts[elId] = null; }
+            el.innerHTML = '';
+
+            var data = metric === 'bb' ? weightData : heightData;
+            if (data.length === 0) {
+                el.innerHTML = '<div class="h-full flex items-center justify-center text-sm text-slate-400 font-bold">Belum ada data pengukuran.</div>';
+                return;
+            }
+            // Pastikan container terlihat (tab kurva aktif) untuk tinggi/width akurat.
+            curveCharts[elId] = new ApexCharts(el, curveOptions(metric));
+            curveCharts[elId].render();
+        };
+
+        // Tidak render otomatis saat DOMContentLoaded karena tab default adalah
+        // "Riwayat". Chart dirender saat pengguna membuka tab Kurva.
+    </script>
+    @endpush
 </x-layout.mobile-shell>

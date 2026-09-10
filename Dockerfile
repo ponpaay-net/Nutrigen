@@ -24,9 +24,11 @@ COPY --from=assets /app/public/build ./public/build
 # Pasang dependensi PHP + generate autoload + link storage
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
     && php artisan storage:link \
-    && chmod -R 777 storage bootstrap/cache
+    && chmod -R 777 storage bootstrap/cache \
+    && chmod +x docker/entrypoint.sh
 
 EXPOSE 8080
 
-# Migrate (idempotent) lalu start server pada $PORT yang diinject Railway
-CMD ["sh", "-c", "php artisan migrate --force --no-interaction || true; php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
+# Saat container start: pastikan APP_KEY, migrasi, isi data demo sekali
+# (hanya bila kosong), lalu jalankan server pada $PORT yang diinject penyedia host.
+CMD ["sh", "docker/entrypoint.sh"]

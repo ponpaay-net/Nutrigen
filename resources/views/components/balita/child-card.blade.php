@@ -45,7 +45,7 @@
                     <span>{{ $isGirl ? 'Perempuan' : 'Laki-laki' }}</span>
                     @if(!empty($child['nik']))
                         <span class="text-slate-300">·</span>
-                        <span class="font-mono tracking-wider truncate text-slate-400">{{ $child['nik'] }}</span>
+                        <span class="font-mono tracking-wider truncate text-slate-400">{{ mask_sensitive($child['nik'] ?? '') }}</span>
                     @endif
                 </p>
             </div>

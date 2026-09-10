@@ -62,3 +62,6 @@ vite.config.js.timestamp-*.mjs
 _G_*.png
 _pwshot.py
 /scratch/
+/.commandcode/
+/Deploy-Playbook-Nutrigen.pdf
+/.mcp.json

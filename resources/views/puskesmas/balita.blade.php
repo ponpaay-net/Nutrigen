@@ -212,7 +212,7 @@
                                                 <span class="text-[12px] font-bold {{ $genderTextClass }}">{{ $isGirl ? 'Perempuan' : 'Laki-laki' }}</span>
                                                 @if(!empty($child['nik']))
                                                     <span class="text-slate-300">&bull;</span>
-                                                    <span class="text-[12px] font-medium text-slate-600">NIK: {{ $child['nik'] }}</span>
+                                                    <span class="text-[12px] font-medium text-slate-600">NIK: {{ mask_sensitive($child['nik'] ?? '') }}</span>
                                                 @endif
                                             </div>
                                         </div>

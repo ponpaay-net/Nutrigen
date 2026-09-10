@@ -2,7 +2,7 @@
 
 Sistem Informasi & Layanan Kesehatan (SILK) untuk pemantauan pertumbuhan dan status gizi balita di Posyandu & Puskesmas. Dibangun dengan pendekatan **B2G** (Business-to-Government) dan memakai standar pengukuran **WHO 2006** sebagai landasan perhitungan z-score.
 
-> Posyandu Bunga Tanjung VII (demo) · 80 balita · 283 pengukuran (WHO Box-Cox)
+> Posyandu Bunga Tanjung VII (demo) · 80 balita · 282 pengukuran (WHO Box-Cox)
 
 ---
 
@@ -78,6 +78,45 @@ php artisan serve
 WA_DRIVER=log      # simulasi (default, aman — catat notification_logs)
 WA_DRIVER=fonnte   # kirim nyata gratis (butuh FONNTE_TOKEN dari fonnte.com)
 ```
+
+---
+
+## 🎬 Persiapan Demo (Hackathon)
+
+### Akun demo (hasil seeder)
+Semua password default **`password`**, kecuali Super Admin.
+
+| Portal | URL | Email | Password |
+|---|---|---|---|
+| Super Admin (Kemenkes) | `/super-admin/dashboard` | `kemenkes@nutrigen.go.id` | `Kemenkes2026!` |
+| Puskesmas | `/puskesmas/dashboard` | `puskesmas@nutrigen.com` | `password` |
+| Kader | `/kader/dashboard` | `kader@nutrigen.com` | `password` |
+| Ibu | via **link unik** (WA) atau `/login` | `ibu1@nutrigen.com` | `password` |
+
+### Checklist sebelum presentasi
+1. **Hidupkan MySQL** (Laragon/MySQL service) dan pastikan `.env` `DB_DATABASE=nutrigen_mod`.
+2. **Pastikan data demo terisi** (52 user, 80 balita, 282 pengukuran):
+   ```bash
+   php artisan migrate:fresh --seed --force
+   ```
+3. **Build aset frontend** (jika ada perubahan tampilan):
+   ```bash
+   npm run build
+   ```
+4. **Jalankan server**:
+   ```bash
+   php artisan serve
+   ```
+
+> ⚠️ **JANGAN menjalankan `php artisan test` pada database demo.** Perintah test melakukan
+> `migrate:fresh` dan akan **mengosongkan** `nutrigen_mod`. Bila terlanjur dijalankan,
+> pulihkan dengan `php artisan migrate:fresh --seed --force`.
+
+### Alur demo yang disarankan
+1. **Kader** → dashboard → tambah/ukur balita → kirim sesi ke Puskesmas.
+2. **Puskesmas** → validasi antrean → Setujui → salin/kirim **tautan Buku KIA** ke ibu.
+3. **Ibu** → buka tautan unik → lihat rapor E-KIA (status gizi, riwayat, kurva, jadwal).
+4. **Super Admin** → dashboard nasional → laporan, kelola Puskesmas/Kader, log aktivitas, pengaturan.
 
 ---
 

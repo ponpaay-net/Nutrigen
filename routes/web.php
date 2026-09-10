@@ -16,37 +16,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/refresh-database-nutrigen', function () {
-    try {
-        Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
-        $tables = ['pengukurans', 'jadwals', 'balitas', 'orang_tuas', 'kaders', 'puskesmas', 'posyandus', 'users'];
-        foreach ($tables as $table) {
-            if (Illuminate\Support\Facades\Schema::hasTable($table)) {
-                Illuminate\Support\Facades\DB::table($table)->truncate();
-            }
-        }
-        Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
-
-        Illuminate\Support\Facades\Artisan::call('db:seed', [
-            '--class' => 'Database\\Seeders\\DatabaseSeeder',
-            '--force' => true,
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Database successfully refreshed and reseeded with 80 realistic balitas and posyandu data!',
-            'balita_count' => Illuminate\Support\Facades\DB::table('balitas')->count(),
-            'user_count' => Illuminate\Support\Facades\DB::table('users')->count(),
-            'output' => Illuminate\Support\Facades\Artisan::output(),
-        ]);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-        ], 500);
-    }
-});
-
+// CATATAN KEAMANAN: route `GET /refresh-database-nutrigen` (yang men-truncate
+// seluruh tabel lalu re-seed) SUDAH DIHAPUS. Endpoint destruktif tanpa proteksi
+// adalah celah kritis — siapa pun yang tahu URL-nya bisa menghapus semua data.
+//
+// Untuk mereset database demo, gunakan perintah Artisan:
+//     php artisan migrate:fresh --seed
 Route::get('/team', function () {
     return view('team');
 })->name('team');
@@ -116,6 +91,22 @@ Route::prefix('super-admin')->name('super-admin.')->middleware(['web', 'auth', '
     Route::get('/puskesmas/export/excel', [SuperAdminController::class, 'exportExcel'])->name('puskesmas.export.excel');
     Route::get('/export/pdf', [SuperAdminController::class, 'exportPdf'])->name('export.pdf');
     Route::get('/puskesmas/{id}', [SuperAdminController::class, 'showPuskesmas'])->name('puskesmas.show');
+
+    // Detail Posyandu + Kelola Kader (nasional)
+    Route::get('/posyandu/{id}', [SuperAdminController::class, 'showPosyandu'])->name('posyandu.show');
+    Route::post('/posyandu/{id}/kader', [SuperAdminController::class, 'storeKader'])->name('posyandu.kader.store');
+    Route::put('/kader/{id}', [SuperAdminController::class, 'updateKader'])->name('kader.update');
+    Route::delete('/kader/{id}', [SuperAdminController::class, 'destroyKader'])->name('kader.destroy');
+
+    // Laporan Nasional
+    Route::get('/laporan', [SuperAdminController::class, 'laporanNasional'])->name('laporan');
+
+    // Log Aktivitas
+    Route::get('/log', [SuperAdminController::class, 'logAktivitas'])->name('log');
+
+    // Pengaturan Sistem Nasional
+    Route::get('/pengaturan', [SuperAdminController::class, 'pengaturanNasional'])->name('pengaturan');
+    Route::put('/pengaturan', [SuperAdminController::class, 'updatePengaturanNasional'])->name('pengaturan.update');
 });
 
 // ==========================================================================

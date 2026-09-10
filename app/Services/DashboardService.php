@@ -105,6 +105,7 @@ class DashboardService
 
         return $query->whereMonth('pengukurans.tanggal_ukur', $month)
             ->whereYear('pengukurans.tanggal_ukur', $year)
+            ->where('pengukurans.status_validasi', '!=', 'draft')
             ->select('pengukurans.status_gizi', DB::raw('count(*) as total'))
             ->groupBy('pengukurans.status_gizi')
             ->pluck('total', 'status_gizi')

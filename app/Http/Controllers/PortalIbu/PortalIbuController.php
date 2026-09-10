@@ -73,6 +73,33 @@ class PortalIbuController extends Controller
         $latest = $pengukurans->first();
         $previous = $pengukurans->skip(1)->first();
 
+        // Riwayat pengukuran terformat (semuanya berasal dari data yang sudah
+        // divalidasi / approved oleh Puskesmas).
+        $history = $pengukurans->map(function ($p) use ($balita) {
+            $ageParts = Carbon::parse($balita->tanggal_lahir)->diff(Carbon::parse($p->tanggal_ukur));
+            $ageLabel = $ageParts->y > 0
+                ? $ageParts->y . ' Thn ' . $ageParts->m . ' Bln'
+                : $ageParts->m . ' Bln ' . $ageParts->d . ' Hari';
+            return [
+                'id'               => $p->id,
+                'date'             => Carbon::parse($p->tanggal_ukur)->translatedFormat('d M Y'),
+                'age'              => $ageLabel,
+                'umur_bulan'       => $p->umur_bulan,
+                'weight'           => number_format((float) $p->berat_badan, 1),
+                'height'           => number_format((float) $p->tinggi_badan, 1),
+                'head_circ'        => $p->lingkar_kepala !== null ? number_format((float) $p->lingkar_kepala, 1) : null,
+                'z_bbu'            => $p->z_score_bbu,
+                'z_tbu'            => $p->z_score_tbu,
+                'status'           => $p->status_gizi,
+                'catatan_validator'=> $p->catatan_validator,
+                'catatan_kader'    => $p->catatan_kader,
+            ];
+        })->values()->toArray();
+
+        // Kurva pertumbuhan: [umur_bulan, nilai] diurutkan naik sesuai waktu.
+        $chartWeight = $pengukurans->sortBy('tanggal_ukur')->map(fn ($p) => [(int) $p->umur_bulan, (float) $p->berat_badan])->values()->toArray();
+        $chartHeight = $pengukurans->sortBy('tanggal_ukur')->map(fn ($p) => [(int) $p->umur_bulan, (float) $p->tinggi_badan])->values()->toArray();
+
         $deltaWeight = '';
         $deltaHeight = '';
         if ($latest && $previous) {
@@ -148,11 +175,19 @@ class PortalIbuController extends Controller
             'measurement' => $latest ? [
                 'date' => Carbon::parse($latest->tanggal_ukur)->format('d M Y'),
                 'weight' => $latest->berat_badan,
-                'height' => $latest->tinggi_badan
+                'height' => $latest->tinggi_badan,
+                'age' => $latest->umur_bulan . ' bln',
+                'gender' => $balita->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                'birth_date' => $balita->tanggal_lahir ? Carbon::parse($balita->tanggal_lahir)->format('d M Y') : null,
+                'head_circ' => $latest->lingkar_kepala !== null ? number_format((float) $latest->lingkar_kepala, 1) : null,
             ] : [
                 'date' => '-',
                 'weight' => '-',
-                'height' => '-'
+                'height' => '-',
+                'age' => '-',
+                'gender' => $balita->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan',
+                'birth_date' => $balita->tanggal_lahir ? Carbon::parse($balita->tanggal_lahir)->format('d M Y') : null,
+                'head_circ' => null,
             ],
             'delta' => [
                 'is_first' => !$previous,
@@ -170,7 +205,12 @@ class PortalIbuController extends Controller
                 'location' => $location,
                 'notes' => $notes,
                 'cta' => 'Chat Kader'
-            ]
+            ],
+            'history' => $history,
+            'chart' => [
+                'weight' => $chartWeight,
+                'height' => $chartHeight,
+            ],
         ];
 
         return view('portal-ibu.home.index', $data);
@@ -230,7 +270,7 @@ class PortalIbuController extends Controller
                 'icon' => '💡',
                 'message' => 'Grafik di bawah ini disusun berdasarkan panduan kurva pertumbuhan resmi dari WHO.'
             ],
-            'chartData' => json_encode(['points' => $points]),
+            'chartData' => $points,
             'timeline' => $timeline
         ];
 

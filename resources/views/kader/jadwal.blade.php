@@ -37,38 +37,41 @@
     {{-- Sesi Terdekat (Spotlight) --}}
     @if($next)
     <section class="mb-6">
-        <div class="relative rounded-2xl border border-teal-600/15 bg-gradient-to-br from-white via-teal-50/40 to-teal-100/40 shadow-sm overflow-hidden group/hero cursor-pointer hover:shadow-md transition-shadow" @click="openDetail(next.id)">
-            
-            <div class="relative p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center gap-5 sm:gap-6">
-                <!-- Info Section -->
+        <div class="relative rounded-3xl border border-teal-600/15 bg-gradient-to-br from-teal-600 via-teal-500 to-emerald-500 shadow-[0_18px_45px_-18px_rgba(13,148,136,0.45)] overflow-hidden group/hero cursor-pointer hover:shadow-[0_22px_50px_-18px_rgba(13,148,136,0.55)] transition-shadow duration-300" @click="openDetail(next.id)">
+            <!-- dekorasi -->
+            <div class="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-10 w-48 h-48 rounded-full bg-emerald-300/20 blur-2xl pointer-events-none"></div>
+
+            <div class="relative p-5 sm:p-7 flex flex-col lg:flex-row lg:items-center gap-5 sm:gap-7">
+                <!-- Info -->
                 <div class="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0 flex-1">
-                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-white/90 border border-teal-600/10 flex flex-col items-center justify-center shadow-sm">
-                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-teal-600">{{ $next['tgl_bulan_singkat'] }}</span>
-                        <span class="text-[22px] sm:text-[24px] font-black leading-none text-slate-800">{{ $next['tgl_nomor'] }}</span>
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-white/20 backdrop-blur-md border border-white/25 flex flex-col items-center justify-center shadow-sm">
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-teal-50">{{ $next['tgl_bulan_singkat'] }}</span>
+                        <span class="text-[22px] sm:text-[24px] font-black leading-none text-white">{{ $next['tgl_nomor'] }}</span>
                     </div>
                     <div class="min-w-0 flex-1 pt-0.5 sm:pt-0">
                         <div class="flex items-center gap-2 flex-wrap mb-1.5">
                             @if($next['status_type'] === 'past')
-                            <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md"><x-icon name="check-circle" weight="fill" class="text-[12px]" /> Selesai</span>
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white px-2 py-0.5 rounded-md"><x-icon name="check-circle" weight="fill" class="text-[12px]" /> Selesai</span>
                             @else
-                            <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-2 py-0.5 rounded-md"><x-icon name="{{ $next['status_type']==='today' ? 'warning' : 'hourglass' }}" weight="fill" class="text-[12px]" /> {{ $next['countdown'] }}</span>
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider {{ $next['status_type']==='today' ? 'bg-amber-300 text-amber-950' : 'bg-white/20 text-white' }} px-2 py-0.5 rounded-md"><x-icon name="{{ $next['status_type']==='today' ? 'warning' : 'hourglass' }}" weight="fill" class="text-[12px]" /> {{ $next['countdown'] }}</span>
                             @endif
                         </div>
-                        <h2 class="text-[16px] sm:text-[18px] font-bold text-slate-900 leading-snug line-clamp-2 group-hover/hero:text-teal-700 transition-colors">{{ $next['judul'] }}</h2>
-                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 text-[12.5px] text-slate-700 font-medium">
-                            <span class="inline-flex items-center gap-1.5"><x-icon name="calendar-blank" weight="fill" class="text-[14px] text-teal-600/80" /> {{ $next['hari'] }}, {{ $next['tanggal'] }}</span>
-                            <span class="inline-flex items-center gap-1.5"><x-icon name="clock" weight="fill" class="text-[14px] text-teal-600/80" /> {{ $next['waktu'] }}</span>
+                        <h2 class="text-[16px] sm:text-[18px] font-bold text-white leading-snug line-clamp-2 group-hover/hero:text-teal-50 transition-colors">{{ $next['judul'] }}</h2>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 text-[12.5px] text-teal-50 font-medium">
+                            <span class="inline-flex items-center gap-1.5"><x-icon name="calendar-blank" weight="fill" class="text-[14px] text-teal-100" /> {{ $next['hari'] }}, {{ $next['tanggal'] }}</span>
+                            <span class="inline-flex items-center gap-1.5"><x-icon name="clock" weight="fill" class="text-[14px] text-teal-100" /> {{ $next['waktu'] }}</span>
                         </div>
                         <div class="mt-1.5 flex">
-                            <span class="inline-flex items-start gap-1.5 text-[12.5px] text-slate-700 font-medium"><x-icon name="map-pin" weight="fill" class="text-[14px] text-teal-600/80 shrink-0 mt-0.5" /> <span class="line-clamp-1">{{ $next['lokasi'] }}</span></span>
+                            <span class="inline-flex items-start gap-1.5 text-[12.5px] text-teal-50 font-medium"><x-icon name="map-pin" weight="fill" class="text-[14px] text-teal-100 shrink-0 mt-0.5" /> <span class="line-clamp-1">{{ $next['lokasi'] }}</span></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Actions Section -->
-                <div class="shrink-0 grid grid-cols-2 sm:flex sm:flex-row sm:items-center gap-2 sm:gap-2.5 mt-3 lg:mt-0 border-t border-teal-600/10 lg:border-t-0 pt-4 lg:pt-0" @click.stop>
-                    <button type="button" @click="askNotif(next.id)" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-4 sm:px-5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[13.5px] font-semibold transition-all active:scale-95 shadow-sm shadow-teal-600/20"><x-icon name="bell" weight="bold" class="text-[15px]" /> <span class="whitespace-nowrap">Notifikasi</span></button>
-                    <button type="button" @click="openEdit(next.id)" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-4 sm:px-5 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 text-[13.5px] font-semibold transition-all active:scale-95 shadow-sm shadow-amber-400/20"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> <span class="whitespace-nowrap">Edit</span></button>
+                <!-- Actions -->
+                <div class="shrink-0 grid grid-cols-2 sm:flex sm:flex-row sm:items-center gap-2 sm:gap-2.5 mt-3 lg:mt-0 border-t border-white/10 lg:border-t-0 pt-4 lg:pt-0" @click.stop>
+                    <button type="button" @click="askNotif(next.id)" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-4 sm:px-5 rounded-xl bg-white text-teal-700 hover:bg-teal-50 text-[13.5px] font-bold transition-all active:scale-95 shadow-sm"><x-icon name="bell" weight="bold" class="text-[15px]" /> <span class="whitespace-nowrap">Notifikasi</span></button>
+                    <button type="button" @click="openEdit(next.id)" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-4 sm:px-5 rounded-xl bg-emerald-300/90 hover:bg-emerald-300 text-emerald-950 text-[13.5px] font-bold transition-all active:scale-95 shadow-sm"><x-icon name="pencil-line" weight="bold" class="text-[15px]" /> <span class="whitespace-nowrap">Edit</span></button>
                 </div>
             </div>
         </div>
@@ -94,14 +97,17 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
             @foreach($upcomingList as $j)
-            <article class="group flex flex-col bg-white border border-slate-200 hover:border-teal-600/30 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden cursor-pointer" @click="openDetail({{ $j['id'] }})">
-                <div class="p-5 flex items-start gap-4">
-                    <div class="w-14 h-14 shrink-0 rounded-xl {{ $j['status_type']==='today' ? 'bg-amber-50 text-amber-700 border border-amber-200/60' : 'bg-slate-50 text-slate-700 border border-slate-200/60' }} flex flex-col items-center justify-center shadow-sm">
+            <article class="group flex flex-col bg-white ring-1 ring-slate-200 hover:ring-teal-400/60 rounded-2xl shadow-sm hover:shadow-xl hover:shadow-teal-900/5 hover:-translate-y-0.5 transition-all duration-200 overflow-hidden cursor-pointer" @click="openDetail({{ $j['id'] }})">
+                <div class="relative p-5 flex items-start gap-4">
+                    @if($j['status_type']==='today')
+                        <div class="absolute top-0 right-0 inline-flex items-center gap-1 px-2.5 py-1 bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-wider rounded-bl-xl"><x-icon name="warning" weight="fill" class="text-[11px]" /> Hari Ini</div>
+                    @endif
+                    <div class="w-14 h-14 shrink-0 rounded-xl {{ $j['status_type']==='today' ? 'bg-amber-50 text-amber-700' : 'bg-teal-50 text-teal-700' }} border {{ $j['status_type']==='today' ? 'border-amber-200/60' : 'border-teal-200/60' }} flex flex-col items-center justify-center shadow-sm">
                         <span class="text-[9px] font-bold uppercase tracking-wider {{ $j['status_type']==='today' ? 'text-amber-600' : 'text-teal-600' }}">{{ $j['tgl_bulan_singkat'] }}</span>
-                        <span class="text-[20px] font-black leading-none text-slate-800 mt-0.5">{{ $j['tgl_nomor'] }}</span>
+                        <span class="text-[20px] font-black leading-none mt-0.5 text-slate-800">{{ $j['tgl_nomor'] }}</span>
                     </div>
                     <div class="flex-1 min-w-0 pt-0.5">
-                        <h3 class="text-[15px] font-bold text-slate-900 group-hover:text-teal-700 transition-colors leading-snug line-clamp-2">{{ $j['judul'] }}</h3>
+                        <h3 class="text-[15px] font-bold text-slate-900 group-hover:text-teal-700 transition-colors leading-snug line-clamp-2 pr-1">{{ $j['judul'] }}</h3>
                         <div class="mt-2 flex flex-col gap-1 text-[12.5px] text-slate-600 font-medium">
                             <span class="inline-flex items-center gap-2"><x-icon name="clock" weight="fill" class="text-[14px] text-slate-400 shrink-0" /> {{ $j['waktu'] }}</span>
                             <span class="inline-flex items-start gap-2"><x-icon name="map-pin" weight="fill" class="text-[14px] text-slate-400 shrink-0 mt-0.5" /> <span class="line-clamp-1">{{ $j['lokasi'] }}</span></span>
@@ -109,15 +115,15 @@
                     </div>
                 </div>
                 @if(!empty($j['catatan']))
-                <div class="mx-5 mb-4 px-3.5 py-2.5 rounded-xl bg-teal-50/60 border border-teal-100/80 text-[12.5px] text-teal-900/80 flex items-start gap-2.5">
-                    <x-icon name="info" weight="fill" class="text-teal-600 text-[16px] shrink-0 mt-0.5" />
+                <div class="mx-5 mb-4 px-3.5 py-2.5 rounded-xl bg-teal-50/70 border border-teal-100 text-[12.5px] text-teal-900/80 flex items-start gap-2.5">
+                    <x-icon name="info" weight="fill" class="text-teal-500 text-[16px] shrink-0 mt-0.5" />
                     <span class="line-clamp-2 leading-relaxed font-medium">{{ $j['catatan'] }}</span>
                 </div>
                 @endif
                 <div class="mt-auto border-t border-slate-100 p-3 sm:px-4 flex items-center justify-between gap-3 bg-slate-50/50" @click.stop>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider {{ $j['status_type']==='today' ? 'bg-amber-100 text-amber-800' : 'bg-teal-50 text-teal-700' }}"><span class="w-1.5 h-1.5 rounded-full {{ $j['status_type']==='today' ? 'bg-amber-500' : 'bg-teal-500' }}"></span>{{ $j['countdown'] }}</span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider {{ $j['status_type']==='today' ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800' }}"><span class="w-1.5 h-1.5 rounded-full {{ $j['status_type']==='today' ? 'bg-amber-500' : 'bg-teal-500' }}"></span>{{ $j['countdown'] }}</span>
                     <div class="flex items-center gap-1 sm:gap-1.5">
-                        <button type="button" @click="askNotif({{ $j['id'] }})" class="h-10 w-10 sm:h-8 sm:w-auto sm:px-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 text-teal-600 hover:text-teal-800 hover:bg-teal-100/50 transition-colors" title="Kirim Notifikasi"><x-icon name="bell" weight="fill" class="text-[17px] sm:text-[14px]" /><span class="hidden sm:inline text-[12px] font-semibold">Notifikasi</span></button>
+                        <button type="button" @click="askNotif({{ $j['id'] }})" class="h-10 w-10 sm:h-8 sm:w-auto sm:px-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 text-teal-600 hover:text-teal-800 hover:bg-teal-100/60 transition-colors" title="Kirim Notifikasi"><x-icon name="bell" weight="fill" class="text-[17px] sm:text-[14px]" /><span class="hidden sm:inline text-[12px] font-semibold">Notifikasi</span></button>
                         <button type="button" @click="openEdit({{ $j['id'] }})" class="h-10 w-10 sm:h-8 sm:w-auto sm:px-2.5 rounded-lg inline-flex items-center justify-center gap-1.5 text-amber-950 bg-amber-400 hover:bg-amber-500 transition-colors shadow-sm shadow-amber-400/20" title="Edit"><x-icon name="pencil-line" weight="fill" class="text-[17px] sm:text-[14px]" /><span class="hidden sm:inline text-[12px] font-bold">Edit</span></button>
                         <div class="w-px h-5 sm:h-4 bg-slate-200 mx-1"></div>
                         <button type="button" @click="askDelete({{ $j['id'] }})" class="h-10 w-10 sm:h-8 sm:w-8 rounded-lg inline-flex items-center justify-center text-rose-500 hover:text-rose-700 hover:bg-rose-100/50 transition-colors" title="Hapus"><x-icon name="trash" weight="fill" class="text-[17px] sm:text-[14px]" /></button>
@@ -138,14 +144,14 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
             @foreach($past as $j)
-            <article class="group flex flex-col bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                <div class="p-5 flex items-start gap-4 opacity-80">
-                    <div class="w-12 shrink-0 rounded-xl bg-slate-100 text-slate-500 flex flex-col items-center justify-center py-1.5">
+            <article class="group flex flex-col bg-white ring-1 ring-slate-200 rounded-2xl shadow-sm overflow-hidden opacity-90">
+                <div class="p-5 flex items-start gap-4">
+                    <div class="w-14 shrink-0 rounded-xl bg-slate-100 text-slate-500 flex flex-col items-center justify-center py-2">
                         <span class="text-[9px] font-black uppercase tracking-wider">{{ $j['tgl_bulan_singkat'] }}</span>
-                        <span class="text-[18px] font-black leading-none">{{ $j['tgl_nomor'] }}</span>
-                        <span class="text-[8.5px] font-bold uppercase text-slate-400">{{ substr($j['hari'], 0, 3) }}</span>
+                        <span class="text-[18px] font-black leading-none mt-0.5">{{ $j['tgl_nomor'] }}</span>
+                        <span class="text-[8.5px] font-bold uppercase text-slate-400 mt-0.5">{{ substr($j['hari'], 0, 3) }}</span>
                     </div>
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1 min-w-0 pt-0.5">
                         <h3 class="text-[14px] font-bold text-slate-700 leading-snug line-clamp-2">{{ $j['judul'] }}</h3>
                         <div class="mt-2 flex flex-col gap-1 text-[12px] text-slate-500 font-medium">
                             <span class="inline-flex items-center gap-1.5"><x-icon name="clock" weight="regular" class="text-[14px]" /> {{ $j['waktu'] }}</span>
@@ -153,11 +159,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="mx-5 mb-4 px-3 py-2 rounded-xl bg-slate-50 border border-slate-100 text-[11.5px] text-slate-500 flex items-start gap-2">
-                    <x-icon name="check-circle" weight="regular" class="text-slate-400 text-[14px] mt-0.5 shrink-0" />
+                <div class="mx-5 mb-4 px-3 py-2 rounded-xl bg-emerald-50/70 border border-emerald-100 text-[11.5px] text-emerald-800 flex items-start gap-2">
+                    <x-icon name="check-circle" weight="fill" class="text-emerald-500 text-[14px] mt-0.5 shrink-0" />
                     <span class="leading-relaxed">Kegiatan selesai dilaksanakan.</span>
                 </div>
-                <div class="mt-auto border-t border-slate-100 px-4 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+                <div class="mt-auto border-t border-slate-100 px-4 sm:px-5 py-3 flex items-center justify-between gap-2">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Selesai</span>
                     <div class="flex items-center gap-1.5">
                         <button type="button" @click="openDetail({{ $j['id'] }})" class="h-8 px-2.5 inline-flex items-center gap-1 text-[11.5px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors"><x-icon name="eye" weight="bold" class="text-[13px]" /> Detail</button>

@@ -158,11 +158,10 @@
                         @forelse($posyandus as $posyandu)
                             <tr class="hover:bg-slate-50/50 transition-colors group">
                                 <td class="py-4 px-6">
-                                    {{-- Mengubah nama menjadi seolah clickable untuk melatih mental model UX --}}
-                                    <div class="font-semibold text-slate-900 group-hover:text-teal-600 transition-colors cursor-pointer flex items-center gap-2">
+                                    <a href="{{ route('super-admin.posyandu.show', $posyandu->id) }}" class="font-semibold text-slate-900 group-hover:text-teal-600 transition-colors flex items-center gap-2">
                                         {{ $posyandu->nama }}
                                         <x-icon name="arrow-up-right" weight="bold" class="text-sm text-slate-300 group-hover:text-teal-500 opacity-0 group-hover:opacity-100 transition-all" />
-                                    </div>
+                                    </a>
                                 </td>
                                 <td class="py-4 px-6">
                                     <div class="text-sm font-medium text-slate-700">{{ $posyandu->desa_kelurahan ?? '-' }}</div>

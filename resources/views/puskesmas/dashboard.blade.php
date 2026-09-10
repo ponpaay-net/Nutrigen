@@ -75,10 +75,10 @@
     <!-- Metrics Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Metric 1 -->
-        <div class="bg-white border border-slate-200 border-l-4 border-l-indigo-500 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Total Balita</h3>
-                <div class="w-8 h-8 rounded bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100">
+                <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700">
                     <i class="ph-fill ph-users text-lg"></i>
                 </div>
             </div>
@@ -88,10 +88,10 @@
         </div>
 
         <!-- Metric 2 -->
-        <div class="bg-white border border-slate-200 border-l-4 border-l-teal-500 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Diukur (Bulan Ini)</h3>
-                <div class="w-8 h-8 rounded bg-teal-50 flex items-center justify-center text-teal-600 border border-teal-100">
+                <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700">
                     <i class="ph-fill ph-scales text-lg"></i>
                 </div>
             </div>
@@ -104,10 +104,10 @@
         </div>
 
         <!-- Metric 3 -->
-        <div class="bg-white border border-slate-200 border-l-4 border-l-emerald-500 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Verifikasi Selesai</h3>
-                <div class="w-8 h-8 rounded bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
+                <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700">
                     <i class="ph-fill ph-seal-check text-lg"></i>
                 </div>
             </div>
@@ -118,13 +118,13 @@
         </div>
 
         <!-- Metric 4 (Interactive Entry Point) -->
-        <a href="{{ route('puskesmas.validasi') }}" class="group bg-white border {{ $stats['pending'] > 0 ? 'border-rose-200 border-l-4 border-l-rose-500 ring-1 ring-rose-50' : 'border-slate-200 border-l-4 border-l-slate-400' }} rounded-lg p-5 shadow-sm hover:shadow-md transition-all block">
+        <a href="{{ route('puskesmas.validasi') }}" class="group bg-white border {{ $stats['pending'] > 0 ? 'border-rose-200 ring-1 ring-rose-100' : 'border-slate-200' }} rounded-xl p-5 shadow-sm hover:shadow-md transition-all block">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="text-[11px] font-bold {{ $stats['pending'] > 0 ? 'text-rose-600' : 'text-slate-500' }} uppercase tracking-widest flex items-center gap-1">
                     Menunggu Validasi
                     <i class="ph-bold ph-arrow-up-right text-xs opacity-60 group-hover:opacity-100 transition-opacity"></i>
                 </h3>
-                <div class="w-8 h-8 rounded {{ $stats['pending'] > 0 ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-slate-50 text-slate-400 border-slate-100' }} flex items-center justify-center border group-hover:scale-105 transition-transform">
+                <div class="w-8 h-8 rounded-lg {{ $stats['pending'] > 0 ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-400' }} flex items-center justify-center group-hover:scale-105 transition-transform">
                     <i class="ph-fill ph-hourglass-high text-lg"></i>
                 </div>
             </div>

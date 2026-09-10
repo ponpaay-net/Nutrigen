@@ -267,7 +267,7 @@
                                                     </span>
                                                 </div>
                                                 <div class="text-[11px] text-slate-400 truncate mt-0.5">
-                                                    NIK: <span class="text-slate-600 font-medium">{{ $child['nik'] ?: '-' }}</span> &bull; Ibu: <span class="text-slate-600 font-medium">{{ $child['parent'] ?: '-' }}</span>
+                                                    NIK: <span class="text-slate-600 font-medium">{{ $child['nik'] ? mask_sensitive($child['nik']) : '-' }}</span> &bull; Ibu: <span class="text-slate-600 font-medium">{{ $child['parent'] ?: '-' }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -354,7 +354,7 @@
                                     </div>
                                     <div class="min-w-0">
                                         <div class="font-bold text-slate-900 text-sm truncate">{{ $child['name'] }}</div>
-                                        <div class="text-[11px] text-slate-500 mt-0.5 truncate">NIK: {{ $child['nik'] ?: '-' }}</div>
+                                        <div class="text-[11px] text-slate-500 mt-0.5 truncate">NIK: {{ $child['nik'] ? mask_sensitive($child['nik']) : '-' }}</div>
                                     </div>
                                 </div>
                                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0 {{ $isBoy ? 'bg-sky-50 text-sky-700 border-sky-200/60' : 'bg-pink-50 text-pink-700 border-pink-200/60' }}">

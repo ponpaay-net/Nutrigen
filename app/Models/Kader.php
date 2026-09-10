@@ -18,6 +18,15 @@ class Kader extends Model
         'no_hp',
     ];
 
+    /**
+     * Nomor kontak kader tersimpan terenkripsi at-rest. Akses via Eloquent
+     * ($kader->no_hp) tetap mengembalikan nilai asli karena cast men-dekripsi
+     * di getter, sehingga fungsi seperti tautan wa.me tidak terganggu.
+     */
+    protected $casts = [
+        'no_hp' => \App\Casts\FallbackEncryptCast::class,
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

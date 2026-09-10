@@ -1,6 +1,6 @@
 <x-layout.mobile-shell>
     <div x-data="{ state: '{{ $pageState ?? 'normal' }}', openRecipe: false }"
-        class="flex-1 overflow-y-auto hide-scrollbar flex flex-col relative pb-[120px] pb-safe w-full bg-[#F1F8F2]">
+        class="flex-1 overflow-y-auto hide-scrollbar flex flex-col relative pb-[120px] pb-safe w-full bg-[#F7F5F0]">
 
         <!-- HEADER (komponen bersama) -->
         <x-navigation.portal-header variant="page" eyebrow="Edukasi" title="Gizi & Menu" :hasBack="true"

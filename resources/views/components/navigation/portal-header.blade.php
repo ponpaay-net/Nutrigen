@@ -49,12 +49,23 @@
             </div>
         </div>
 
-        <!-- Avatar Kecil + Notifikasi -->
-        <x-navigation.portal-user-nav :initials="$initial" :avatar="$avatar" class="mt-0.5" />
+        <!-- Avatar Ibu (tanpa notifikasi — sesuai keputusan desain portal ibu) -->
+        <div class="flex items-center gap-3 shrink-0">
+            <div class="w-[46px] h-[46px] rounded-full bg-[#2E7D32] border-[3px] border-[#C8E6C9] shadow-sm flex items-center justify-center overflow-hidden relative">
+                @if($avatar)
+                    <img src="{{ $avatar }}" alt="Avatar" class="w-full h-full object-cover">
+                @else
+                    <span class="text-white font-black text-[16px] tracking-wide">{{ $initial }}</span>
+                @endif
+            </div>
+        </div>
     </header>
 @else
     {{-- ====== VARIAN PAGE (Pertumbuhan / Edukasi / Posyandu) ====== --}}
-    <header {{ $attributes->merge(['class' => 'sticky top-0 z-30 bg-[#F1F8F2]/95 backdrop-blur-xl px-5 pt-8 pb-4 flex items-center justify-between border-b border-[#C8E6C9]/40']) }}>
+    @php
+        $initial = strtoupper(substr($initials ?: $name ?: 'IB', 0, 1));
+    @endphp
+    <header {{ $attributes->merge(['class' => 'sticky top-0 z-30 bg-[#F7F5F0]/95 backdrop-blur-xl px-5 pt-8 pb-4 flex items-center justify-between border-b border-[#E7E2D9]']) }}>
         <div class="flex items-center gap-3 min-w-0">
             @if($hasBack)
                 <a href="{{ $backUrl }}" aria-label="Kembali" class="w-10 h-10 shrink-0 rounded-xl bg-white border border-[#C8E6C9]/60 shadow-sm flex items-center justify-center text-slate-700 active:scale-95 transition-transform focus:outline-none">
@@ -69,7 +80,15 @@
             </div>
         </div>
 
-        <!-- Avatar + Notifikasi -->
-        <x-navigation.portal-user-nav :initials="$initials" :avatar="$avatar" />
+        <!-- Avatar Ibu (tanpa notifikasi) -->
+        <div class="flex items-center gap-3 shrink-0">
+            <div class="w-[44px] h-[44px] rounded-full bg-[#2E7D32] border-[3px] border-[#C8E6C9] shadow-sm flex items-center justify-center overflow-hidden relative">
+                @if($avatar)
+                    <img src="{{ $avatar }}" alt="Avatar" class="w-full h-full object-cover">
+                @else
+                    <span class="text-white font-black text-[15px] tracking-wide">{{ $initial }}</span>
+                @endif
+            </div>
+        </div>
     </header>
 @endif

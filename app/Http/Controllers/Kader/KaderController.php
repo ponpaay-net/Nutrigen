@@ -88,8 +88,13 @@ class KaderController extends Controller
                       });
             })
             ->with(['latestPengukuran', 'orangTua'])
-            ->take(5)
             ->get();
+
+        // Jumlah SEBENARNYA balita prioritas (tanpa batas tampilan).
+        $statPerluSebenarnya = $priorityBalitas->count();
+
+        // Hanya tampilkan 5 kartu prioritas di dashboard (dari koleksi penuh).
+        $priorityBalitas = $priorityBalitas->take(5);
 
         $priorityChildren = $priorityBalitas->map(function ($b) {
             $latest = $b->latestPengukuran;
@@ -167,7 +172,7 @@ class KaderController extends Controller
             'statTotal' => $ds['total_balita'],
             'statSudah' => $ds['bulan_ini'],
             'statBelum' => max(0, $ds['total_balita'] - $ds['bulan_ini']),
-            'statPerlu' => count($priorityChildren),
+            'statPerlu' => $statPerluSebenarnya,
             'statRevisi' => Pengukuran::whereHas('balita', function ($q) use ($posyanduId) {
                 $q->where('posyandu_id', $posyanduId);
             })->where('status_validasi', 'rejected')->count(),
@@ -234,28 +239,44 @@ class KaderController extends Controller
     {
         $posyanduId = $this->getKaderPosyanduId();
         
-        $q = $request->input('q') ?? $request->input('search');
         $statusGizi = $request->input('status_gizi');
         $filter = $request->input('filter');
+        $q = $request->input('q') ?? $request->input('search');
 
         $query = Balita::where('posyandu_id', $posyanduId)
             ->with(['orangTua', 'latestPengukuran', 'pengukurans']);
 
         if ($q) {
-            $query->where(function($subq) use ($q) {
-                $subq->where('nama', 'like', "%{$q}%")
-                     ->orWhere('nik', 'like', "%{$q}%");
-            });
+            // NIK terenkripsi (FallbackEncryptCast) tidak bisa dicari via SQL LIKE.
+            // Ambil semua balita posyandu, dekripsi NIK di PHP, lalu batasi query
+            // pada ID yang cocok berdasarkan nama ATAU NIK (agar filter NIK tidak
+            // terbuang dari collection bila query nama di SQL belum mengembalikannya).
+            $qLower = mb_strtolower(trim($q));
+            $matchingIds = Balita::where('posyandu_id', $posyanduId)
+                ->get()
+                ->filter(function ($b) use ($qLower) {
+                    $namaLower = mb_strtolower((string) $b->nama);
+                    $nikLower  = mb_strtolower((string) $b->nik); // otomatis terdekripsi oleh cast
+                    return mb_strpos($namaLower, $qLower) !== false
+                        || mb_strpos($nikLower, $qLower) !== false;
+                })
+                ->pluck('id');
+
+            $query->whereIn('id', $matchingIds);
         }
 
         if ($statusGizi) {
-            $query->whereHas('latestPengukuran', function($subq) use ($statusGizi) {
-                $statusMap = [
-                    'normal' => 'Normal',
-                    'kurang' => 'Risiko',
-                    'stunting' => 'Stunting'
-                ];
-                $expected = $statusMap[strtolower((string) $statusGizi)] ?? $statusGizi;
+            // Normalisasi nilai filter ke bentuk status_gizi yang konsisten
+            // (kapitalisasi sesuai GrowthCalculationService: Normal, Risiko,
+            // Kurang, Stunting).
+            $statusMap = [
+                'normal'   => 'Normal',
+                'kurang'   => 'Kurang',
+                'risiko'   => 'Risiko',
+                'stunting' => 'Stunting',
+            ];
+            $expected = $statusMap[strtolower((string) $statusGizi)] ?? $statusGizi;
+            $query->whereHas('latestPengukuran', function($subq) use ($expected) {
                 $subq->where('status_gizi', $expected);
             });
         }
@@ -319,6 +340,11 @@ class KaderController extends Controller
             ->map(fn($b) => $this->formatBalita($b))
             ->values();
 
+        // Pencarian sudah disaring di level koleksi sebelumnya (nama ATAU NIK
+        // yang didekripsi via cast). Tidak perlu menyaring ulang di sini,
+        // karena filter kedua hanya berdasar NIK akan menghilangkan hasil
+        // yang cocok lewat nama.
+
         $isFiltered = (bool) ($filter || request('q'));
         if (!$isFiltered) {
             $priority = $allFormatted->filter(fn($a) => in_array($a['status_type'] ?? '', ['danger', 'warning']))->values();
@@ -364,31 +390,59 @@ class KaderController extends Controller
     {
         $posyanduId = $this->getKaderPosyanduId();
 
+        // KRITIS: unique:balitas,nik di request TIDAK berfungsi karena kolom
+        // nik terenkripsi (FallbackEncryptCast). Cek duplikasi secara aman via
+        // dekripsi di memori agar NIK yang sama tidak terdaftar dua kali.
+        $duplicate = Balita::where('posyandu_id', $posyanduId)->get()
+            ->contains(fn ($b) => trim((string) $b->nik) === trim((string) $request->nik));
+        if ($duplicate) {
+            return back()->withErrors(['nik' => 'NIK sudah terdaftar pada posyandu ini.'])->withInput();
+        }
+
         $alamatJson = json_encode([
             'desa'      => $request->desa,
             'kecamatan' => $request->kecamatan
         ]);
 
-        // Auto-create OrangTua User if not exists
-        $userIbu = User::firstOrCreate(
-            ['email' => $request->no_hp . '@nutrigen.com'],
-            ['name' => $request->nama_ibu, 'password' => Hash::make('password'), 'role' => 'ibu']
-        );
+        // Auto-create OrangTua User if not exists.
+        // KRITIS keamanan: nomor HP TIDAK dijadikan bagian email (menghindari
+        // PII bocor ke kolom email). Gunakan email deterministik berbasis hash
+        // agar firstOrCreate tetap konsisten saat edit, tanpa mengekspos nomor.
+        $existing = OrangTua::all()->first(fn ($o) => $o->no_hp_whatsapp !== null
+            && trim((string) $o->no_hp_whatsapp) === trim((string) $request->no_hp));
 
-        $orangTua = OrangTua::updateOrCreate(
-            ['user_id' => $userIbu->id],
-            [
-                'no_kk'          => $request->no_kk,
-                'nama_ibu'       => $request->nama_ibu,
-                'nik_ibu'        => $request->nik_ibu,
-                'pekerjaan_ibu'  => $request->pekerjaan_ibu,
-                'nama_ayah'      => $request->nama_ayah ?: '-',
-                'nik_ayah'       => $request->nik_ayah,
-                'pekerjaan_ayah' => $request->pekerjaan_ayah,
-                'no_hp_whatsapp' => $request->no_hp,
-                'alamat'         => $alamatJson,
-            ]
-        );
+        if ($existing) {
+            // Ibu sudah terdaftar — pakai akun yang ada (hindari duplikasi) &
+            // hubungkan balita baru ke orang tua tersebut, serta perbarui data.
+            $orangTua = $existing;
+            $orangTua->update([
+                'nama_ibu'       => $request->nama_ibu ?: $orangTua->nama_ibu,
+                'nik_ibu'        => $request->nik_ibu ?: $orangTua->nik_ibu,
+                'nama_ayah'      => $request->nama_ayah ?: $orangTua->nama_ayah,
+                'nik_ayah'       => $request->nik_ayah ?: $orangTua->nik_ayah,
+                'alamat'         => $alamatJson ?: $orangTua->alamat,
+            ]);
+        } else {
+            $userIbu = User::firstOrCreate(
+                ['email' => 'ibu.' . substr(hash('sha256', (string) $request->no_hp), 0, 12) . '@nutrigen.local'],
+                ['name' => $request->nama_ibu, 'password' => Hash::make('password'), 'role' => 'ibu']
+            );
+
+            $orangTua = OrangTua::updateOrCreate(
+                ['user_id' => $userIbu->id],
+                [
+                    'no_kk'          => $request->no_kk,
+                    'nama_ibu'       => $request->nama_ibu,
+                    'nik_ibu'        => $request->nik_ibu,
+                    'pekerjaan_ibu'  => $request->pekerjaan_ibu,
+                    'nama_ayah'      => $request->nama_ayah ?: '-',
+                    'nik_ayah'       => $request->nik_ayah,
+                    'pekerjaan_ayah' => $request->pekerjaan_ayah,
+                    'no_hp_whatsapp' => $request->no_hp,
+                    'alamat'         => $alamatJson,
+                ]
+            );
+        }
 
         Balita::create([
             'orang_tua_id'         => $orangTua->id,
@@ -450,6 +504,16 @@ class KaderController extends Controller
     {
         $posyanduId = $this->getKaderPosyanduId();
         $balita = Balita::where('posyandu_id', $posyanduId)->findOrFail($id);
+
+        // Cek duplikasi NIK (kolom nik terenkripsi jadi unique ruangan tidak
+        // bekerja) — kecualikan balita yang sedang diedit ini.
+        $duplicate = Balita::where('posyandu_id', $posyanduId)
+            ->where('id', '!=', $balita->id)
+            ->get()
+            ->contains(fn ($b) => trim((string) $b->nik) === trim((string) $request->nik));
+        if ($duplicate) {
+            return back()->withErrors(['nik' => 'NIK sudah terdaftar pada balita lain di posyandu ini.'])->withInput();
+        }
 
         $alamatJson = json_encode([
             'desa'      => $request->desa,
@@ -1009,7 +1073,7 @@ class KaderController extends Controller
         $puskesmasRawName = $posyandu?->puskesmas?->nama ?? 'UPTD Puskesmas';
         $cleanPuskesmasName = preg_replace('/^puskesmas\s+/i', '', trim($puskesmasRawName));
         
-        $desa = $posyandu?->desa_kelurahan ?? ($posyandu?->desa ?? 'Desa Sehat');
+        $desa = $posyandu?->desa_kelurahan ?? 'Desa Sehat';
         $alamat = $posyandu?->alamat ?? 'Kecamatan Sehat';
         
         Carbon::setLocale('id');
@@ -1109,7 +1173,7 @@ class KaderController extends Controller
 
         $puskesmas = $posyandu?->puskesmas;
         $kabupatenKota = $puskesmas?->kabupaten_kota ?? 'Kota Banda Aceh';
-        $desa = $posyandu?->desa_kelurahan ?? ($posyandu?->desa ?? 'Desa Sehat');
+        $desa = $posyandu?->desa_kelurahan ?? 'Desa Sehat';
         $alamat = $posyandu?->alamat ?? 'Kecamatan Sehat';
         $puskesmasTelp = $puskesmas?->no_telp ?? '-';
 
@@ -1287,10 +1351,10 @@ class KaderController extends Controller
         $alamatRaw = $posyandu?->alamat ?? '';
         $alamatData = json_decode($alamatRaw, true);
         if (json_last_error() === JSON_ERROR_NONE && is_array($alamatData)) {
-            $desa = $alamatData['desa'] ?? $posyandu?->desa ?? '-';
+            $desa = $alamatData['desa'] ?? $posyandu?->desa_kelurahan ?? '-';
             $kecamatan = $alamatData['kecamatan'] ?? '-';
         } else {
-            $desa = $posyandu?->desa ?? '-';
+            $desa = $posyandu?->desa_kelurahan ?? '-';
             $kecamatan = '-';
         }
 
@@ -1397,14 +1461,21 @@ class KaderController extends Controller
         ->with(['balita', 'balita.orangTua', 'validator'])
         ->orderBy('updated_at', 'desc');
 
-        if ($q) {
-            $query->whereHas('balita', function ($sub) use ($q) {
-                $sub->where('nama', 'like', "%{$q}%")
-                    ->orWhere('nik', 'like', "%{$q}%");
-            });
-        }
-
         $items = $query->get();
+
+        // Pencarian NIK/nama harus dilakukan di PHP (bukan SQL) karena kolom
+        // nik tersimpan terenkripsi (FallbackEncryptCast), sehingga LIKE pada
+        // ciphertext tidak akan pernah cocok dengan input user; pencarian by
+        // nama via SQL sekaligus akan menjatuhkan hasil yang cocok lewat NIK.
+        if ($q) {
+            $qLower = mb_strtolower(trim($q));
+            $items = $items->filter(function ($p) use ($qLower) {
+                $namaLower = mb_strtolower((string) ($p->balita?->nama ?? ''));
+                $nikLower  = mb_strtolower((string) ($p->balita?->nik ?? ''));
+                return mb_strpos($namaLower, $qLower) !== false
+                    || mb_strpos($nikLower, $qLower) !== false;
+            })->values();
+        }
 
         $revalidasiList = $items->map(function ($p) {
             $b = $p->balita;
@@ -1587,7 +1658,11 @@ class KaderController extends Controller
                     'tahun' => $thisMonthYear,
                 ],
                 [
-                    'kader_id' => Auth::user()->kader?->id,
+                    // SesiPosyandu.kader_id ber-FK ke users.id (lihat relasi
+                    // SesiPosyandu::kader() = belongsTo(User)), jadi simpan
+                    // id user, bukan id kaders. Menyimpan id kaders menyebabkan
+                    // pelanggaran foreign key (HTTP 500) saat ID tidak sejajar.
+                    'kader_id' => Auth::id(),
                     'total_sasaran' => $totalSasaran,
                     'total_terukur' => $totalTerukur,
                     'total_absen' => max(0, $totalAbsen),

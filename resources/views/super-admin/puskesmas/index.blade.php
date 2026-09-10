@@ -173,6 +173,8 @@
             
             <form :action="formAction" method="POST">
                 @csrf
+                {{-- id target agar old('id') tetap terisi saat validasi gagal (mode edit) --}}
+                <input type="hidden" name="id" :value="formData.id">
                 <template x-if="mode === 'edit'">
                     <input type="hidden" name="_method" value="PUT">
                 </template>
@@ -317,15 +319,15 @@
                     this.formAction = this.mode === 'edit' ? `/super-admin/puskesmas/{{ old('id') }}` : '{{ route('super-admin.puskesmas.store') }}';
                     this.formData = {
                         id: '{{ old('id') }}',
-                        nama: '{!! addslashes(old('nama')) !!}',
-                        kode_faskes: '{!! addslashes(old('kode_faskes')) !!}',
-                        kepala_puskesmas: '{!! addslashes(old('kepala_puskesmas')) !!}',
-                        no_telp: '{!! addslashes(old('no_telp')) !!}',
-                        kecamatan: '{!! addslashes(old('kecamatan')) !!}',
-                        kabupaten_kota: '{!! addslashes(old('kabupaten_kota')) !!}',
-                        provinsi: '{!! addslashes(old('provinsi')) !!}',
-                        email: '{!! addslashes(old('email')) !!}',
-                        alamat: '{!! addslashes(old('alamat')) !!}'
+                        nama: @json(old('nama')),
+                        kode_faskes: @json(old('kode_faskes')),
+                        kepala_puskesmas: @json(old('kepala_puskesmas')),
+                        no_telp: @json(old('no_telp')),
+                        kecamatan: @json(old('kecamatan')),
+                        kabupaten_kota: @json(old('kabupaten_kota')),
+                        provinsi: @json(old('provinsi')),
+                        email: @json(old('email')),
+                        alamat: @json(old('alamat'))
                     };
                 @elseif(request('edit'))
                     @php

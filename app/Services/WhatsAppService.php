@@ -55,8 +55,14 @@ class WhatsAppService
             'pengukuran_id' => $pengukuranId,
             'channel'       => $channel,
             'status'        => $status,
-            'payload'       => ['to' => $phone, 'message' => $message],
-            'response_body' => $result['message'] ?? null,
+            // HANYA data non-PII yang disimpan. No HP & isi pesan (yang memuat
+            // signed URL portal) TIDAK ditulis ke log/DB dalam bentuk asli agar
+            // tidak menimbulkan kebocoran data sensitif bila log/DB terbuka.
+            'payload'       => [
+                'driver' => $driver,
+                'to'     => $this->maskPhone($phone),
+            ],
+            'response_body' => empty($result['message']) ? null : 'gateway-response',
         ]);
 
         return [
@@ -67,10 +73,25 @@ class WhatsAppService
         ];
     }
 
+    /**
+     * Samarkan nomor HP agar porsi sensitif tidak tersimpan mentah.
+     * Contoh: 081234567890 -> 0812******90
+     */
+    private function maskPhone(string $phone): string
+    {
+        $clean = preg_replace('/\D/', '', $phone);
+        if (strlen($clean) <= 4) {
+            return str_repeat('*', strlen($clean));
+        }
+        return substr($clean, 0, 4) . str_repeat('*', max(0, strlen($clean) - 6)) . substr($clean, -2);
+    }
+
     /** Driver default: tidak kirim ke mana pun, hanya catat (demo-safe). */
     private function viaLog(string $phone, string $message): array
     {
-        Log::info("[WhatsAppService::log] to={$phone} msg={$message}");
+        // Tidak menulis no HP / isi pesan (berisi signed URL) ke log aplikasi
+        // — cukup catat bahwa simulasi terjadi untuk audit kepatuhan.
+        Log::info('[WhatsAppService::log] simulated via log driver');
 
         return ['status' => 'sent', 'message' => 'simulated (log driver)'];
     }

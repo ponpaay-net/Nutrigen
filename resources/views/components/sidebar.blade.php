@@ -16,9 +16,14 @@
         $groups = [
             'Nasional (Kemenkes)' => [
                 ['label' => 'Dashboard',        'icon' => 'squares-four',   'route' => 'super-admin.dashboard', 'active' => request()->routeIs('super-admin.dashboard')],
+                ['label' => 'Laporan Nasional', 'icon' => 'chart-line-up',  'route' => 'super-admin.laporan',   'active' => request()->routeIs('super-admin.laporan')],
             ],
             'Master Data' => [
                 ['label' => 'Data Puskesmas',   'icon' => 'buildings',      'route' => 'super-admin.puskesmas.index', 'active' => request()->is('super-admin/puskesmas*')],
+            ],
+            'Sistem' => [
+                ['label' => 'Log Aktivitas',    'icon' => 'clock-counter-clockwise', 'route' => 'super-admin.log',        'active' => request()->routeIs('super-admin.log')],
+                ['label' => 'Pengaturan',       'icon' => 'gear-six',       'route' => 'super-admin.pengaturan','active' => request()->routeIs('super-admin.pengaturan*')],
             ],
         ];
     } elseif ($isPush) {

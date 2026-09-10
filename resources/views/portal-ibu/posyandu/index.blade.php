@@ -1,5 +1,5 @@
 <x-layout.mobile-shell>
-    <div x-data="{ state: '{{ $pageState ?? 'normal' }}' }" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col relative pb-[90px] w-full bg-[#F1F8F2]">
+    <div x-data="{ state: '{{ $pageState ?? 'normal' }}' }" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col relative pb-[90px] w-full bg-[#F7F5F0]">
 
         <!-- HEADER (komponen bersama) -->
         <x-navigation.portal-header

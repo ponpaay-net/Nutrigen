@@ -82,10 +82,9 @@
                 </svg>
             </button>
             
-            <a href="{{ url('/portal-ibu') }}" 
-                class="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-600 text-[13px] font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:-translate-y-1 focus:ring-4 focus:ring-slate-100 focus:outline-none">
-                Portal Ibu
-            </a>
+            <div class="w-full flex items-center justify-center gap-2 bg-slate-50 border border-slate-200 text-slate-500 text-[11.5px] font-medium py-3 px-4 rounded-xl text-center leading-snug">
+                Portal Ibu diakses lewat tautan unik yang dikirim ke WhatsApp Anda.
+            </div>
         </div>
     </form>
     

@@ -8,6 +8,9 @@ use App\Models\Puskesmas;
 use App\Models\Posyandu;
 use App\Models\Balita;
 use App\Models\Pengukuran;
+use App\Models\Kader;
+use App\Models\AuditLog;
+use App\Models\Setting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -112,8 +115,9 @@ class SuperAdminController extends Controller
         $puskesmasLeaderboard = $allPuskesmas->forPage($page, $perPage);
         $lastPage             = (int) ceil($totalPuskesmasCount / $perPage);
 
-        // Count how many need attention (stunting_rate > 15%)
-        $attentionCount = $allPuskesmas->filter(fn($p) => $p->stunting_rate !== null && $p->stunting_rate > 15)->count();
+        // Count how many need attention (stunting_rate > threshold, dari pengaturan)
+        $stuntingThreshold = (float) Setting::get('stunting_threshold', 15);
+        $attentionCount = $allPuskesmas->filter(fn($p) => $p->stunting_rate !== null && $p->stunting_rate > $stuntingThreshold)->count();
 
         // Last month that has data (for empty state helper)
         $lastDataDate = DB::table('pengukurans')
@@ -450,6 +454,7 @@ class SuperAdminController extends Controller
             ]);
 
             DB::commit();
+            AuditLog::record('create', Puskesmas::class, $user->puskesmas?->id, 'Menambahkan Puskesmas: ' . $request->nama);
             return redirect()->route('super-admin.puskesmas.index')->with('success', 'Data Puskesmas berhasil ditambahkan.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -477,12 +482,14 @@ class SuperAdminController extends Controller
         DB::beginTransaction();
         try {
             $user = $puskesmas->user;
-            $user->name  = $request->nama;
-            $user->email = $request->email;
-            if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
+            if ($user) {
+                $user->name  = $request->nama;
+                $user->email = $request->email;
+                if ($request->filled('password')) {
+                    $user->password = Hash::make($request->password);
+                }
+                $user->save();
             }
-            $user->save();
 
             $puskesmas->update([
                 'nama'             => $request->nama,
@@ -496,6 +503,7 @@ class SuperAdminController extends Controller
             ]);
 
             DB::commit();
+            AuditLog::record('update', Puskesmas::class, $puskesmas->id, 'Mengubah Puskesmas: ' . $puskesmas->nama);
             return redirect()->route('super-admin.puskesmas.index')->with('success', 'Data Puskesmas berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -516,13 +524,244 @@ class SuperAdminController extends Controller
             $userId = $puskesmas->user_id;
             $puskesmas->delete();
             if ($userId) {
-                User::find($userId)->delete();
+                User::where('id', $userId)->delete();
             }
             DB::commit();
+            AuditLog::record('delete', Puskesmas::class, $puskesmas->id, 'Menghapus Puskesmas: ' . $puskesmas->nama);
             return redirect()->route('super-admin.puskesmas.index')->with('success', 'Puskesmas berhasil dihapus.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Gagal menghapus Puskesmas: ' . $e->getMessage());
         }
+    }
+
+    // =========================================================================
+    // Detail Posyandu + Kelola Kader
+    // =========================================================================
+
+    public function showPosyandu($id)
+    {
+        $posyandu = Posyandu::with(['puskesmas'])
+            ->withCount(['kaders', 'balitas'])
+            ->findOrFail($id);
+
+        $kaders = $posyandu->kaders()->with('user')->orderBy('nama')->get()->map(function ($k) {
+            return [
+                'id'     => $k->id,
+                'nama'   => $k->user?->name ?? $k->nama,
+                'email'  => $k->user?->email ?? '-',
+                'no_hp'  => $k->no_hp ?? '-',
+                'aktivitas_bulan_ini' => Pengukuran::where('kader_id', $k->id)
+                    ->whereMonth('tanggal_ukur', now()->month)
+                    ->whereYear('tanggal_ukur', now()->year)
+                    ->count(),
+                'created_at' => optional($k->created_at)->translatedFormat('d M Y'),
+            ];
+        });
+
+        $balitas = Balita::where('posyandu_id', $id)
+            ->with('latestPengukuran')
+            ->orderBy('nama')
+            ->get()
+            ->map(function ($b) {
+                $latest = $b->latestPengukuran;
+                return [
+                    'id'     => $b->id,
+                    'nama'   => $b->nama,
+                    'gender' => $b->jenis_kelamin,
+                    'age'    => Carbon::parse($b->tanggal_lahir)->diff(now())->y . ' Thn '
+                              . Carbon::parse($b->tanggal_lahir)->diff(now())->m . ' Bln',
+                    'status' => $latest?->status_gizi ?? 'Belum Diukur',
+                    'status_validasi' => $latest?->status_validasi,
+                ];
+            });
+
+        return view('super-admin.posyandu.show', compact('posyandu', 'kaders', 'balitas'));
+    }
+
+    public function storeKader(Request $request, $posyanduId)
+    {
+        $posyandu = Posyandu::findOrFail($posyanduId);
+
+        $validated = $request->validate([
+            'nama'     => 'required|string|max:255',
+            'email'    => 'required|email|max:255|unique:users,email',
+            'no_hp'    => 'nullable|string|max:20',
+            'password' => 'required|string|min:6',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'name'     => $validated['nama'],
+                'email'    => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'role'     => 'kader',
+            ]);
+
+            $posyandu->kaders()->create([
+                'user_id' => $user->id,
+                'nama'    => $validated['nama'],
+                'no_hp'   => $validated['no_hp'] ?? null,
+            ]);
+
+            DB::commit();
+            AuditLog::record('create', Kader::class, null, 'Menambahkan Kader ' . $validated['nama'] . ' di ' . $posyandu->nama);
+            return redirect()->route('super-admin.posyandu.show', $posyandu->id)->with('success', 'Kader berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menambahkan Kader: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function updateKader(Request $request, $id)
+    {
+        $kader = Kader::findOrFail($id);
+
+        $validated = $request->validate([
+            'nama'     => 'required|string|max:255',
+            'email'    => 'required|email|max:255|unique:users,email,' . $kader->user_id,
+            'no_hp'    => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $kader->update([
+                'nama'  => $validated['nama'],
+                'no_hp' => $validated['no_hp'] ?? null,
+            ]);
+
+            if ($kader->user) {
+                $userData = ['name' => $validated['nama'], 'email' => $validated['email']];
+                if (!empty($validated['password'])) {
+                    $userData['password'] = Hash::make($validated['password']);
+                }
+                $kader->user->update($userData);
+            }
+
+            DB::commit();
+            AuditLog::record('update', Kader::class, $kader->id, 'Mengubah data Kader: ' . $validated['nama']);
+            return redirect()->route('super-admin.posyandu.show', $kader->posyandu_id)->with('success', 'Data Kader berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal memperbarui Kader: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function destroyKader($id)
+    {
+        $kader = Kader::findOrFail($id);
+        $posyanduId = $kader->posyandu_id;
+        $nama = $kader->nama;
+
+        DB::beginTransaction();
+        try {
+            $userId = $kader->user_id;
+            $kader->delete();
+            if ($userId) {
+                User::where('id', $userId)->delete();
+            }
+            DB::commit();
+            AuditLog::record('delete', Kader::class, $id, 'Menghapus Kader: ' . $nama);
+            return redirect()->route('super-admin.posyandu.show', $posyanduId)->with('success', 'Kader berhasil dihapus.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menghapus Kader: ' . $e->getMessage());
+        }
+    }
+
+    // =========================================================================
+    // Laporan Nasional
+    // =========================================================================
+
+    public function laporanNasional(Request $request)
+    {
+        $currentMonth = max(1, min(12, (int) $request->input('month', date('n'))));
+        $currentYear  = max(2000, min((int) date('Y') + 1, (int) $request->input('year', date('Y'))));
+
+        $measurements = Pengukuran::whereMonth('tanggal_ukur', $currentMonth)
+            ->whereYear('tanggal_ukur', $currentYear)
+            ->where('status_validasi', 'approved')
+            ->get();
+
+        $totalMeasured = $measurements->count();
+        $totalStunting = $measurements->where('status_gizi', 'Stunting')->count();
+        $totalRisiko   = $measurements->whereIn('status_gizi', ['Risiko', 'Kurang'])->count();
+        $totalNormal   = $measurements->whereIn('status_gizi', ['Normal', 'Baik'])->count();
+        $prevalensi    = $totalMeasured > 0 ? round(($totalStunting / $totalMeasured) * 100, 1) : 0;
+
+        $puskesmasList = Puskesmas::withCount(['posyandus', 'balitas'])->orderBy('nama')->get()->map(function ($p) use ($currentMonth, $currentYear) {
+            $pm = Pengukuran::whereHas('balita.posyandu', fn($q) => $q->where('puskesmas_id', $p->id))
+                ->whereMonth('tanggal_ukur', $currentMonth)
+                ->whereYear('tanggal_ukur', $currentYear)
+                ->where('status_validasi', 'approved')
+                ->get();
+            $tot = $pm->count();
+            $stunt = $pm->where('status_gizi', 'Stunting')->count();
+            return [
+                'id' => $p->id,
+                'nama' => $p->nama,
+                'kode' => $p->kode_faskes,
+                'kecamatan' => $p->kecamatan ?? '-',
+                'posyandu_count' => $p->posyandus_count,
+                'balita_count' => $p->balitas_count,
+                'total_ukur' => $tot,
+                'stunting' => $stunt,
+                'prevalensi' => $tot > 0 ? round(($stunt / $tot) * 100, 1) : 0,
+            ];
+        });
+
+        $threshold = (float) Setting::get('stunting_threshold', 15);
+
+        return view('super-admin.laporan', compact(
+            'currentMonth', 'currentYear', 'totalMeasured', 'totalStunting',
+            'totalRisiko', 'totalNormal', 'prevalensi', 'puskesmasList', 'threshold'
+        ));
+    }
+
+    // =========================================================================
+    // Log Aktivitas
+    // =========================================================================
+
+    public function logAktivitas(Request $request)
+    {
+        $logs = AuditLog::with('user')->latest()->paginate(20)->withQueryString();
+        return view('super-admin.log', compact('logs'));
+    }
+
+    // =========================================================================
+    // Pengaturan Sistem Nasional
+    // =========================================================================
+
+    public function pengaturanNasional()
+    {
+        $settings = [
+            'institution_name'   => Setting::get('institution_name', 'Kementerian Kesehatan Republik Indonesia'),
+            'institution_unit'   => Setting::get('institution_unit', 'Direktorat Gizi dan Kesehatan Ibu dan Anak'),
+            'stunting_threshold' => Setting::get('stunting_threshold', '15'),
+            'contact_email'      => Setting::get('contact_email', 'admin@nutrigen.go.id'),
+            'data_source'        => Setting::get('data_source', 'NutriGen National Health Command'),
+        ];
+
+        return view('super-admin.pengaturan', compact('settings'));
+    }
+
+    public function updatePengaturanNasional(Request $request)
+    {
+        $validated = $request->validate([
+            'institution_name'   => 'required|string|max:255',
+            'institution_unit'   => 'nullable|string|max:255',
+            'stunting_threshold' => 'required|numeric|min:0|max:100',
+            'contact_email'      => 'nullable|email|max:255',
+            'data_source'        => 'nullable|string|max:255',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            Setting::put($key, $value);
+        }
+
+        AuditLog::record('update', 'Setting', null, 'Memperbarui pengaturan sistem nasional');
+        return redirect()->route('super-admin.pengaturan')->with('success', 'Pengaturan sistem berhasil disimpan.');
     }
 }

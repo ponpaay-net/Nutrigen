@@ -25,6 +25,14 @@ class Puskesmas extends Model
         'provinsi',
     ];
 
+    /**
+     * Nomor telepon puskesmas terenkripsi di dalam basis data. Akses via
+     * Eloquent ($puskesmas->no_telp) men-dekripsi otomatis di getter.
+     */
+    protected $casts = [
+        'no_telp' => \App\Casts\FallbackEncryptCast::class,
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

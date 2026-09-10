@@ -1,5 +1,5 @@
 <x-layout.mobile-shell>
-    <div x-data="{ state: '{{ $pageState ?? 'normal' }}' }" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col relative pb-[100px] pb-safe w-full">
+    <div x-data="{ state: '{{ $pageState ?? 'normal' }}' }" class="flex-1 overflow-y-auto hide-scrollbar flex flex-col relative pb-[100px] pb-safe w-full bg-[#F7F5F0]">
         
         <!-- TOP BAR (komponen bersama) -->
         <x-navigation.portal-header
@@ -98,13 +98,10 @@
                                 :isLast="$loop->last"
                             />
                         @empty
-                            <!-- Dummy data fallback for local dev -->
-                            <x-domain.growth-timeline-item 
-                                date="Senin, 12 Ags 2026" age="2 Tahun 4 Bulan" weight="10.2" height="85" status="normal"
-                            />
-                            <x-domain.growth-timeline-item 
-                                date="Senin, 12 Jul 2026" age="2 Tahun 3 Bulan" weight="9.9" height="84" status="normal" :isLast="true"
-                            />
+                            <div class="py-8 text-center">
+                                <p class="text-[13px] font-bold text-slate-500">Belum ada riwayat pengukuran yang tervalidasi.</p>
+                                <p class="text-[12px] text-slate-400 mt-1">Catatan akan muncul setelah Puskesmas memvalidasi hasil penimbangan.</p>
+                            </div>
                         @endforelse
                     </x-ui.card>
                 </div>
@@ -117,7 +114,7 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var rawData = {!! $chartData ?? '[]' !!};
+            var rawData = @json($chartData ?? []);
             
             var options = {
                 series: [{

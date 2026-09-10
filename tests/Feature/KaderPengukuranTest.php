@@ -90,11 +90,12 @@ class KaderPengukuranTest extends TestCase
         $response->assertRedirect(route('balita.show', $this->balita->id));
         $response->assertSessionHas('success');
 
-        // Baris pengukurans tersimpan, status masih 'pending' (belum divalidasi puskesmas)
+        // Baris pengukurans tersimpan dengan status 'draft' (alur sesi batch:
+        // kader mengukur -> draft -> kirim sesi -> pending menunggu validasi).
         $this->assertDatabaseHas('pengukurans', [
             'balita_id'       => $this->balita->id,
             'kader_id'        => $this->kader->id,
-            'status_validasi' => 'pending',
+            'status_validasi' => 'draft',
             'status_gizi'     => 'Normal',
         ]);
 

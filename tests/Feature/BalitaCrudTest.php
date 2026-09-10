@@ -71,7 +71,13 @@ class BalitaCrudTest extends TestCase
         $this->assertSame($nik, $balita->nik); // nik di-decrypt oleh model (tersimpan terenkripsi)
         $this->assertSame('P', $balita->jenis_kelamin);
         $this->assertSame($this->posyandu->id, $balita->posyandu_id);
-        $this->assertDatabaseHas('orang_tuas', ['nama_ibu' => 'Siti Aminah', 'no_hp_whatsapp' => '081234567890']);
+        // no_hp_whatsapp tersimpan terenkripsi (FallbackEncryptCast), jadi
+        // verifikasi lewat model agar nilai otomatis di-dekripsi. Ambil
+        // orang tua yang tertaut ke balita yang BARU dibuat (hindari
+        // mengambil baris factory dari setUp).
+        $ortu = OrangTua::findOrFail($balita->orang_tua_id);
+        $this->assertNotNull($ortu);
+        $this->assertSame('081234567890', $ortu->no_hp_whatsapp);
     }
 
     /** Update harus benar-benar mengubah data di DB */
@@ -116,5 +122,25 @@ class BalitaCrudTest extends TestCase
         $this->assertDatabaseMissing('pengukurans', ['balita_id' => $balitaId]);
         // Karena ortu tidak punya anak lain -> ikut terhapus
         $this->assertDatabaseMissing('orang_tuas', ['id' => $ortuId]);
+    }
+
+    /** Duplikat NIK (kolom terenkripsi) harus ditolak saat simpan */
+    public function test_duplikat_nik_ditolak_saat_simpan(): void
+    {
+        $this->actingAs($this->kaderUser);
+
+        // Balita yang sama (NIK sama) dibuat lewat endpoint kedua kali.
+        $payload = [
+            'nama' => 'Aisyah Dua', 'nik' => $this->balita->nik, 'jenis_kelamin' => 'P',
+            'tanggal_lahir' => '2025-01-01', 'berat_lahir' => '3.2', 'panjang_lahir' => '49.5', 'lingkar_kepala_lahir' => '33.5',
+            'no_kk' => $this->nik16(), 'nama_ibu' => 'Siti Aminah', 'no_hp' => '081234567899',
+            'pekerjaan_ibu' => 'Ibu Rumah Tangga', 'desa' => 'Gampong Serambi', 'kecamatan' => 'Meuraxa',
+        ];
+
+        $response = $this->post(route('balita.store'), $payload);
+
+        $response->assertSessionHasErrors('nik');
+        // Tidak ada baris balita baru dengan nama berbeda yang tercipta
+        $this->assertNull(Balita::where('nama', 'Aisyah Dua')->first());
     }
 }

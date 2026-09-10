@@ -22,6 +22,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Muat helper global (mask_sensitive dll.) — menjamin tersedia di
+        // semua request/artisan tanpa harus `composer dump-autoload` (untuk
+        // lingkungan Windows di mana composer kadang hang). Guard function_exists
+        // mencegah dobel-load bila composer "files" autoload juga aktif.
+        if (file_exists(app_path('Support/helpers.php'))) {
+            require_once app_path('Support/helpers.php');
+        }
+
         // SEDANG-04 — otorisasi terpusat akses balita.
         Gate::policy(Balita::class, BalitaPolicy::class);
 
@@ -56,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
                             'id' => $p->id,
                             'balita_id' => $b->id,
                             'balita_nama' => $b->nama ?? 'Balita',
-                            'balita_nik' => $b->nik ?? '-',
+                            'balita_nik' => mask_sensitive($b->nik ?? '-'),
                             'tanggal' => $tgl,
                             'bb' => $p->berat_badan ? number_format($p->berat_badan, 1, ',', '.') : '-',
                             'tb' => $p->tinggi_badan ? number_format($p->tinggi_badan, 1, ',', '.') : '-',

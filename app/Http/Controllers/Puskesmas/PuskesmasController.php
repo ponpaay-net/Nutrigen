@@ -496,10 +496,21 @@ class PuskesmasController extends Controller
         ->whereHas('posyandu', fn($q) => $q->where('puskesmas_id', $puskesmasId));
 
         if ($q) {
-            $query->where(function($subq) use ($q) {
-                $subq->where('nama', 'like', "%{$q}%")
-                     ->orWhere('nik', 'like', "%{$q}%");
-            });
+            // NIK terenkripsi (FallbackEncryptCast) tidak bisa dicari via SQL LIKE.
+            // Ambil semua balita dulu, dekripsi NIK di PHP, lalu batasi query
+            // pada ID yang cocok agar pagination tetap berjalan di SQL.
+            $qLower = mb_strtolower(trim($q));
+            $matchingIds = Balita::whereHas('posyandu', fn($x) => $x->where('puskesmas_id', $puskesmasId))
+                ->get()
+                ->filter(function ($b) use ($qLower) {
+                    $namaLower = mb_strtolower((string) $b->nama);
+                    $nikLower  = mb_strtolower((string) $b->nik); // otomatis terdekripsi oleh cast
+                    return mb_strpos($namaLower, $qLower) !== false
+                        || mb_strpos($nikLower, $qLower) !== false;
+                })
+                ->pluck('id');
+
+            $query->whereIn('id', $matchingIds);
         }
 
         if ($posyanduFilter) {
@@ -760,6 +771,13 @@ class PuskesmasController extends Controller
         $tahun = $request->input('tahun', Carbon::now()->format('Y'));
         $posyanduId = $request->input('posyandu_id', 'semua');
 
+        // Keamanan (anti-IDOR agregat): pastikan posyandu yang difilter memang
+        // milik puskesmas ini. Jika bukan, jatuhkan ke 'semua' agar tidak bisa
+        // menghitung sasaran milik puskesmas lain lewat parameter.
+        if ($posyanduId !== 'semua' && !Posyandu::where('puskesmas_id', $puskesmasId)->whereKey($posyanduId)->exists()) {
+            $posyanduId = 'semua';
+        }
+
         $posyandus = Posyandu::where('puskesmas_id', $puskesmasId)->get(['id', 'nama'])->toArray();
 
         // Calculate 3 Indices dynamically
@@ -1009,6 +1027,11 @@ class PuskesmasController extends Controller
         $bulan = $request->input('bulan', Carbon::now()->format('m'));
         $tahun = $request->input('tahun', Carbon::now()->format('Y'));
         $posyanduId = $request->input('posyandu_id', 'semua');
+
+        // Keamanan (anti-IDOR agregat) — sama seperti laporan().
+        if ($posyanduId !== 'semua' && !Posyandu::where('puskesmas_id', $puskesmasId)->whereKey($posyanduId)->exists()) {
+            $posyanduId = 'semua';
+        }
 
         $posyandus = Posyandu::where('puskesmas_id', $puskesmasId)->get(['id', 'nama', 'desa_kelurahan']);
 

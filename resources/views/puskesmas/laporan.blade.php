@@ -20,18 +20,18 @@
             <!-- Export Actions -->
             <div class="flex flex-wrap items-center gap-3 mt-4 md:mt-0">
                 @if($stats['pending_validasi'] > 0)
-                <a href="{{ route('puskesmas.validasi') }}" class="inline-flex items-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-800 px-4 py-2.5 rounded-xl font-bold text-sm transition-all border border-amber-300">
+                <a href="{{ route('puskesmas.validasi') }}" class="inline-flex items-center gap-2 bg-teal-700 hover:bg-teal-800 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm shadow-teal-600/20 transition-all active:scale-[0.98]">
                     <i class="ph-bold ph-clipboard-text text-lg"></i>
                     Validasi Data
-                    <span class="bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-full">{{ number_format($stats['pending_validasi']) }}</span>
+                    <span class="bg-white/25 text-white text-[10px] px-2 py-0.5 rounded-full">{{ number_format($stats['pending_validasi']) }}</span>
                 </a>
                 @endif
-                <a href="{{ route('puskesmas.laporan.export.csv', request()->all()) }}" class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-xs transition-all active:scale-95">
-                    <i class="ph-bold ph-file-csv text-lg"></i>
+                <a href="{{ route('puskesmas.laporan.export.csv', request()->all()) }}" class="inline-flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all active:scale-[0.98]">
+                    <i class="ph-bold ph-file-csv text-lg text-teal-700"></i>
                     Export CSV
                 </a>
-                <a href="{{ route('puskesmas.laporan.cetak.pdf', request()->all()) }}" target="_blank" class="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-xs transition-all active:scale-95">
-                    <i class="ph-bold ph-file-pdf text-lg"></i>
+                <a href="{{ route('puskesmas.laporan.cetak.pdf', request()->all()) }}" target="_blank" class="inline-flex items-center gap-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all active:scale-[0.98]">
+                    <i class="ph-bold ph-file-pdf text-lg text-rose-600"></i>
                     Cetak A4 / PDF
                 </a>
             </div>

@@ -112,6 +112,32 @@ class GrowthCalculationService
     }
 
     /**
+     * Z-Score BB/U (weight-for-age) — WHO 2006.
+     * Menggunakan referensi LMS berdasarkan umur (bulan) dan jenis kelamin.
+     */
+    public function bbuZscore(int $umurBulan, string $jenisKelamin, float $berat): ?float
+    {
+        if ($berat <= 0) {
+            return null;
+        }
+        $ref = $this->referenceFor(max(0, min(60, $umurBulan)), $jenisKelamin);
+        return round($this->zScore($berat, $ref['bb_l'], $ref['bb_median'], $ref['bb_s']), 2);
+    }
+
+    /**
+     * Z-Score TB/U (height-for-age) — WHO 2006.
+     * Menggunakan referensi LMS berdasarkan umur (bulan) dan jenis kelamin.
+     */
+    public function tbuZscore(int $umurBulan, string $jenisKelamin, float $tinggi): ?float
+    {
+        if ($tinggi <= 0) {
+            return null;
+        }
+        $ref = $this->referenceFor(max(0, min(60, $umurBulan)), $jenisKelamin);
+        return round($this->zScore($tinggi, $ref['tb_l'], $ref['tb_median'], $ref['tb_s']), 2);
+    }
+
+    /**
      * Ambil baris LMS (L,M,S,...) untuk satu tinggi (cm) dengan interpolasi linear
      * antar titik WHO (resolusi 0.5 cm). $set = 'wfl_X'|'wfh_X'.
      */

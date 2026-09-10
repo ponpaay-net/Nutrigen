@@ -215,4 +215,36 @@ class PortalIbuAccessTest extends TestCase
         $response->assertSee($this->balitaB->nama, false);
         $response->assertDontSee('9.90', false); // angka ukur pending tak boleh bocor
     }
+
+    /** Helper: signed URL untuk halaman tertentu. */
+    private function signedPage(string $route, Balita $balita, int $orangTuaId): string
+    {
+        return URL::temporarySignedRoute($route, now()->addDays(1), [
+            'balita' => $balita->id,
+            'orang_tua' => $orangTuaId,
+        ]);
+    }
+
+    public function test_halaman_growth_bisa_di_render(): void
+    {
+        $this->get($this->signedPage('portal-ibu.growth', $this->balitaA, $this->ortuA->id))->assertOk();
+    }
+
+    public function test_halaman_edukasi_gizi_bisa_di_render(): void
+    {
+        $this->get($this->signedPage('portal-ibu.nutrition', $this->balitaA, $this->ortuA->id))->assertOk();
+    }
+
+    public function test_halaman_posyandu_bisa_di_render(): void
+    {
+        $this->get($this->signedPage('portal-ibu.posyandu', $this->balitaA, $this->ortuA->id))->assertOk();
+    }
+
+    public function test_halaman_growth_menolak_balita_orang_lain(): void
+    {
+        // Signature valid tapi balita bukan milik ortu -> tetap render tanpa data anak itu
+        $response = $this->get($this->signedPage('portal-ibu.growth', $this->balitaB, $this->ortuA->id));
+        $response->assertOk();
+        $response->assertDontSee($this->balitaB->nama, false);
+    }
 }
