@@ -19,8 +19,12 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
                 ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store'])
-                ->middleware('throttle:5,1');
+    // Rate limiting login sudah ditangani App\Http\Requests\Auth\LoginRequest
+    // (5 percobaan, dikunci per EMAIL + IP dengan pesan ramah). Tidak perlu
+    // middleware 'throttle' tambahan di sini — justru berbahaya karena kunci
+    // per-IP: salah password 5x dari satu komputer akan memblokir SEMUA akun
+    // (termasuk super admin) selama 1 menit dengan halaman 429.
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
                 ->name('password.request');
