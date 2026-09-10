@@ -417,6 +417,11 @@ class PuskesmasController extends Controller
             ['balita' => $pengukuran->balita_id, 'orang_tua' => $pengukuran->balita?->orang_tua_id]
         );
 
+        // TINGGI-02 (short-term): otomatis kirim link portal (buku KIA digital)
+        // ke WhatsApp Ibu via Fonnte saat tombol "Setujui" diklik.
+        // Personalisasi dengan nama ibu/ayah (best practice anti-spam Fonnte).
+        $orangTua = $pengukuran->balita->orangTua;
+        $waDigits = preg_replace('/[^0-9]/', '', $orangTua->no_hp_whatsapp ?? '');
         // TINGGI-02 (short-term): link wa.me dengan pesan berisi URL portal
         $waDigits = preg_replace('/[^0-9]/', '', $pengukuran->balita?->orangTua?->no_hp_whatsapp ?? '');
         if ($waDigits !== '') {
@@ -424,8 +429,10 @@ class PuskesmasController extends Controller
                 $waDigits = str_starts_with($waDigits, '0') ? '62' . substr($waDigits, 1) : '62' . $waDigits;
             }
         }
-        $waMessage = "Assalamualaikum Bu, data pengukuran anak Ibu telah divalidasi. "
-            . "Silakan buka portal NutriGen berikut (berlaku {$ttlDays} hari): " . $signedUrl;
+        $namaIbu = $orangTua->nama_ibu ?: ($orangTua->nama_ayah ?: 'Ibu/Bapak');
+        $waMessage = "Assalamualaikum {$namaIbu}, buku KIA digital anak Anda ({$pengukuran->balita->nama}) "
+            . "telah diterbitkan oleh Puskesmas. Silakan buka portal NutriGen berikut "
+            . "(berlaku {$ttlDays} hari): " . $signedUrl;
 
         // TINGGI-02: kirim pesan & catat ke notification_logs.
         // Driver default 'log' -> tidak butuh akun/token/nomor (demo-safe).
@@ -449,10 +456,21 @@ class PuskesmasController extends Controller
             'notif_status' => $notification['status'] ?? null,
         ];
 
-        return redirect()
+        $redirect = redirect()
             ->route('puskesmas.validasi')
-            ->with('success', 'Data balita berhasil disetujui dan divalidasi.')
-            ->with('portal_link', $portalLink);
+            ->with('success', 'Data balita berhasil disetujui dan divalidasi.');
+
+        // Surface status pengiriman WA ke flash session — petugas jadi tahu
+        // apakah link terkirim otomatis atau harus diteruskan manual.
+        if ($waDigits === '') {
+            $redirect->with('wa_warning', 'Nomor WhatsApp Ibu belum tersedia. Portal link ditampilkan di bawah untuk diteruskan manual.');
+        } elseif (($notification['status'] ?? null) === 'sent') {
+            $redirect->with('wa_info', 'Portal link otomatis terkirim ke WhatsApp Ibu.');
+        } elseif (($notification['status'] ?? null) === 'failed') {
+            $redirect->with('wa_warning', 'Pengiriman WhatsApp gagal (cek log). Portal link tetap tersedia untuk diteruskan manual.');
+        }
+
+        return $redirect->with('portal_link', $portalLink);
     }
 
     public function reject(Request $request, $id)

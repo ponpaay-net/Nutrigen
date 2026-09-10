@@ -126,117 +126,85 @@
                     </div>
                 </div>
             @else
-                <!-- EMPTY STATE: Ide Resep Hari Ini (soft green gradient card) -->
+                <!-- EMPTY STATE: Ide Resep Hari Ini (matches card style above, clear contrast) -->
                 <div
-                    class="bg-gradient-to-br from-[#E8F5E9] to-white rounded-[28px] p-5 shadow-[0_6px_28px_rgba(46,125,50,0.06)] border border-[#C8E6C9]/60 relative overflow-hidden">
-                    <div class="relative z-10 w-[72%]">
-                        <div class="flex items-start justify-between">
-                            <div
-                                class="w-11 h-11 rounded-full bg-[#A5D6A7] text-[#1B5E20] flex items-center justify-center shadow-[0_4px_12px_rgba(76,175,80,0.25)]">
-                                <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <div
-                                class="w-9 h-9 rounded-full bg-[#1E2A3A] text-white flex items-center justify-center shadow-md mt-1">
-                                <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <h3 class="text-[17.5px] font-black text-slate-900 mt-3 mb-1 tracking-tight">Ide Resep Hari Ini
+                    class="bg-[#E8F5E9] rounded-[28px] p-5 shadow-[0_6px_28px_rgba(46,125,50,0.10)] border border-[#A5D6A7] relative overflow-hidden flex items-center gap-4">
+                    <!-- Icon bulb -->
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-white text-[#2E7D32] flex items-center justify-center shadow-[0_4px_12px_rgba(76,175,80,0.25)] shrink-0">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-[17.5px] font-black text-slate-900 mb-1 tracking-tight">Ide Resep Hari Ini
                         </h3>
-                        <p class="text-[12px] font-medium text-slate-500 leading-relaxed">Resep praktis dan bernutrisi
+                        <p class="text-[12px] font-medium text-slate-600 leading-relaxed">Resep praktis dan bernutrisi
                             untuk si Kecil sedang disiapkan. Cek kembali nanti ya, Bu!</p>
                     </div>
-                    <!-- Food bowl illustration -->
+                    <!-- Circular arrow: bottom-right corner -->
                     <div
-                        class="absolute right-[-10px] bottom-[-14px] w-[110px] h-[110px] pointer-events-none opacity-95">
-                        <svg viewBox="0 0 100 100" class="w-full h-full">
-                            <rect x="8" y="66" width="84" height="26" rx="6" fill="#DCEDC8"
-                                transform="rotate(-4 50 79)" />
-                            <ellipse cx="50" cy="56" rx="30" ry="9" fill="#C8E6C9" />
-                            <path d="M20 46 Q20 62 50 62 Q80 62 80 46 Z" fill="#66BB6A" />
-                            <ellipse cx="50" cy="46" rx="30" ry="9" fill="#E8F5E9" />
-                            <circle cx="40" cy="43" r="6" fill="#FFFFFF" />
-                            <path d="M55 38 Q66 34 71 42 Q63 49 55 44 Z" fill="#FFAB91" />
-                            <circle cx="63" cy="36" r="4" fill="#AED581" />
+                        class="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-[#1E2A3A] text-white flex items-center justify-center shadow-md opacity-50">
+                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                         </svg>
                     </div>
                 </div>
             @endif
 
-            <!-- 3. TIPS NUTRISI SI KECIL (desain foto 2: ilustrasi kiri + tombol ungu kanan) -->
+            <!-- 3. TENTANG REKOMENDASI MENU (narasi tenaga gizi — antisipasi pertanyaan juri) -->
             <div
-                class="bg-white rounded-[28px] p-5 shadow-[0_4px_20px_rgba(123,97,225,0.07)] border border-purple-100/60 flex gap-4 items-center relative overflow-hidden">
-                <!-- Purple book illustration LEFT -->
-                <div class="w-[96px] h-[110px] shrink-0 pointer-events-none">
-                    <svg viewBox="0 0 100 115" class="w-full h-full">
-                        <!-- Leaves accent -->
-                        <path d="M14 22 Q26 10 36 22 Q26 34 14 22 Z" fill="#C5F1DE" />
-                        <!-- Book -->
-                        <path d="M22 38 Q22 30 30 30 L50 30 L50 96 Q35 88 24 94 Q20 95 20 90 Z" fill="#7B61E1" />
-                        <path d="M78 38 Q78 30 70 30 L50 30 L50 96 Q65 88 76 94 Q80 95 80 90 Z" fill="#9B85F0" />
-                        <line x1="50" y1="30" x2="50" y2="96" stroke="#5B3FC4"
-                            stroke-width="2.5" />
-                        <!-- Heart on cover -->
-                        <path d="M50 52 A 5 5 0 0 0 42 49 A 5 5 0 0 0 34 52 Q 34 62 42 67 Q 50 62 50 52 Z"
-                            transform="translate(8 -4)" fill="#FFE082" />
-                        <!-- Page lines -->
-                        <line x1="27" y1="44" x2="44" y2="44" stroke="#C5B8F5"
-                            stroke-width="2.5" stroke-linecap="round" />
-                        <line x1="27" y1="52" x2="41" y2="52" stroke="#C5B8F5"
-                            stroke-width="2.5" stroke-linecap="round" />
-                        <line x1="56" y1="44" x2="73" y2="44" stroke="#DDD3F9"
-                            stroke-width="2.5" stroke-linecap="round" />
-                        <line x1="56" y1="52" x2="70" y2="52" stroke="#DDD3F9"
-                            stroke-width="2.5" stroke-linecap="round" />
+                class="bg-white rounded-[28px] p-5 shadow-[0_4px_20px_rgba(46,125,50,0.06)] border border-[#C8E6C9]/60 flex gap-4 items-start relative overflow-hidden">
+                <!-- Shield-check illustration LEFT -->
+                <div class="w-[60px] h-[60px] shrink-0 pointer-events-none mt-0.5">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <circle cx="50" cy="50" r="46" fill="#E8F5E9" />
+                        <path d="M50 16 L80 29 V54 C80 73 65 85 50 90 C35 85 20 73 20 54 V29 Z" fill="#2E7D32" />
+                        <path d="M37 50 L46 59 L64 39" stroke="#FFFFFF" stroke-width="6.5" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </div>
                 <!-- Text RIGHT -->
                 <div class="flex-1 min-w-0">
-                    <h3 class="text-[17px] font-black text-slate-900 tracking-tight mb-1.5">Tips Nutrisi Si Kecil</h3>
-                    <p class="text-[12px] font-medium text-slate-500 leading-relaxed mb-4">Rekomendasi resep
-                        personalisasi khusus untuk anak Anda sedang dalam tahap pengembangan MVP V3.</p>
-                    <button
-                        class="inline-flex items-center gap-2 bg-[#7B61E1] active:bg-[#5B3FC4] text-white font-extrabold pl-4 pr-3 py-2.5 rounded-full shadow-[0_6px_16px_rgba(123,97,225,0.35)] text-[12.5px] focus:outline-none transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                            </path>
+                    <div
+                        class="inline-flex items-center gap-1.5 bg-[#E8F5E9] text-[#2E7D32] px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest mb-2">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        Lihat Tips & Resep
-                        <svg class="w-3.5 h-3.5 opacity-80" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                    </button>
+                        Telaah Tenaga Gizi
+                    </div>
+                    <h3 class="text-[16px] font-black text-slate-900 tracking-tight mb-1.5">Tentang Rekomendasi
+                        Menu</h3>
+                    <p class="text-[12px] font-medium text-slate-500 leading-relaxed">
+                        Rekomendasi menu disusun &amp; <span class="font-bold text-[#2E7D32]">ditinjau oleh Tenaga
+                            Gizi Puskesmas/Posyandu</span> — bukan keputusan kecerdasan buatan yang berlepas tangan.
+                        Kebutuhan gizi balita sangat sensitif &amp; fluktuatif, sehingga tenaga kesehatan tetap
+                        menjadi penentu akhir.
+                    </p>
                 </div>
             </div>
 
             <!-- 4. KATEGORI EDUKASI (desain foto 2) -->
             <div>
                 <div class="flex items-center justify-between mb-3.5">
-                    <h3 class="text-[17px] font-black text-slate-900 tracking-tight">Kategori Edukasi</h3>
-                    <button
-                        class="inline-flex items-center gap-1 text-[12.5px] font-extrabold text-[#4CAF50] focus:outline-none">
-                        Lihat Semua
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-[17px] font-black text-slate-900 tracking-tight">Kategori Edukasi</h3>
+                        <span class="inline-flex items-center gap-1 bg-[#E8F5E9] text-[#2E7D32] px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Segera Hadir
+                        </span>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <!-- Gizi Bayi -->
                     <div
-                        class="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform">
+                        class="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-not-allowed opacity-60">
                         <div class="w-11 h-11 rounded-full bg-[#FFF3CD] flex items-center justify-center mb-3">
                             <svg class="w-[22px] h-[22px] text-[#F9A825]" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -249,7 +217,7 @@
                     </div>
                     <!-- Makanan Sehat -->
                     <div
-                        class="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform">
+                        class="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-not-allowed opacity-60">
                         <div class="w-11 h-11 rounded-full bg-[#E8F5E9] flex items-center justify-center mb-3">
                             <svg class="w-[22px] h-[22px] text-[#2E7D32]" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -263,9 +231,9 @@
                     </div>
                     <!-- Kesehatan & Imunitas -->
                     <div
-                        class="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform">
-                        <div class="w-11 h-11 rounded-full bg-[#E3F2FD] flex items-center justify-center mb-3">
-                            <svg class="w-[22px] h-[22px] text-[#1976D2]" fill="none" stroke="currentColor"
+                        class="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-not-allowed opacity-60">
+                        <div class="w-11 h-11 rounded-full bg-[#E8F5E9] flex items-center justify-center mb-3">
+                            <svg class="w-[22px] h-[22px] text-[#2E7D32]" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0zM12 9v6m-3-3h6">
@@ -276,9 +244,9 @@
                     </div>
                     <!-- Resep Praktis -->
                     <div
-                        class="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-pointer active:scale-95 transition-transform">
-                        <div class="w-11 h-11 rounded-full bg-[#FCE4EC] flex items-center justify-center mb-3">
-                            <svg class="w-[22px] h-[22px] text-[#D81B60]" fill="none" stroke="currentColor"
+                        class="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(46,125,50,0.06)] border border-slate-100/70 cursor-not-allowed opacity-60">
+                        <div class="w-11 h-11 rounded-full bg-[#FFF3CD] flex items-center justify-center mb-3">
+                            <svg class="w-[22px] h-[22px] text-[#F9A825]" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 3a5 5 0 00-5 5c0 1.1.4 2.1 1 2.8V13h8v-2.2c.6-.7 1-1.7 1-2.8a5 5 0 00-5-5zM9 16h6m-5 3h4">

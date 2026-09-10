@@ -41,6 +41,14 @@ return [
         'driver' => env('WA_DRIVER', 'log'),   // log | fonnte | wablas
         'fonnte_token' => env('FONNTE_TOKEN'),
         'wablas_token' => env('WABLAS_TOKEN'),
+        // Pengamanan anti-ban Fonnte / WhatsApp (official + unofficial gateway).
+        // Kirim terlalu cepat/identik ke banyak nomor = risiko throttling/ban.
+        'throttle' => [
+            'delay_seconds'          => env('WA_DELAY_SECONDS', 5),            // jeda antar pesan (detik)
+            'batch_size'             => env('WA_BATCH_SIZE', 8),              // kirim N lalu istirahat
+            'batch_pause_seconds'    => env('WA_BATCH_PAUSE_SECONDS', 60),    // istirahat antar batch (detik)
+            'max_per_number_per_day' => env('WA_MAX_PER_NUMBER_PER_DAY', 1),  // cooldown harian per nomor
+        ],
     ],
 
 ];

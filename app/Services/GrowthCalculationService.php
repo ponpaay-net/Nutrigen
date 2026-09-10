@@ -78,6 +78,51 @@ class GrowthCalculationService
     }
 
     /**
+     * Kurva referensi WHO BB/U (weight-for-age) gaya resmi WHO: 7 kurva
+     * z-score (-3, -2, -1, 0/median, +1, +2, +3 SD) dari tabel LMS WHO asli
+     * (WhoLmsData.php). -2SD/-3SD/+2SD/+3SD & median diambil dari kolom asli
+     * WHO; -1SD/+1SD dihitung via transformasi Box-Cox LMS.
+     * Dipotong ke rentang umur data ±6 bulan agar kurva terlihat menanjak.
+     * Output: ['neg3'=>[[umur,kg],...], 'neg2'=>..., 'neg1'=>..., 'med'=>...,
+     *          'pos1'=>..., 'pos2'=>..., 'pos3'=>...]
+     */
+    public function bbuWhoCurve(int $umurMinBulan, int $umurMaxBulan, string $jenisKelamin): array
+    {
+        $sex = strtoupper($jenisKelamin) === 'P' ? 'P' : 'L';
+        $from = max(0, min($umurMinBulan, $umurMaxBulan) - 6);
+        $to   = min(60, max($umurMinBulan, $umurMaxBulan) + 6);
+
+        if (empty($this->whoData['bbu_' . $sex])) {
+            return [];
+        }
+
+        $series = ['neg3' => [], 'neg2' => [], 'neg1' => [], 'med' => [], 'pos1' => [], 'pos2' => [], 'pos3' => []];
+        for ($m = $from; $m <= $to; $m++) {
+            $row = $this->interpolateRow('bbu_' . $sex, $m);
+            if (!$row) {
+                continue;
+            }
+            // Format baris: [L, M, S, -3SD, -2SD, median, +2SD, +3SD]
+            [$L, $M, $S] = [$row[0], $row[1], $row[2]];
+            $weightAtZ = function (float $z) use ($L, $M, $S): float {
+                if (abs($L) < 1e-4) {
+                    return $M * exp($S * $z);
+                }
+                return $M * pow(1 + $L * $S * $z, 1 / $L);
+            };
+            $series['neg3'][] = [$m, (float) $row[3]];
+            $series['neg2'][] = [$m, (float) $row[4]];
+            $series['neg1'][] = [$m, round($weightAtZ(-1), 2)];
+            $series['med'][]  = [$m, (float) $row[5]];
+            $series['pos1'][] = [$m, round($weightAtZ(1), 2)];
+            $series['pos2'][] = [$m, (float) $row[6]];
+            $series['pos3'][] = [$m, (float) $row[7]];
+        }
+
+        return $series;
+    }
+
+    /**
      * Z-Score IMT/U (BMI-for-age) — indeks massa tubuh per umur, standar WHO 2006.
      * BMI = berat(kg) / tinggi(m)^2. Lalu Box-Cox vs referensi imtu (bmifa).
      */

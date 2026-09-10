@@ -12,16 +12,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // NOTE: Migrasi ini TIDAK lagi memanggil DatabaseSeeder.
+        // Pastikan enum role sudah mendukung super_admin SEBELUM seeding
+        // (tidak bergantung urutan migrasi add_super_admin_role).
+        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('super_admin', 'puskesmas', 'kader', 'ibu') DEFAULT 'ibu'");
+
+        // NOTE: Migrasi ini TIDAK memanggil DatabaseSeeder.
         //
         // Sebelumnya ia menjalankan `php artisan db:seed`, sehingga ketika
         // `migrate:fresh --seed` dipakai (umum di dev/testing) DatabaseSeeder
         // akan dijalankan DUA kali (di sini + di flag --seed) dan crash dengan
         // "Duplicate entry ... users_email_unique".
         //
-        // Seeding seharusnya cukup dilakukan SEKALI lewat `php artisan db:seed`
-        // atau `php artisan migrate:fresh --seed`. Migrasi cukup bertugas
-        // menyiapkan struktur, bukan mengisi data demo.
+        // Seeding kini dilakukan terpisah: `php artisan db:seed` atau
+        // `php artisan nutrigen:seed-if-empty` (idempoten).
+
+        // Disable foreign key checks
         Schema::disableForeignKeyConstraints();
 
         $tables = ['pengukurans', 'jadwals', 'balitas', 'orang_tuas', 'kaders', 'puskesmas', 'posyandus', 'users'];

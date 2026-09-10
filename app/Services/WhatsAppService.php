@@ -59,8 +59,9 @@ class WhatsAppService
             // signed URL portal) TIDAK ditulis ke log/DB dalam bentuk asli agar
             // tidak menimbulkan kebocoran data sensitif bila log/DB terbuka.
             'payload'       => [
-                'driver' => $driver,
-                'to'     => $this->maskPhone($phone),
+                'driver'  => $driver,
+                'to'      => $this->maskPhone($phone),
+                'to_hash' => hash('sha256', preg_replace('/\D/', '', $phone)),
             ],
             'response_body' => empty($result['message']) ? null : 'gateway-response',
         ]);
@@ -86,6 +87,31 @@ class WhatsAppService
         return substr($clean, 0, 4) . str_repeat('*', max(0, strlen($clean) - 6)) . substr($clean, -2);
     }
 
+    /**
+     * Cegah pengiriman berulang ke nomor yang sama dalam 1 hari (cooldown).
+     * Mencegah WA/Fonnte mendeteksi pola spam ke penerima yang sama.
+     *
+     * Ditelusuri lewat `to_hash` (sha256 nomor) — bukan nomor mentah — agar
+     * tidak menyimpan PII namun tetap bisa mencegah duplikasi.
+     */
+    public function alreadySentToday(string $phone): bool
+    {
+        $max = (int) config('services.wa.throttle.max_per_number_per_day', 1);
+        if ($max <= 0) {
+            return false;
+        }
+
+        $hash = hash('sha256', preg_replace('/\D/', '', $phone));
+
+        $count = NotificationLog::where('channel', 'whatsapp')
+            ->where('status', 'sent')
+            ->where('created_at', '>=', now()->startOfDay())
+            ->where('payload', 'like', '%"to_hash":"'.$hash.'"%')
+            ->count();
+
+        return $count >= $max;
+    }
+
     /** Driver default: tidak kirim ke mana pun, hanya catat (demo-safe). */
     private function viaLog(string $phone, string $message): array
     {
@@ -96,19 +122,29 @@ class WhatsAppService
         return ['status' => 'sent', 'message' => 'simulated (log driver)'];
     }
 
-    /** Gateway Fonnte (https://fonnte.com) — gratis untuk kuota kecil. */
+    /**
+     * Gateway Fonnte (https://fonnte.com) — gratis untuk kuota kecil.
+     *
+     * Fonnte versi terkini mengharuskan token di header `Authorization`
+     * TANPA prefix "Bearer". Mengirim `token=...` di body form akan
+     * dibalas {"reason":"invalid token"}. Normalisasi nomor juga
+     * ditangani Fonnte (08xxxx -> 628xxxx).
+     */
     private function viaFonnte(string $phone, string $message): array
     {
         $token = config('services.wa.fonnte_token');
-        $response = Http::asForm()->timeout(15)->post('https://api.fonnte.com/send', [
-            'token'   => $token,
-            'target'  => $phone,
-            'message' => $message,
-        ]);
+        $response = Http::withHeaders(['Authorization' => $token])
+            ->asForm()
+            ->timeout(15)
+            ->post('https://api.fonnte.com/send', [
+                'target'  => $phone,
+                'message' => $message,
+            ]);
         $body = $response->body();
         $json = $response->json() ?: [];
-        $ok = $response->successful()
-            && (($json['status'] ?? null) === 'true' || ($json['status'] ?? null) === true);
+        $ok = ($json['status'] ?? null) === true
+            && (($json['detail'] ?? null) === 'success! message in queue'
+                || $response->successful());
 
         return ['status' => $ok ? 'sent' : 'failed', 'message' => $body];
     }

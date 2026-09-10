@@ -66,10 +66,9 @@
                         </div>
                     </div>
 
-                    <button class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border-2 border-[#4CAF50] text-[#2E7D32] font-extrabold text-[12px] active:scale-95 transition-transform bg-white">
-                        <svg class="w-3.5 h-3.5 text-[#4CAF50]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        Lihat Lokasi
-                        <svg class="w-3.5 h-3.5 text-[#4CAF50]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                    <button disabled class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full border-2 border-[#C8E6C9] text-[#9CA3AF] font-extrabold text-[12px] cursor-not-allowed bg-white">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Segera Hadir
                     </button>
                 </div>
             </div>
@@ -126,8 +125,8 @@
                  x-data="{ items: {{ json_encode($activeChecklist) }} }">
 
                 <div class="flex items-center gap-3.5 mb-5 relative z-10">
-                    <!-- Pale lavender rounded-square icon container + purple clipboard -->
-                    <div class="w-[44px] h-[44px] rounded-[14px] bg-[#F2EEF5] text-[#7B61E1] flex items-center justify-center shrink-0">
+                    <!-- Clipboard icon container -->
+                    <div class="w-[44px] h-[44px] rounded-[14px] bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center shrink-0">
                         <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                     </div>
                     <h2 class="text-[19px] font-black text-[#1E2A3A] tracking-tight leading-none">Persiapan Sebelum Datang</h2>
@@ -138,12 +137,12 @@
                         <div class="flex items-start gap-3 cursor-pointer group" @click="item.checked = !item.checked">
                             <!-- Checkbox -->
                             <div class="w-[22px] h-[22px] rounded-[7px] border-2 flex items-center justify-center transition-colors shrink-0 mt-0.5"
-                                 :class="item.checked ? 'bg-[#2EB67D] border-[#2EB67D]' : 'border-[#D0D3DE] group-hover:border-[#2EB67D] bg-white'">
+                                 :class="item.checked ? 'bg-[#4CAF50] border-[#4CAF50]' : 'border-[#C8E6C9] group-hover:border-[#4CAF50] bg-white'">
                                 <svg x-show="item.checked" class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"></path></svg>
                             </div>
                             <!-- Text -->
                             <p class="text-[14px] font-medium leading-snug transition-colors"
-                               :class="item.checked ? 'text-[#9A9EB8] line-through' : 'text-[#1E2A3A]'">
+                               :class="item.checked ? 'text-[#9CA3AF] line-through' : 'text-[#1E2A3A]'">
                                 <span x-text="item.task"></span>
                             </p>
                         </div>
@@ -160,7 +159,7 @@
                         <rect x="10" y="86" width="26" height="12" rx="5" fill="#C5D8FF" transform="rotate(-8 23 92)"/>
                         <!-- Shopping bag -->
                         <path d="M28 45 Q28 40 33 40 L61 40 Q66 40 66 45 L68 82 Q68 88 62 88 L32 88 Q26 88 26 82 Z" fill="#C5F1DE"/>
-                        <path d="M38 40 Q38 30 47 30 Q56 30 56 40" fill="none" stroke="#2EB67D" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M38 40 Q38 30 47 30 Q56 30 56 40" fill="none" stroke="#4CAF50" stroke-width="4" stroke-linecap="round"/>
                         <path d="M41 58 A 4 4 0 0 0 37 55 A 4 4 0 0 0 33 58 Q 33 64 37 67 Q 41 64 41 58 Z" fill="#87E6B7"/>
                         <path d="M53 58 A 4 4 0 0 0 49 55 A 4 4 0 0 0 45 58 Q 45 64 49 67 Q 53 64 53 58 Z" fill="#87E6B7"/>
                         <!-- Bottle -->

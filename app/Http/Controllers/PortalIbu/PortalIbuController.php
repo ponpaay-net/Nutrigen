@@ -15,7 +15,8 @@ use Carbon\Carbon;
 class PortalIbuController extends Controller
 {
     public function __construct(
-        protected RecommendationService $recommendationService
+        protected RecommendationService $recommendationService,
+        protected \App\Services\GrowthCalculationService $growthCalculationService
     ) {}
 
     /**
@@ -233,10 +234,32 @@ class PortalIbuController extends Controller
             ];
         })->toArray();
 
-        // Format points for chart: [umur_bulan, berat_badan]
-        $points = $pengukurans->map(function ($p) {
-            return [$p->umur_bulan, (float) $p->berat_badan];
-        })->reverse()->values()->toArray();
+        // Format points for chart: [umur_bulan, berat_badan].
+        // Dedup per bulan umur: bila ada 2+ pengukuran dalam bulan yang sama,
+        // ambil yang TERBARU (praktik KMS — catatan terakhir yang berlaku),
+        // supaya dua titik tidak jatuh di X sama dan bertumpuk di grafik.
+        // $pengukurans urut tanggal terbaru dulu -> first() per grup = terbaru.
+        $points = $pengukurans
+            ->groupBy('umur_bulan')
+            ->map(function ($group) {
+                $last = $group->first();
+                return [$last->umur_bulan, (float) $last->berat_badan];
+            })
+            ->sortKeys()
+            ->values()
+            ->toArray();
+
+        // Kurva referensi WHO BB/U (standar WHO 2006, tabel LMS asli) sesuai
+        // jenis kelamin anak, dipotong ke rentang umur data pengukuran.
+        $whoCurve = [];
+        if ($balita && count($points) >= 2) {
+            $ages = array_column($points, 0);
+            $whoCurve = $this->growthCalculationService->bbuWhoCurve(
+                (int) min($ages),
+                (int) max($ages),
+                (string) $balita->jenis_kelamin
+            );
+        }
 
         $latest = $pengukurans->first();
         $recommendation = null;
@@ -270,7 +293,8 @@ class PortalIbuController extends Controller
                 'icon' => '💡',
                 'message' => 'Grafik di bawah ini disusun berdasarkan panduan kurva pertumbuhan resmi dari WHO.'
             ],
-            'chartData' => $points,
+            'chartPoints' => $points,
+            'whoCurve' => $whoCurve,
             'timeline' => $timeline
         ];
 

@@ -200,7 +200,7 @@ Route::prefix('kader')->middleware(['web', 'auth', 'prevent-back-history', 'role
 // ==========================================================================
 use App\Http\Controllers\PortalIbu\PortalIbuController;
 
-Route::prefix('portal-ibu')->name('portal-ibu.')->middleware(['web', 'prevent-back-history', 'signed'])->group(function () {
+Route::prefix('portal-ibu')->name('portal-ibu.')->middleware(['web', 'prevent-back-history', 'signed', 'throttle:portal-ibu'])->group(function () {
     // URL mapped to user's requested routes, but Name strictly preserved for UI
     Route::get('/pilih-anak', [PortalIbuController::class, 'childSelector'])->name('child-selector');
     Route::get('/dashboard', [PortalIbuController::class, 'home'])->name('home');
@@ -208,32 +208,3 @@ Route::prefix('portal-ibu')->name('portal-ibu.')->middleware(['web', 'prevent-ba
     Route::get('/riwayat', [PortalIbuController::class, 'growth'])->name('growth');
     Route::get('/grafik', [PortalIbuController::class, 'nutrition'])->name('nutrition');
 });
-
-
-// Local-only shortcut for previewing the portal without a login link.
-// Jembatan redirect: men-generate signed URL (dengan orang_tua) lalu
-// melempar browser ke halaman portal yang diminta.
-if (app()->environment('local')) {
-    Route::get('/dev/portal-ibu/{balita}/{page?}', function ($balita, $page = 'home') {
-        $routes = [
-            'home'       => 'portal-ibu.home',
-            'growth'     => 'portal-ibu.growth',
-            'nutrition'  => 'portal-ibu.nutrition',
-            'posyandu'   => 'portal-ibu.posyandu',
-            'pilih-anak' => 'portal-ibu.child-selector',
-        ];
-        abort_unless(isset($routes[$page]), 404);
-
-        $b = \App\Models\Balita::findOrFail($balita);
-        $params = ['balita' => $b->id, 'orang_tua' => $b->orang_tua_id];
-        if ($page === 'pilih-anak') {
-            unset($params['balita']);
-        }
-
-        return redirect()->to(\Illuminate\Support\Facades\URL::temporarySignedRoute(
-            $routes[$page],
-            now()->addDays(config('portal.link_ttl_days')),
-            $params
-        ));
-    })->middleware('web')->name('dev.portal-ibu');
-}
